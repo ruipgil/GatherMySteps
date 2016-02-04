@@ -1,0 +1,24 @@
+{
+  "name": "gathermysteps",
+  "version": "1.0.0",
+  "description": "Process personal tracks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ruipgil/gathermysteps.git"
+  },
+  "author": "Rui Gil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ruipgil/gathermysteps/issues"
+  },
+  "homepage": "https://github.com/ruipgil/gathermysteps#readme",
+  "dependencies": {
+    "gxparser": "^1.0.0",
+    "leaflet": "^0.7.7",
+    "togeojson": "^0.13.0"
+  }
+}
