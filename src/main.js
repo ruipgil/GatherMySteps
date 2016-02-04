@@ -1,25 +1,30 @@
 var nSegments = 0
 function GPXToLayers(gpx) {
-
+  // http://colorbrewer2.org/?type=qualitative&scheme=Set1&n=4
   var colors = ['#e41a1c','#377eb8','#4daf4a','#984ea3']
   var maxLat = -Infinity, maxLon = -Infinity, minLat = Infinity, minLon = Infinity;
   var groups = gpx.trk.map(function(track) {
     return track.trkseg.map(function(segment) {
-      var group = L.layerGroup()
+      var color = colors[(nSegments++)%colors.length]
+      var points = L.layerGroup()
+      var line = L.polyline([], {
+        color: color
+      })
       var pointOptions = {
-        color: colors[(nSegments++)%colors.length],
+        color: color,
         fillOpacity: 1,
         stroke: false
       }
       segment.trkpt.forEach(function(point) {
-        group.addLayer(L.circle([point.lat, point.lon], 8, pointOptions))
+        line.addLatLng([point.lat, point.lon])
+        points.addLayer(L.circle([point.lat, point.lon], 8, pointOptions))
         maxLat = max(maxLat, point.lat)
         minLat = min(minLat, point.lat)
 
         maxLon = max(maxLon, point.lon)
         minLon = min(minLon, point.lon)
       })
-      return group
+      return L.layerGroup([line, points])
     })
   })
 
