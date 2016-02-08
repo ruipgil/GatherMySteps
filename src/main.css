@@ -3,7 +3,20 @@ html, body {
   width: 100%;
   margin: 0;
 }
-#map {
+#container, #map {
   width: 100%;
   height: 100%;
+}
+#details {
+  position: absolute;
+  top: 15%;
+  left: 1%;
+  z-index: 300;
+  height: 70%;
+  width: 20%;
+
+  background-color: #FDFDFD;
+  border-radius: 6px;
+  margin: 0;
+  padding: 0
 }

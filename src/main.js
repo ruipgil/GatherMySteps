@@ -34,7 +34,7 @@ function GPXToLayers(gpx) {
   }
 }
 
-var drop = document.getElementById('map');
+var drop = document.getElementById('container');
 function cancel(e) {
   e.preventDefault()
   return false;
@@ -63,7 +63,7 @@ drop.addEventListener('drop', function(e) {
   };
 });
 
-var map = L.map('map').fitWorld()
+var map = L.map('map').fitBounds([[63.860035895395306, 235.89843749999997], [-45.58328975600631, -214.1015625]])
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
