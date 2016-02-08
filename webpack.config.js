@@ -1,18 +1,29 @@
 'use strict'
 var path = require('path')
+var webpack = require('webpack')
 var nodeModulesDir = path.resolve(__dirname, 'node_modules')
 
 var deps = [
-  'react/dist/react.js',
+  /*'react/dist/react.js',
   'react-dom/dist/react-dom.js',
   'redux/dist/redux.js',
   'react-redux/dist/react-redux.js',
-  'react-leaflet/dist/react-leaflet.js',
+  'react-leaflet/dist/react-leaflet.js',*/
 ];
 
 var config = {
-  entry: './src/index.jsx',
-  output: path.resolve(__dirname, 'build'),
+  devtool: 'cheap-module-eval-source-map',
+  entry: [
+    /*'webpack-dev-server/client?http://0.0.0.0:3000',
+    'webpack/hot/only-dev-server',*/
+    'webpack-hot-middleware/client',
+    './src/index.jsx',
+  ],
+  output: {
+    path: path.join(__dirname, 'build'),
+    filename: 'bundle.js',
+    publicPath: '/static/'
+  },
   resolve: {
     alias: {}
   },
@@ -21,12 +32,11 @@ var config = {
     loaders: [
       {
         test: /\.css$/,
-        //loader: 'style-loader!css-loader!purifycss-loader'
-        loader: 'style-loader!css-loader'
+        loaders: ['style-loader', 'css-loader']
       },
       {
         test: /\.jsx?$/,
-        loader: 'babel',
+        loaders: ['react-hot', 'babel'],
         exclude: [nodeModulesDir]
       },
       {
@@ -34,7 +44,10 @@ var config = {
         loader: 'url-loader?limit=100000'
       },
     ]
-  }
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
 }
 
 deps.forEach(function (dep) {

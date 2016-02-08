@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { GXParser } from 'gxparser'
 import { addTrack } from '../actions'
-
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from '../components/LeafletMap.jsx'
 
