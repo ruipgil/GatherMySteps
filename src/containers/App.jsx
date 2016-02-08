@@ -1,13 +1,24 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { addTrack } from './actions.jsx'
-//import trackStore from './trackStore.jsx'
+import { addTrack } from '../actions'
 
-import LeafletMap from './LeafletMap.jsx'
-import Dropzone from './Dropzone.jsx'
+import Dropzone from '../components/Dropzone.jsx'
+import LeafletMap from '../components/LeafletMap.jsx'
 
-import drop from './droparea.jsx'
-import loadFiles from './loadFiles.jsx'
+function loadFiles(files, cb) {
+  for (var i=0; i<files.length; i++) {
+    var file = files[i]
+    var reader = new FileReader()
+    reader.readAsText(file)
+    reader.onloadend = function() {
+      var gpx = GXParser(reader.result)
+      /*var layers = GPXToLayers(gpx)
+      cb(layers)*/
+      cb(gpx)
+    }
+  }
+}
+
 
 let App = ({ tracks, dispatch }) => {
   const onDrop = (e) => {

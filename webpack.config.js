@@ -3,9 +3,11 @@ var path = require('path')
 var nodeModulesDir = path.resolve(__dirname, 'node_modules')
 
 var deps = [
-  /*'react/dist/react.js',
-  'react-dom/dist/react-dom.js',*/
-  //'leaflet-react/build/main.js',
+  'react/dist/react.js',
+  'react-dom/dist/react-dom.js',
+  'redux/dist/redux.js',
+  'react-redux/dist/react-redux.js',
+  'react-leaflet/dist/react-leaflet.js',
 ];
 
 var config = {
