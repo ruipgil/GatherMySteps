@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { GXParser } from 'gxparser'
-import { addTrack } from '../actions'
+import { addTrack, toggleTrackDisplay } from '../actions'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from '../components/LeafletMap.jsx'
 
@@ -12,9 +12,7 @@ function loadFiles(files, cb) {
     reader.readAsText(file)
     reader.onloadend = function() {
       var gpx = GXParser(reader.result)
-      /*var layers = GPXToLayers(gpx)
-      cb(layers)*/
-      cb(gpx)
+      cb(gpx, file)
     }
   }
 }
@@ -25,27 +23,39 @@ let App = ({ tracks, dispatch }) => {
     let dt = e.dataTransfer
     let files = dt.files
 
-    loadFiles(files, (gpx)=>{
+    loadFiles(files, (gpx, file)=>{
       const tracks = gpx.trk.map((trk) => {
-        dispatch(addTrack(trk.trkseg.map((seg) => {
-          return seg.trkpt
-        })))
+        const trackPoints = trk.trkseg.map((seg) => seg.trkpt)
+        dispatch(addTrack(trackPoints, file))
       })
     })
   }
 
+  const toggleTrack = (trackIndex) => {
+    return () => {
+      dispatch(toggleTrackDisplay(trackIndex))
+    }
+  }
+
+
   return (
     <Dropzone id="container" onDrop={onDrop}>
       <div id='details'>
-        <ul>
+        <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
           {
             tracks.map((track, i)=>{
-              return <li key={i}>{i}</li>
+              return (
+                <li key={i} style={{borderLeft:'10px solid '+track.color, paddingLeft: '0.8em', opacity: track.display?1:0.5, cursor: 'pointer'}} onClick={toggleTrack(i)} >
+                  <div style={{fontSize: '1.5rem'}}>{track.name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{track.points[0].length} points</span></div>
+                  <div style={{fontSize: '0.8rem', color: 'gray'}}>{Date.parse(track.start).toLocaleString()} - {Date.parse(track.end).toLocaleString()}</div>
+                  <div></div>
+                </li>
+              )
             })
           }
         </ul>
       </div>
-      <LeafletMap tracks={tracks} />
+      <LeafletMap tracks={tracks.filter((track)=>track.display)} />
     </Dropzone>
   )
 }
