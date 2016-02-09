@@ -2,7 +2,7 @@ import './main.css'
 import '../node_modules/leaflet/dist/leaflet.css'
 
 import React from 'react'
-import { render } from 'react-dom';
+import { render } from 'react-dom'
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 
@@ -15,4 +15,4 @@ render((
   <Provider store={store}>
     <App />
   </Provider>
-), document.getElementById('container'));
+), document.getElementById('container'))

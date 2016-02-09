@@ -9,7 +9,7 @@ const TrackRepresentation = ({ dispatch, track }) => {
     }
   }
   return (
-    <li style={{borderLeft:'10px solid '+color, paddingLeft: '0.8em', opacity: display?1:0.5, cursor: 'pointer'}} onClick={toggleTrack(id)} >
+    <li style={{borderLeft: '10px solid ' + color, paddingLeft: '0.8em', opacity: display ? 1 : 0.5, cursor: 'pointer'}} onClick={toggleTrack(id)} >
       <div style={{fontSize: '1.5rem'}}>{name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points[0].length} points</span></div>
       <div style={{fontSize: '0.8rem', color: 'gray'}}>{Date.parse(start).toLocaleString()} - {Date.parse(end).toLocaleString()}</div>
       <div></div>
