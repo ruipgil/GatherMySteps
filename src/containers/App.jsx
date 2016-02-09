@@ -4,6 +4,7 @@ import { GXParser } from 'gxparser'
 import { addTrack, toggleTrackDisplay } from '../actions'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from '../components/LeafletMap.jsx'
+import TrackList from '../components/TrackList.jsx'
 
 function loadFiles(files, cb) {
   for (var i=0; i<files.length; i++) {
@@ -19,6 +20,7 @@ function loadFiles(files, cb) {
 
 
 let App = ({ tracks, dispatch }) => {
+
   const onDrop = (e) => {
     let dt = e.dataTransfer
     let files = dt.files
@@ -31,29 +33,17 @@ let App = ({ tracks, dispatch }) => {
     })
   }
 
-  const toggleTrack = (trackIndex) => {
-    return () => {
-      dispatch(toggleTrackDisplay(trackIndex))
-    }
-  }
-
+  const dropInfo = (
+    <div className='dropInfo' style={{display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '1rem', color: 'gray', border: '2px dashed gray', height: '90%'}} >
+      Drop files inside
+    </div>
+  )
 
   return (
-    <Dropzone id="container" onDrop={onDrop}>
+    <Dropzone id="container" onDrop={onDrop} >
+      <div id='title'>GatherMySteps</div>
       <div id='details'>
-        <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
-          {
-            tracks.map((track, i)=>{
-              return (
-                <li key={i} style={{borderLeft:'10px solid '+track.color, paddingLeft: '0.8em', opacity: track.display?1:0.5, cursor: 'pointer'}} onClick={toggleTrack(i)} >
-                  <div style={{fontSize: '1.5rem'}}>{track.name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{track.points[0].length} points</span></div>
-                  <div style={{fontSize: '0.8rem', color: 'gray'}}>{Date.parse(track.start).toLocaleString()} - {Date.parse(track.end).toLocaleString()}</div>
-                  <div></div>
-                </li>
-              )
-            })
-          }
-        </ul>
+        <TrackList tracks={tracks} dispatch={dispatch} />
       </div>
       <LeafletMap tracks={tracks.filter((track)=>track.display)} />
     </Dropzone>

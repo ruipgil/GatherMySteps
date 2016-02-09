@@ -6,7 +6,8 @@ const tracks = (state = [], action) => {
       return [...state, action.track]
     case 'TOGGLE_TRACK_DISPLAY':
       let nextState = [...state]
-      nextState[action.index].display = !nextState[action.index].display
+      let track = nextState.find((x) => x.id === action.trackId)
+      track.display = !track.display
       return nextState
     default:
       return state

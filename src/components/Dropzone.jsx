@@ -1,7 +1,7 @@
 import React from 'react'
 
 const Dropzone = (props) => {
-  const { children, onDrop } = props
+  const { children, onDrop, onOver } = props
 
   const drop = (e) => {
     e.preventDefault()
@@ -13,6 +13,9 @@ const Dropzone = (props) => {
 
   const cancel = (e) => {
     e.preventDefault()
+    if (onOver) {
+      onOver(e)
+    }
     return false
   }
 

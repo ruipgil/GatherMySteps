@@ -16,10 +16,10 @@ export const addTrack = (track, file) => {
   }
 }
 
-export const toggleTrackDisplay = (index, value) => {
+export const toggleTrackDisplay = (trackId, value) => {
   return {
     type: 'TOGGLE_TRACK_DISPLAY',
-    index
+    trackId
   }
 }
 
