@@ -51,8 +51,6 @@ let App = ({ tracks, dispatch }) => {
 }
 
 const mapStateToProps = (state) => {
-  console.log("maping")
-  console.log(state)
   return {
     tracks: state.tracks
   }
