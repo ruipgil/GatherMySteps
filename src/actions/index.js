@@ -13,8 +13,8 @@ export const addTrack = (track, file) => {
       id,
       points: track,
       display: true,
-      start: track[0][0].time[0],
-      end: track[0][track[0].length - 1].time[0],
+      start: track[0][0].time,
+      end: track[0][track[0].length - 1].time,
       color: COLORS[id % COLORS.length],
       name: file.name
     }

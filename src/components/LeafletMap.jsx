@@ -9,7 +9,7 @@ const LeafletMap = ({tracks}) => {
   var bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
 
   const elements = tracks.map((track, i) => {
-    const t = track.points[0].map((t) => { return {lat: Number(t.lat), lon: Number(t.lon)} })
+    const t = track.points[0].map((t) => { return {lat: t.lat, lon: t.lon} })
     t.forEach((elm) => {
       bounds[0].lat = min(bounds[0].lat, elm.lat)
       bounds[0].lon = min(bounds[0].lon, elm.lon)

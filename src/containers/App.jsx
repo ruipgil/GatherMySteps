@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 import { connect } from 'react-redux'
 import { GXParser } from 'gxparser'
 import { addTrack } from '../actions'
@@ -14,6 +15,21 @@ function loadFiles (files, cb) {
     reader.readAsText(file)
     reader.onloadend = () => {
       let gpx = GXParser(reader.result)
+      gpx.trk = gpx.trk.map((track) => {
+        return {
+          trkseg: track.trkseg.map((segment) => {
+            return {
+              trkpt: segment.trkpt.map((point) => {
+                return {
+                  lat: Number(point.lat),
+                  lon: Number(point.lon),
+                  time: moment(point.time[0])
+                }
+              })
+            }
+          })
+        }
+      })
       cb(gpx, file)
     }
   }
