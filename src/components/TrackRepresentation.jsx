@@ -1,18 +1,29 @@
 import React from 'react'
-import { toggleSegmentDisplay } from '../actions'
+import { toggleSegmentDisplay, toggleSegmentEditing } from '../actions'
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
-  const { id, name, points, start, end, display, color } = segment
+  const { id, name, points, start, end, display, color, editing } = segment
   const toggleTrack = (segmentIndex) => {
     return () => dispatch(toggleSegmentDisplay(segmentIndex))
   }
+  const toggleEdit = (segmentIndex) => {
+    return () => dispatch(toggleSegmentEditing(segmentIndex))
+  }
   return (
-    <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} onClick={toggleTrack(id)} >
-      <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
-      <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
-      <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
-      <div></div>
-    </li>
+    <div>
+    <div style={{width: '15%', float: 'right'}} >
+      <div onClick={toggleEdit(id)} style={{textDecoration: editing ? 'underline' : ''}}>Edit</div>
+      <div>Split</div>
+      <div>Join</div>
+    </div>
+    <div style={{width: '85%'}} >
+      <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} onClick={toggleTrack(id)} >
+        <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
+        <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
+        <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
+      </li>
+    </div>
+    </div>
   )
 }
 

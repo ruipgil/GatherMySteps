@@ -21,7 +21,8 @@ export const addTrack = (track, file) => {
           start: segment[0].time,
           end: segment[segment.length - 1].time,
           color: COLORS[sId % COLORS.length],
-          name: ''
+          name: '',
+          pointEditing: false
         }
       }),
       name: file.name
@@ -33,5 +34,12 @@ export const toggleSegmentDisplay = (segmentId, value) => {
   return {
     segmentId,
     type: 'TOGGLE_SEGMENT_DISPLAY'
+  }
+}
+
+export const toggleSegmentEditing = (segmentId, value) => {
+  return {
+    segmentId,
+    type: 'TOGGLE_SEGMENT_EDITING'
   }
 }
