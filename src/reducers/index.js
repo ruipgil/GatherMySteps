@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux'
 
-const tracks = (state = [], action) => {
+const tracks = (state = [] , action) => {
   switch (action.type) {
     case 'ADD_TRACK':
       return [...state, action.track]
-    case 'TOGGLE_TRACK_DISPLAY':
+    case 'TOGGLE_SEGMENT_DISPLAY':
       let nextState = [...state]
-      let track = nextState.find((x) => x.id === action.trackId)
-      track.display = !track.display
+      let segment = nextState.map((track) => track.segments.find((x) => x.id === action.segmentId)).find((x) => !!x)
+      segment.display = !segment.display
       return nextState
     default:
       return state
@@ -15,7 +15,6 @@ const tracks = (state = [], action) => {
 }
 
 const app = combineReducers({
-  tracks
-})
+tracks})
 
 export default app

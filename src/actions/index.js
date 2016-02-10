@@ -4,26 +4,34 @@ export const COLORS = [
   '#fdbf6f', '#ff7f00', '#cab2d6',
   '#6a3d9a', '#ffff99', '#b15928'
 ]
-let _id = 0
+let _trackId = 0
+let _segmentId = 0
 export const addTrack = (track, file) => {
-  let id = _id++
+  let id = _trackId++
   return {
     type: 'ADD_TRACK',
     track: {
       id,
-      points: track,
-      display: true,
-      start: track[0][0].time,
-      end: track[0][track[0].length - 1].time,
-      color: COLORS[id % COLORS.length],
+      segments: track.map((segment) => {
+        let sId = _segmentId++
+        return {
+          id: sId,
+          points: segment,
+          display: true,
+          start: segment[0].time,
+          end: segment[segment.length - 1].time,
+          color: COLORS[sId % COLORS.length],
+          name: ''
+        }
+      }),
       name: file.name
     }
   }
 }
 
-export const toggleTrackDisplay = (trackId, value) => {
+export const toggleSegmentDisplay = (segmentId, value) => {
   return {
-    trackId,
-    type: 'TOGGLE_TRACK_DISPLAY'
+    segmentId,
+    type: 'TOGGLE_SEGMENT_DISPLAY'
   }
 }

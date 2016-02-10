@@ -55,6 +55,7 @@ let App = ({ tracks, dispatch }) => {
     </div>
   )
   */
+  let a = tracks.map((track) => track.segments.filter((segment) => segment.display))
 
   return (
     <Dropzone id='container' onDrop={onDrop} >
@@ -62,7 +63,7 @@ let App = ({ tracks, dispatch }) => {
       <div id='details'>
         <TrackList tracks={tracks} dispatch={dispatch} />
       </div>
-      <LeafletMap tracks={tracks.filter((track) => track.display)} />
+      <LeafletMap tracks={a} />
     </Dropzone>
   )
 }
