@@ -12,12 +12,12 @@ export default class EditablePolyline extends Polyline {
     }
     options.pointIcon = icon({
       iconUrl: '/pointIcon.svg',
-      iconSize: [11, 11],
+      iconSize: [12, 12],
       iconAnchor: [6, 6]
     })
     options.newPointIcon = icon({
       iconUrl: '/newPointIcon.svg',
-      iconSize: [11, 11],
+      iconSize: [12, 12],
       iconAnchor: [6, 6]
     })
     this.leafletElement = PolylineEditor(this.props.positions, options)

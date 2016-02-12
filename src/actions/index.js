@@ -43,3 +43,38 @@ export const toggleSegmentEditing = (segmentId, value) => {
     type: 'TOGGLE_SEGMENT_EDITING'
   }
 }
+
+export const extendSegment = (segmentId, index, lat, lon) => {
+  return {
+    segmentId,
+    index,
+    lat,
+    lon,
+    type: 'EXTEND_SEGMENT_POINT'
+  }
+}
+export const addSegmentPoint = (segmentId, index, lat, lon) => {
+  return {
+    segmentId,
+    index,
+    lat,
+    lon,
+    type: 'ADD_SEGMENT_POINT'
+  }
+}
+export const removeSegmentPoint = (segmentId, index) => {
+  return {
+    segmentId,
+    index,
+    type: 'REMOVE_SEGMENT_POINT'
+  }
+}
+export const changeSegmentPoint = (segmentId, index, lat, lon) => {
+  return {
+    segmentId,
+    index,
+    lat,
+    lon,
+    type: 'CHANGE_SEGMENT_POINT'
+  }
+}

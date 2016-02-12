@@ -2,11 +2,12 @@ import React from 'react'
 import { Map, TileLayer } from 'react-leaflet'
 import EditablePolyline from './EditablePolyline.jsx'
 import { Polyline } from 'react-leaflet'
+import { changeSegmentPoint, removeSegmentPoint, addSegmentPoint, extendSegment } from '../actions'
 
 const max = (a, b) => a >= b ? a : b
 const min = (a, b) => a <= b ? a : b
 
-const LeafletMap = ({tracks}) => {
+const LeafletMap = ({tracks, dispatch}) => {
   var bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
 
   const elements = tracks.map((track, i) => {
@@ -21,7 +22,24 @@ const LeafletMap = ({tracks}) => {
       })
 
       const Elm = segment.editing ? EditablePolyline : Polyline
-      return (<Elm opacity={1.0} positions={t} color={ segment.color } key={i} />)
+      const handlers = segment.editing ? {
+        onChange: (n, points) => {
+          let {lat, lng} = points[n]._latlng
+          dispatch(changeSegmentPoint(segment.id, n, lat, lng))
+        },
+        onRemove: (n, points) => {
+          dispatch(removeSegmentPoint(segment.id, n))
+        },
+        onPointAdd: (n, points) => {
+          let {lat, lng} = points[n]._latlng
+          dispatch(addSegmentPoint(segment.id, n, lat, lng))
+        },
+        onExtend: (n, points) => {
+          let {lat, lng} = points[n]._latlng
+          dispatch(extendSegment(segment.id, n, lat, lng))
+        }
+      } : {}
+      return (<Elm opacity={1.0} positions={t} color={ segment.color } key={i} {...handlers} />)
     })
   })
 

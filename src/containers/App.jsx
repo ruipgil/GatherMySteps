@@ -63,7 +63,7 @@ let App = ({ tracks, dispatch }) => {
       <div id='details'>
         <TrackList tracks={tracks} dispatch={dispatch} />
       </div>
-      <LeafletMap tracks={a} />
+      <LeafletMap tracks={a} dispatch={dispatch} />
     </Dropzone>
   )
 }
