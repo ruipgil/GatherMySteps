@@ -43,12 +43,13 @@ const LeafletMap = ({tracks, dispatch}) => {
     })
   })
 
-  if (elements.length === 0) {
-    bounds = undefined
+  const ns = elements.reduce((prev, seg) => prev + seg.length, 0)
+  if (ns === 0) {
+    bounds = [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
   }
 
   return (
-    <Map id='map' center={[13, 0]} zoom={2} bounds={bounds}>
+    <Map id='map' bounds={bounds} >
       <TileLayer
         url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
         attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
