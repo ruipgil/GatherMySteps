@@ -30,4 +30,17 @@ html, body {
   z-index: 300;
   width: 20%;
 }
-
+.x-btn {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 1px;
+  border: 1px solid black;
+  border-radius: 3px;
+  width:18px;
+  height: 18px;
+}
+.x-btn img {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}

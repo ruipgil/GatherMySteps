@@ -11,16 +11,21 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   }
   return (
     <div>
-    <div style={{width: '15%', float: 'right'}} >
-      <div onClick={toggleEdit(id)} style={{textDecoration: editing ? 'underline' : ''}}>Edit</div>
-      <div>Split</div>
-      <div>Join</div>
-    </div>
-    <div style={{width: '85%'}} >
-      <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} onClick={toggleTrack(id)} >
-        <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
-        <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
-        <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
+    <div>
+      <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} >
+        <div onClick={toggleTrack(id)}>
+          <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
+          <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
+          <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
+        </div>
+
+        <div style={{marginTop: '2px'}}>
+          <div className='x-btn'><img src='/rubbish7.svg' alt='Remove' title='Remove' /></div>
+          <div className='x-btn'><img src='/size2.svg' alt='Fit' title='Fit to view' /></div>
+          <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><img src='/pencils13.svg' alt='Edit' title='Edit' /></div>
+          <div className='x-btn'><img src='/increase.svg' alt='Split' title='Split' /></div>
+          <div className='x-btn'><img src='/resize4.svg' alt='Join' title='Join' /></div>
+        </div>
       </li>
     </div>
     </div>
