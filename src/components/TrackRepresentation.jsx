@@ -1,5 +1,5 @@
 import React from 'react'
-import { toggleSegmentDisplay, toggleSegmentEditing } from '../actions'
+import { toggleSegmentDisplay, toggleSegmentEditing, removeSegment } from '../actions'
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const { id, name, points, start, end, display, color, editing } = segment
@@ -8,6 +8,9 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   }
   const toggleEdit = (segmentIndex) => {
     return () => dispatch(toggleSegmentEditing(segmentIndex))
+  }
+  const remove = (segmentIndex) => {
+    return () => dispatch(removeSegment(segmentIndex))
   }
   return (
     <div>
@@ -20,7 +23,7 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
         </div>
 
         <div style={{marginTop: '2px'}}>
-          <div className='x-btn'><img src='/rubbish7.svg' alt='Remove' title='Remove' /></div>
+          <div className='x-btn' onClick={remove(id)}><img src='/rubbish7.svg' alt='Remove' title='Remove' /></div>
           <div className='x-btn'><img src='/size2.svg' alt='Fit' title='Fit to view' /></div>
           <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><img src='/pencils13.svg' alt='Edit' title='Edit' /></div>
           <div className='x-btn'><img src='/increase.svg' alt='Split' title='Split' /></div>

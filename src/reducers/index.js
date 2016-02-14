@@ -74,6 +74,15 @@ const tracks = (state = [] , action) => {
       }
       segmentE.points.splice(action.index, 0, pointA)
       return nextStateE
+    case 'REMOVE_SEGMENT':
+      let track = state.map((track) => track.segments.find((s) => s.id === action.segmentId) ? track : null).find((x) => !!x)
+      let stateF = [...state]
+      if (track.segments.length === 1) {
+        stateF.splice(stateF.indexOf(track), 1)
+      } else {
+        stateF.segments.splice(stateF.segments.indexOf(track.segment.find((s) => s.id === action.segmentId)), 1)
+      }
+      return stateF
 
     default:
       return state
