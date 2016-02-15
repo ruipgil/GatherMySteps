@@ -22,11 +22,39 @@ export const addTrack = (track, file) => {
           end: segment[segment.length - 1].time,
           color: COLORS[sId % COLORS.length],
           name: '',
-          pointEditing: false
+          pointEditing: false,
+          pointSpliting: false
         }
       }),
       name: file.name
     }
+  }
+}
+
+export const splitSegment = (segmentId, index) => {
+  const sId = _segmentId++
+  return {
+    index,
+    segmentId,
+    segmentInfo: {
+      id: sId,
+      points: [],
+      display: true,
+      start: null,
+      end: null,
+      color: COLORS[sId % COLORS.length],
+      name: '',
+      pointEditing: false,
+      pointSpliting: false
+    },
+    type: 'SPLIT_SEGMENT'
+  }
+}
+
+export const toggleSegmentSpliting = (segmentId) => {
+  return {
+    segmentId,
+    type: 'TOGGLE_SEGMENT_SPLITING'
   }
 }
 

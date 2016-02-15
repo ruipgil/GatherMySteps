@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux'
 
 const tracks = (state = [] , action) => {
-  const getSegmentById = (id, state = state) => state.map((track) => track.segments.find((x) => x.id === action.segmentId)).find((x) => !!x)
+  const getSegmentById = (id, state = state) => state.map((track) => track.segments.find((x) => x.id === id)).find((x) => !!x)
+  const getTrackBySegmentId = (id, state = state) => state.map((track) => track.segments.find((s) => s.id === id) ? track : null).find((x) => !!x)
 
   switch (action.type) {
     case 'ADD_TRACK':
@@ -15,6 +16,7 @@ const tracks = (state = [] , action) => {
       let nextStateA = [...state]
       let segmentA = getSegmentById(action.segmentId, nextStateA)
       segmentA.editing = !segmentA.editing
+      segmentA.spliting = false
       return nextStateA
     case 'CHANGE_SEGMENT_POINT':
       let nextStateB = [...state]
@@ -42,7 +44,6 @@ const tracks = (state = [] , action) => {
           let prediction = prev.clone().add(prev.diff(next))
           return prediction
         }
-
       }
 
       let point = {
@@ -83,6 +84,29 @@ const tracks = (state = [] , action) => {
         stateF.segments.splice(stateF.segments.indexOf(track.segment.find((s) => s.id === action.segmentId)), 1)
       }
       return stateF
+    case 'SPLIT_SEGMENT':
+      let nextStateG = [...state]
+      let segmentG = getSegmentById(action.segmentId, nextStateG)
+      let trackG = getTrackBySegmentId(action.segmentId, nextStateG)
+
+      let rest = segmentG.points.splice(action.index)
+      segmentG.end = segmentG.points[segmentG.points.length - 1].time
+      segmentG.spliting = false
+
+      let seg = action.segmentInfo
+      seg.points = rest
+      seg.start = rest[0].time
+      seg.end = rest[rest.length - 1].time
+
+      trackG.segments.push(seg)
+
+      return nextStateG
+    case 'TOGGLE_SEGMENT_SPLITING':
+      let nextStateH = [...state]
+      let segmentH = getSegmentById(action.segmentId, nextStateH)
+      segmentH.spliting = !segmentH.spliting
+      segmentH.editing = false
+      return nextStateH
 
     default:
       return state

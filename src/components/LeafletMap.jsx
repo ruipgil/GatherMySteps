@@ -1,7 +1,9 @@
 import React from 'react'
 import { Map, TileLayer } from 'react-leaflet'
 import EditablePolyline from './EditablePolyline.jsx'
+import PointPolyline from './PointPolyline.jsx'
 import { Polyline } from 'react-leaflet'
+import { splitSegment } from '../actions'
 import { changeSegmentPoint, removeSegmentPoint, addSegmentPoint, extendSegment } from '../actions'
 
 const max = (a, b) => a >= b ? a : b
@@ -21,7 +23,7 @@ const LeafletMap = ({tracks, dispatch}) => {
         bounds[1].lon = max(bounds[1].lon, elm.lon)
       })
 
-      const Elm = segment.editing ? EditablePolyline : Polyline
+      const Elm = segment.editing ? EditablePolyline : (segment.spliting ? PointPolyline : Polyline)
       const handlers = segment.editing ? {
         onChange: (n, points) => {
           let {lat, lng} = points[n]._latlng
@@ -39,7 +41,10 @@ const LeafletMap = ({tracks, dispatch}) => {
           dispatch(extendSegment(segment.id, n, lat, lng))
         }
       } : {}
-      return (<Elm opacity={1.0} positions={t} color={ segment.color } key={i} {...handlers} />)
+      handlers.onPointClick = (point, i) => {
+        dispatch(splitSegment(segment.id, i))
+      }
+      return (<Elm opacity={1.0} positions={t} color={ segment.color } key={segment.id+ ' '+track.id} {...handlers} />)
     })
   })
 
