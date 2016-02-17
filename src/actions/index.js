@@ -162,3 +162,10 @@ export const fitSegment = (segmentId) => {
     type: 'FIT_SEGMENT'
   }
 }
+
+export const downloadTrack = (track) => {
+  return {
+    track,
+    type: 'DOWNLOAD_TRACK'
+  }
+}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { toggleSegmentDisplay, toggleSegmentEditing, removeSegment, toggleSegmentSpliting, toggleSegmentJoining, updateBounds } from '../actions'
+import { downloadTrack, toggleSegmentDisplay, toggleSegmentEditing, removeSegment, toggleSegmentSpliting, toggleSegmentJoining, updateBounds } from '../actions'
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const { id, name, points, start, end, display, color, editing, spliting, joining } = segment
@@ -49,6 +49,7 @@ const TrackRepresentation = ({ dispatch, track }) => {
   return (
     <div style={{paddingLeft: '2%'}} >
       <div style={{fontSize: '1.5rem'}}>{name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{segments.length} segment{segments.length === 1 ? '' : 's'}</span></div>
+      <div onClick={() => dispatch(downloadTrack(track))}>Download</div>
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
         {
           segments.map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)

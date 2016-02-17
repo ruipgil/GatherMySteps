@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux'
+import exportGPX from '../actions/exportGPX'
 
 const tracks = (state = [], action) => {
   const getSegmentById = (id, state = state) => state.map((track) => track.segments.find((x) => x.id === id)).find((x) => !!x)
@@ -125,6 +126,9 @@ const tracks = (state = [], action) => {
       segmentI.editing = false
       segmentI.spliting = false
       return nextStateI
+    case 'DOWNLOAD_TRACK':
+      exportGPX(action.track)
+      return state
     default:
       return state
   }
