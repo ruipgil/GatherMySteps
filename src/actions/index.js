@@ -22,8 +22,9 @@ export const addTrack = (track, file) => {
           end: segment[segment.length - 1].time,
           color: COLORS[sId % COLORS.length],
           name: '',
-          pointEditing: false,
-          pointSpliting: false
+          editing: false,
+          spliting: false,
+          joining: false
         }
       }),
       name: file.name
@@ -44,10 +45,18 @@ export const splitSegment = (segmentId, index) => {
       end: null,
       color: COLORS[sId % COLORS.length],
       name: '',
-      pointEditing: false,
-      pointSpliting: false
+      editing: false,
+      spliting: false,
+      joining: false
     },
     type: 'SPLIT_SEGMENT'
+  }
+}
+
+export const toggleSegmentJoining = (segmentId) => {
+  return {
+    segmentId,
+    type: 'TOGGLE_SEGMENT_JOINING'
   }
 }
 
@@ -111,5 +120,23 @@ export const removeSegment = (segmentId) => {
   return {
     segmentId,
     type: 'REMOVE_SEGMENT'
+  }
+}
+
+export const useOSMMaps = () => {
+  return {
+    type: 'USE_OSM_MAPS'
+  }
+}
+
+export const useGoogleRoadMaps = () => {
+  return {
+    type: 'USE_GOOGLE_ROAD_MAPS'
+  }
+}
+
+export const useGoogleMaps = () => {
+  return {
+    type: 'USE_GOOGLE_MAPS'
   }
 }

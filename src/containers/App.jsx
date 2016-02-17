@@ -2,7 +2,7 @@ import React from 'react'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import { GXParser } from 'gxparser'
-import { addTrack } from '../actions'
+import { addTrack, useOSMMaps, useGoogleMaps, useGoogleRoadMaps } from '../actions'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from '../components/LeafletMap.jsx'
 import TrackList from '../components/TrackList.jsx'
@@ -35,7 +35,7 @@ function loadFiles (files, cb) {
   }
 }
 
-let App = ({ tracks, dispatch }) => {
+let App = ({ ui, tracks, dispatch }) => {
   const onDrop = (e) => {
     let dt = e.dataTransfer
     let files = dt.files
@@ -63,14 +63,20 @@ let App = ({ tracks, dispatch }) => {
       <div id='details'>
         <TrackList tracks={tracks} dispatch={dispatch} />
       </div>
-      <LeafletMap tracks={a} dispatch={dispatch} />
+      <div id='controls'>
+        <div className='control-btn' onClick={() => dispatch(useOSMMaps())} >OSM</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleMaps())} >GoogleMaps Terrain</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
+      </div>
+      <LeafletMap map={ui.map} tracks={a} dispatch={dispatch} />
     </Dropzone>
   )
 }
 
 const mapStateToProps = (state) => {
   return {
-    tracks: state.tracks
+    tracks: state.tracks,
+    ui: state.ui
   }
 }
 

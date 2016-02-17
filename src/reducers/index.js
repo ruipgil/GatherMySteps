@@ -107,13 +107,38 @@ const tracks = (state = [] , action) => {
       segmentH.spliting = !segmentH.spliting
       segmentH.editing = false
       return nextStateH
+    case 'TOGGLE_SEGMENT_JOINING':
+      let nextStateI = [...state]
+      let segmentI = getSegmentById(action.segmentId, nextStateI)
+      segmentI.joining = !segmentI.joining
+      segmentI.editing = false
+      segmentI.spliting = false
+      return nextStateI
 
     default:
       return state
   }
 }
 
+const ui = (state = {}, action) => {
+  switch (action.type) {
+    case 'USE_GOOGLE_MAPS':
+      state.map = 'google'
+      return Object.assign({}, state)
+    case 'USE_OSM_MAPS':
+      state.map = 'map'
+      return Object.assign({}, state)
+    case 'USE_GOOGLE_ROAD_MAPS':
+      state.map = 'google_road'
+      return Object.assign({}, state)
+    default:
+      return state
+  }
+}
+
 const app = combineReducers({
-tracks})
+  tracks,
+  ui
+})
 
 export default app
