@@ -68,7 +68,7 @@ let App = ({ ui, tracks, dispatch }) => {
         <div className='control-btn' onClick={() => dispatch(useGoogleMaps())} >GoogleMaps Terrain</div>
         <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
       </div>
-      <LeafletMap map={ui.map} tracks={a} dispatch={dispatch} />
+      <LeafletMap bounds={ui.bounds} map={ui.map} tracks={a} dispatch={dispatch} />
     </Dropzone>
   )
 }

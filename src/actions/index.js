@@ -53,6 +53,14 @@ export const splitSegment = (segmentId, index) => {
   }
 }
 
+export const joinSegment = (segmentId, index) => {
+  return {
+    index,
+    segmentId,
+    type: 'JOIN_SEGMENT'
+  }
+}
+
 export const toggleSegmentJoining = (segmentId) => {
   return {
     segmentId,
@@ -138,5 +146,19 @@ export const useGoogleRoadMaps = () => {
 export const useGoogleMaps = () => {
   return {
     type: 'USE_GOOGLE_MAPS'
+  }
+}
+
+export const updateBounds = (bounds) => {
+  return {
+    bounds,
+    type: 'UPDATE_BOUNDS'
+  }
+}
+
+export const fitSegment = (segmentId) => {
+  return {
+    segmentId,
+    type: 'FIT_SEGMENT'
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { toggleSegmentDisplay, toggleSegmentEditing, removeSegment, toggleSegmentSpliting, toggleSegmentJoining } from '../actions'
+import { toggleSegmentDisplay, toggleSegmentEditing, removeSegment, toggleSegmentSpliting, toggleSegmentJoining, updateBounds } from '../actions'
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const { id, name, points, start, end, display, color, editing, spliting, joining } = segment
@@ -18,6 +18,9 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   const toggleSplit = (segmentIndex) => {
     return () => dispatch(toggleSegmentSpliting(segmentIndex))
   }
+  const fit = (segmentIndex) => {
+    return () => dispatch(updateBounds(segment.bounds))
+  }
   return (
     <div>
     <div>
@@ -30,7 +33,7 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
 
         <div style={{marginTop: '2px'}}>
           <div className='x-btn' onClick={remove(id)}><img src='/rubbish7.svg' alt='Remove' title='Remove' /></div>
-          <div className='x-btn'><img src='/size2.svg' alt='Fit' title='Fit to view' /></div>
+          <div className='x-btn' onClick={fit(id)} ><img src='/size2.svg' alt='Fit' title='Fit to view' /></div>
           <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><img src='/pencils13.svg' alt='Edit' title='Edit' /></div>
           <div className='x-btn' onClick={toggleSplit(id)} style={{backgroundColor: spliting ? '#ddd' : '#fff'}}><img src='/increase.svg' alt='Split' title='Split' /></div>
           <div className='x-btn' onClick={toggleJoin(id)} style={{backgroundColor: joining ? '#ddd' : '#fff'}}><img src='/resize4.svg' alt='Join' title='Join' /></div>
