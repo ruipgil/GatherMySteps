@@ -98,6 +98,7 @@ const tracks = (state = [], action) => {
       let trackG = getTrackBySegmentId(action.segmentId, nextStateG)
 
       let rest = segmentG.points.splice(action.index)
+      segmentG.points.push(rest[0])
       segmentG.end = segmentG.points[segmentG.points.length - 1].time
       segmentG.spliting = false
       segmentG.bounds = calculateBounds(segmentG.points)
@@ -141,6 +142,7 @@ const updateBoundsWithPoint = (point, bounds) => {
     }
   ]
 }
+
 const calculateBounds = (points) => {
   let bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
   points
@@ -153,6 +155,7 @@ const calculateBounds = (points) => {
   })
   return bounds
 }
+
 const ui = (state = {}, action) => {
   switch (action.type) {
     case 'USE_GOOGLE_MAPS':
