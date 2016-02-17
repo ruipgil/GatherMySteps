@@ -20,6 +20,7 @@ export default class EditablePolyline extends Polyline {
       iconSize: [12, 12],
       iconAnchor: [6, 6]
     })
+    options.maxMarkers = 500
     this.leafletElement = PolylineEditor(this.props.positions, options)
   }
 }
