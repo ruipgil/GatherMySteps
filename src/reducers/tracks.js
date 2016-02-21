@@ -41,30 +41,30 @@ const toggleSegmentDisplay = (state, action) => {
   return nextState
 }
 const toggleSegmentEditing = (state, action) => {
-  let nextStateA = [...state]
-  let segmentA = getSegmentById(action.segmentId, nextStateA)
-  segmentA.editing = !segmentA.editing
-  segmentA.spliting = false
-  return nextStateA
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.editing = !segment.editing
+  segment.spliting = false
+  return nextState
 }
 const changeSegmentPoint = (state, action) => {
-  let nextStateB = [...state]
-  let segmentB = getSegmentById(action.segmentId, nextStateB)
-  segmentB.points[action.index].lat = action.lat
-  segmentB.points[action.index].lon = action.lon
-  segmentB.bounds = updateBoundsWithPoint(segmentB.points[action.index], segmentB.bounds)
-  return nextStateB
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.points[action.index].lat = action.lat
+  segment.points[action.index].lon = action.lon
+  segment.bounds = updateBoundsWithPoint(segment.points[action.index], segment.bounds)
+  return nextState
 }
 const removeSegmentPoint = (state, action) => {
-  let nextStateC = [...state]
-  let segmentC = getSegmentById(action.segmentId, nextStateC)
-  segmentC.points = segmentC.points.filter((_, i) => i !== action.index)
-  segmentC.bounds = calculateBounds(segmentC.points)
-  return nextStateC
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.points = segment.points.filter((_, i) => i !== action.index)
+  segment.bounds = calculateBounds(segment.points)
+  return nextState
 }
 const extendSegmentPoint = (state, action) => {
-  let nextStateD = [...state]
-  let segmentD = getSegmentById(action.segmentId, nextStateD)
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
   const extrapolateTime = (state, n) => {
     if (n === 0) {
       let prev = state[0].time
@@ -82,20 +82,20 @@ const extendSegmentPoint = (state, action) => {
   let point = {
     lat: action.lat,
     lon: action.lon,
-    time: extrapolateTime(segmentD.points, action.index)
+    time: extrapolateTime(segment.points, action.index)
   }
-  segmentD.bounds = updateBoundsWithPoint(point, segmentD.bounds)
+  segment.bounds = updateBoundsWithPoint(point, segment.bounds)
   if (action.index === 0) {
-    segmentD.points.unshift(point)
+    segment.points.unshift(point)
   } else {
-    segmentD.points.push(point)
+    segment.points.push(point)
   }
-  return nextStateD
+  return nextState
 }
 
 const addSegmentPoint = (state, action) => {
-  let nextStateE = [...state]
-  let segmentE = getSegmentById(action.segmentId, nextStateE)
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
   const extrapolateTimeA = (state, n) => {
     let prev = state[n - 1].time
     let next = state[n + 1].time
@@ -106,11 +106,11 @@ const addSegmentPoint = (state, action) => {
   let pointA = {
     lat: action.lat,
     lon: action.lon,
-    time: extrapolateTimeA(segmentE.points, action.index)
+    time: extrapolateTimeA(segment.points, action.index)
   }
-  segmentE.bounds = updateBoundsWithPoint(pointA, segmentE.bounds)
-  segmentE.points.splice(action.index, 0, pointA)
-  return nextStateE
+  segment.bounds = updateBoundsWithPoint(pointA, segment.bounds)
+  segment.points.splice(action.index, 0, pointA)
+  return nextState
 }
 const removeSegment = (state, action) => {
   let track = state.map((track) => track.segments.find((s) => s.id === action.segmentId) ? track : null).find((x) => !!x)
@@ -124,15 +124,15 @@ const removeSegment = (state, action) => {
   return stateF
 }
 const splitSegment = (state, action) => {
-  let nextStateG = [...state]
-  let segmentG = getSegmentById(action.segmentId, nextStateG)
-  let trackG = getTrackBySegmentId(action.segmentId, nextStateG)
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  let trackG = getTrackBySegmentId(action.segmentId, nextState)
 
-  let rest = segmentG.points.splice(action.index)
-  segmentG.points.push(rest[0])
-  segmentG.end = segmentG.points[segmentG.points.length - 1].time
-  segmentG.spliting = false
-  segmentG.bounds = calculateBounds(segmentG.points)
+  let rest = segment.points.splice(action.index)
+  segment.points.push(rest[0])
+  segment.end = segment.points[segment.points.length - 1].time
+  segment.spliting = false
+  segment.bounds = calculateBounds(segment.points)
 
   let seg = action.segmentInfo
   seg.points = rest
@@ -142,23 +142,23 @@ const splitSegment = (state, action) => {
 
   trackG.segments.push(seg)
 
-  return nextStateG
+  return nextState
 }
 const toggleSegmentSpliting = (state, action) => {
-  let nextStateH = [...state]
-  let segmentH = getSegmentById(action.segmentId, nextStateH)
-  segmentH.spliting = !segmentH.spliting
-  segmentH.editing = false
-  return nextStateH
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.spliting = !segment.spliting
+  segment.editing = false
+  return nextState
 }
 
 const toggleSegmentJoining = (state, action) => {
-  let nextStateI = [...state]
-  let segmentI = getSegmentById(action.segmentId, nextStateI)
-  segmentI.joining = !segmentI.joining
-  segmentI.editing = false
-  segmentI.spliting = false
-  return nextStateI
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.joining = !segment.joining
+  segment.editing = false
+  segment.spliting = false
+  return nextState
 }
 
 const ACTION_REACTION = {
@@ -167,7 +167,6 @@ const ACTION_REACTION = {
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
   'CHANGE_SEGMENT_POINT': changeSegmentPoint,
   'REMOVE_SEGMENT_POINT': removeSegmentPoint,
-
   'EXTEND_SEGMENT_POINT': extendSegmentPoint,
   'ADD_SEGMENT_POINT': addSegmentPoint,
   'REMOVE_SEGMENT': removeSegment,
