@@ -1,5 +1,11 @@
 import React from 'react'
-import { downloadTrack, toggleSegmentDisplay, toggleSegmentEditing, removeSegment, toggleSegmentSpliting, toggleSegmentJoining, updateBounds } from '../actions'
+import downloadTrack from '../actions/downloadTrack'
+import toggleSegmentDisplay from '../actions/toggleSegmentDisplay'
+import toggleSegmentEditing from '../actions/toggleSegmentEditing'
+import removeSegment from '../actions/removeSegment'
+import toggleSegmentSpliting from '../actions/toggleSegmentSpliting'
+import toggleSegmentJoining from '../actions/toggleSegmentJoining'
+import updateBounds from '../actions/updateBounds'
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const { id, name, points, start, end, display, color, editing, spliting, joining } = segment
