@@ -1,7 +1,8 @@
 import React from 'react'
-import TrackRepresentation from './TrackRepresentation.jsx'
+import { connect } from 'react-redux'
+import TrackRepresentation from '../components/TrackRepresentation.jsx'
 
-const TrackList = ({ dispatch, tracks }) => {
+let TrackList = ({ dispatch, tracks }) => {
   return (
     <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
       {
@@ -12,5 +13,13 @@ const TrackList = ({ dispatch, tracks }) => {
     </ul>
   )
 }
+
+const mapStateToProps = (state) => {
+  return {
+    tracks: state.tracks
+  }
+}
+
+TrackList = connect(mapStateToProps)(TrackList)
 
 export default TrackList

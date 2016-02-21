@@ -1,7 +1,8 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { Map, TileLayer } from 'react-leaflet'
-import EditablePolyline from './EditablePolyline.jsx'
-import PointPolyline from './PointPolyline.jsx'
+import EditablePolyline from '../components/EditablePolyline.jsx'
+import PointPolyline from '../components/PointPolyline.jsx'
 import { Polyline } from 'react-leaflet'
 import splitSegment from '../actions/splitSegment'
 import changeSegmentPoint from '../actions/changeSegmentPoint'
@@ -10,9 +11,10 @@ import addSegmentPoint from '../actions/addSegmentPoint'
 import extendSegment from '../actions/extendSegment'
 import joinSegment from '../actions/joinSegment'
 
-import GoogleTileLayer from './GoogleTileLayer.jsx'
+import { useOSMMaps, useGoogleMaps, useGoogleRoadMaps } from '../actions/changeMap'
+import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
 
-const LeafletMap = ({bounds, map, tracks, dispatch}) => {
+let LeafletMap = ({bounds, map, tracks, dispatch}) => {
   const elements = tracks.map((track, i) => {
     return track.map((segment) => {
       const points = segment.points
@@ -71,11 +73,28 @@ const LeafletMap = ({bounds, map, tracks, dispatch}) => {
   }
 
   return (
-    <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
-      { Layer }
-      { elements }
-    </Map>
+    <div className='fill' >
+      <div id='controls'>
+        <div className='control-btn' onClick={() => dispatch(useOSMMaps())} >OSM</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleMaps())} >GoogleMaps Terrain</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
+      </div>
+      <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
+        { Layer }
+        { elements }
+      </Map>
+    </div>
   )
 }
+
+const mapStateToProps = (state) => {
+  return {
+    map: state.ui.map,
+    bounds: state.ui.bounds,
+    tracks: state.tracks.map((track) => track.segments.filter((segment) => segment.display))
+  }
+}
+
+LeafletMap = connect(mapStateToProps)(LeafletMap)
 
 export default LeafletMap

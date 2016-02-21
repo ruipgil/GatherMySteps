@@ -1,40 +1,11 @@
 import React from 'react'
-import moment from 'moment'
 import { connect } from 'react-redux'
-import { GXParser } from 'gxparser'
-import { useOSMMaps, useGoogleMaps, useGoogleRoadMaps } from '../actions/changeMap'
 import addTrack from '../actions/addTrack'
 import Dropzone from '../components/Dropzone.jsx'
-import LeafletMap from '../components/LeafletMap.jsx'
-import TrackList from '../components/TrackList.jsx'
+import LeafletMap from './LeafletMap.jsx'
+import TrackList from './TrackList.jsx'
 
-function loadFiles (files, cb) {
-  for (let i = 0; i < files.length; i++) {
-    let file = files[i]
-    /*global FileReader*/
-    let reader = new FileReader()
-    reader.readAsText(file)
-    reader.onloadend = () => {
-      let gpx = GXParser(reader.result)
-      gpx.trk = gpx.trk.map((track) => {
-        return {
-          trkseg: track.trkseg.map((segment) => {
-            return {
-              trkpt: segment.trkpt.map((point) => {
-                return {
-                  lat: Number(point.lat),
-                  lon: Number(point.lon),
-                  time: moment(point.time[0])
-                }
-              })
-            }
-          })
-        }
-      })
-      cb(gpx, file)
-    }
-  }
-}
+import loadFiles from '../loadFiles'
 
 let App = ({ ui, tracks, dispatch }) => {
   const onDrop = (e) => {
@@ -56,29 +27,20 @@ let App = ({ ui, tracks, dispatch }) => {
     </div>
   )
   */
-  let a = tracks.map((track) => track.segments.filter((segment) => segment.display))
 
   return (
     <Dropzone id='container' onDrop={onDrop} >
       <div id='title'>GatherMySteps</div>
       <div id='details'>
-        <TrackList tracks={tracks} dispatch={dispatch} />
+        <TrackList />
       </div>
-      <div id='controls'>
-        <div className='control-btn' onClick={() => dispatch(useOSMMaps())} >OSM</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleMaps())} >GoogleMaps Terrain</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
-      </div>
-      <LeafletMap bounds={ui.bounds} map={ui.map} tracks={a} dispatch={dispatch} />
+      <LeafletMap />
     </Dropzone>
   )
 }
 
 const mapStateToProps = (state) => {
-  return {
-    tracks: state.tracks,
-    ui: state.ui
-  }
+  return {}
 }
 
 App = connect(mapStateToProps)(App)
