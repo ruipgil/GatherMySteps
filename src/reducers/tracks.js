@@ -161,6 +161,16 @@ const toggleSegmentJoining = (state, action) => {
   return nextState
 }
 
+const toggleSegmentPointDetails = (state, action) => {
+  let nextState = [...state]
+  let segment = getSegmentById(action.segmentId, nextState)
+  segment.pointDetails = !segment.pointDetails
+  segment.joining = false
+  segment.editing = false
+  segment.spliting = false
+  return nextState
+}
+
 const ACTION_REACTION = {
   'ADD_TRACK': addTrack,
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
@@ -172,7 +182,9 @@ const ACTION_REACTION = {
   'REMOVE_SEGMENT': removeSegment,
   'SPLIT_SEGMENT': splitSegment,
   'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
-  'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining
+  'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
+  'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails
+
 }
 
 const tracks = (state = [], action) => {

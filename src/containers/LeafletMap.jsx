@@ -20,7 +20,14 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
       const points = segment.points
       const t = points.map((t) => { return {lat: t.lat, lon: t.lon} })
 
-      const Elm = segment.editing ? EditablePolyline : ((segment.spliting || segment.joining) ? PointPolyline : Polyline)
+      let Elm
+      if (segment.editing) {
+        Elm = EditablePolyline
+      } else if (segment.spliting || segment.joining || segment.pointDetails) {
+        Elm = PointPolyline
+      } else {
+        Elm = Polyline
+      }
       const handlers = segment.editing ? {
         onChange: (n, points) => {
           let {lat, lng} = points[n]._latlng
@@ -47,6 +54,8 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
         handlers.onPointClick = (point, i) => {
           dispatch(joinSegment(segment.id, i))
         }
+      } else if (segment.pointDetails) {
+        handlers.popupInfo = points
       }
 
       return (<Elm opacity={1.0} positions={t} color={ segment.color } key={segment.id + ' ' + track.id} {...handlers} />)

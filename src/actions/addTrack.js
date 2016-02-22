@@ -19,7 +19,8 @@ const addTrack = (track, file) => {
           name: '',
           editing: false,
           spliting: false,
-          joining: false
+          joining: false,
+          pointDetails: false
         }
       }),
       name: file.name
