@@ -19,6 +19,7 @@
   "homepage": "https://github.com/ruipgil/gathermysteps#readme",
   "dependencies": {
     "gxparser": "^1.0.0",
+    "haversine": "^1.0.0",
     "leaflet": "^0.7.7",
     "leaflet-editable-polyline": "github:ruipgil/leaflet-editable-polyline",
     "leaflet-plugins": "github:ruipgil/leaflet-plugins",

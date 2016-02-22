@@ -6,8 +6,7 @@ const buildPopup = (lat, lon, time, n) => {
     <Popup>
       <div>
         <div>#{n}</div>
-        <div>Lat: <b>{lat}</b></div>
-        <div>Lon: <b>{lon}</b></div>
+        <div>Lat: <b>{lat}</b> Lon: <b>{lon}</b></div>
         <div>Time: <b>{time.toString()}</b></div>
       </div>
     </Popup>

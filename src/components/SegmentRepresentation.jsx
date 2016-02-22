@@ -7,6 +7,50 @@ import toggleSegmentJoining from '../actions/toggleSegmentJoining'
 import updateBounds from '../actions/updateBounds'
 import toggleSegmentPointDetails from '../actions/toggleSegmentPointDetails'
 
+import haversine from 'haversine'
+
+const calculateMetrics = (points) => {
+  const convert = 1 / 3600000
+  return points.map((p) => {
+    return { latitude: p.lat, longitude: p.lon, time: p.time }
+  }).map((curr, i, arr) => {
+    if (i !== 0) {
+      let prev = arr[i - 1]
+      let distance = haversine(prev, curr, {unit: 'km'})
+      let timeDiff = curr.time.diff(prev.time) * convert
+      let velocity = timeDiff === 0 ? 0 : distance / timeDiff
+      return {
+        distance,
+        velocity,
+        lat: curr.lat,
+        lon: curr.lon,
+        time: curr.time
+      }
+    } else {
+      return {
+        distance: 0,
+        velocity: 0,
+        lat: curr.lat,
+        lon: curr.lon,
+        time: curr.time
+      }
+    }
+  })
+}
+
+const calculateDistance = (points) => {
+  let l = points.length - 2
+  return points.map((p) => {
+    return { latitude: p.lat, longitude: p.lon }
+  }).reduce((prev, curr, i, arr) => {
+    if (i < l) {
+      return prev + haversine(curr, arr[i + 1], {unit: 'km'})
+    } else {
+      return prev
+    }
+  }, 0)
+}
+
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const { id, name, points, start, end, display, color, editing, spliting, joining, pointDetails } = segment
   const toggleTrack = (segmentIndex) => {
@@ -30,6 +74,9 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   const toggleDetails = (segmentIndex) => {
     return () => dispatch(toggleSegmentPointDetails(segmentIndex))
   }
+  let metrics = calculateMetrics(points)
+  let distance = metrics.reduce((prev, c) => { return prev + c.distance }, 0)
+  let avrgSpeed = metrics.reduce((prev, c) => { return prev + c.velocity }, 0) / metrics.length
   return (
     <div>
     <div>
@@ -38,6 +85,7 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
           <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
           <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
           <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
+          <div style={{fontSize: '0.8rem', color: 'gray'}}>{ distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>
         </div>
 
         <div style={{marginTop: '2px'}}>
