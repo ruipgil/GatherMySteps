@@ -21,8 +21,8 @@ html, body {
   text-align: center;
   height: 15%;
   top: 5%;
-  color: #666;
-  text-shadow: 0px -1px 0px #000, 0px 1px 0px #f4f4f4;
+  color: #fff;
+  text-shadow: #000 0px 0px 10px;
 }
 #title, #details{
   position: absolute;
