@@ -50,10 +50,19 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
           dispatch(splitSegment(segment.id, i))
         }
       } else if (segment.joining) {
-        handlers.onlyEnds = true
-        handlers.onPointClick = (point, i) => {
-          dispatch(joinSegment(segment.id, i))
-        }
+        let p = segment.joinPossible
+        p.forEach((pp) => {
+          if (pp.show === 'END') {
+            handlers.showEnd = (point, i) => {
+              dispatch(joinSegment(segment.id, i, pp))
+            }
+          }
+          if (pp.show === 'START') {
+            handlers.showStart = (point, i) => {
+              dispatch(joinSegment(segment.id, i, pp))
+            }
+          }
+        })
       } else if (segment.pointDetails) {
         handlers.popupInfo = points
       }

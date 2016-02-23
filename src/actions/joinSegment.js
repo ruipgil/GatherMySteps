@@ -1,7 +1,8 @@
-const joinSegment = (segmentId, index) => {
+const joinSegment = (segmentId, index, details) => {
   return {
     index,
     segmentId,
+    details,
     type: 'JOIN_SEGMENT'
   }
 }

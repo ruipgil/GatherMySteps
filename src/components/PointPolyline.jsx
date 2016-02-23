@@ -14,7 +14,7 @@ const buildPopup = (lat, lon, time, n) => {
 }
 let _id = 0
 const PointPolyline = (props) => {
-  const { popupInfo, radius, positions, map, onPointClick, onlyEnds } = props
+  const { popupInfo, radius, positions, map, onPointClick, showEnd, showStart } = props
   let clickHandler = onPointClick || function () {}
   let points
 
@@ -34,8 +34,21 @@ const PointPolyline = (props) => {
     })
   }
 
-  if (onlyEnds) {
-    points = [points[0], points[points.length - 1]]
+  if (showStart || showEnd) {
+    let pts = []
+    if (showStart) {
+      let p = (
+        <Circle center={positions[0]} radius={radius || 2} key={_id++} onClick={(e) => showStart(e)} />
+      )
+      pts.push(p)
+    }
+    if (showEnd) {
+      let p = (
+        <Circle center={positions[positions.length - 1]} radius={radius || 2} key={_id++} onClick={(e) => showEnd(e)} />
+      )
+      pts.push(p)
+    }
+    points = pts
   }
 
   return (

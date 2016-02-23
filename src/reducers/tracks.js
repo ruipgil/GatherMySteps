@@ -24,8 +24,15 @@ const calculateBounds = (points) => {
   return bounds
 }
 
-const getSegmentById = (id, state) => state.map((track) => track.segments.find((x) => x.id === id)).find((x) => !!x)
-const getTrackBySegmentId = (id, state) => state.map((track) => track.segments.find((s) => s.id === id) ? track : null).find((x) => !!x)
+const getSegmentById = (id, state) =>
+  state.map((track) =>
+    track.segments.find((x) => x.id === id)
+  ).find((x) => !!x)
+
+const getTrackBySegmentId = (id, state) =>
+  state.map((track) =>
+    track.segments.find((s) => s.id === id) ? track : null
+  ).find((x) => !!x)
 
 const addTrack = (state, action) => {
   action.track.segments.forEach((segment) => {
@@ -155,10 +162,75 @@ const toggleSegmentSpliting = (state, action) => {
 const toggleSegmentJoining = (state, action) => {
   let nextState = [...state]
   let segment = getSegmentById(action.segmentId, nextState)
-  segment.joining = !segment.joining
-  segment.editing = false
-  segment.spliting = false
+  let track = getTrackBySegmentId(action.segmentId, nextState)
+  if (track.segments.length > 1) {
+    let possibilities = []
+    let candidates = [...track.segments]
+    candidates.splice(candidates.indexOf(segment), 1)
+
+    let sStart = segment.start
+    let sEnd = segment.end
+
+    let closerToStart
+    let closerToEnd
+    let t_closerToStart = Infinity
+    let t_closerToEnd = Infinity
+    candidates.forEach((c, i) => {
+      let { start, end } = c
+      let startDiff = start.diff(sEnd)
+      let endDiff = end.diff(sStart)
+
+      if (startDiff >= 0 && startDiff < t_closerToStart) {
+        t_closerToStart = startDiff
+        closerToStart = c.id
+      } else if (endDiff <= 0 && endDiff < t_closerToEnd) {
+        t_closerToEnd = endDiff
+        closerToEnd = c.id
+      }
+    })
+
+    if (closerToStart !== undefined) {
+      possibilities.push({
+        segment: closerToStart,
+        destiny: 'END',
+        show: 'END'
+      })
+    }
+    if (closerToEnd !== undefined) {
+      possibilities.push({
+        segment: closerToEnd,
+        destiny: 'START',
+        show: 'START'
+      })
+    }
+
+    segment.joinPossible = possibilities
+    segment.joining = !segment.joining
+    segment.editing = false
+    segment.spliting = false
+  }
   return nextState
+}
+
+const updateSegment = (segment) => {
+  segment.start = segment.points[0].time
+  segment.end = segment.points[segment.points.length - 1].time
+  segment.bounds = calculateBounds(segment.points)
+}
+
+import removeSegmentAction from '../actions/removeSegment'
+
+const joinSegment = (state, action) => {
+  let nextState = [...state]
+  const { details } = action
+  let segment = getSegmentById(action.segmentId, nextState)
+  let toJoin = getSegmentById(details.segment, nextState)
+  let index = details.destiny !== 'START' ? toJoin.points.length - 1 : 0
+  let toRemove = details.segment
+  segment.points.splice(index, 0, ...toJoin.points)
+  updateSegment(segment)
+  segment.joining = false
+  return tracks(nextState, removeSegmentAction(toRemove))
 }
 
 const toggleSegmentPointDetails = (state, action) => {
@@ -183,7 +255,8 @@ const ACTION_REACTION = {
   'SPLIT_SEGMENT': splitSegment,
   'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
   'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
-  'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails
+  'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails,
+  'JOIN_SEGMENT': joinSegment
 
 }
 
