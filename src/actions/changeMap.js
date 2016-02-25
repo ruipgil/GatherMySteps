@@ -10,8 +10,20 @@ export const useGoogleRoadMaps = () => {
   }
 }
 
-export const useGoogleMaps = () => {
+export const useGoogleTerrainMaps = () => {
   return {
-    type: 'USE_GOOGLE_MAPS'
+    type: 'USE_GOOGLE_TERRAIN_MAPS'
+  }
+}
+
+export const useGoogleHybridMaps = () => {
+  return {
+    type: 'USE_GOOGLE_HYBRID_MAPS'
+  }
+}
+
+export const useGoogleSatelliteMaps = () => {
+  return {
+    type: 'USE_GOOGLE_SATTELITE_MAPS'
   }
 }

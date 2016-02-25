@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, TileLayer } from 'react-leaflet'
+import { Map, TileLayer, MapControl } from 'react-leaflet'
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import { Polyline } from 'react-leaflet'
@@ -11,7 +11,9 @@ import addSegmentPoint from '../actions/addSegmentPoint'
 import extendSegment from '../actions/extendSegment'
 import joinSegment from '../actions/joinSegment'
 
-import { useOSMMaps, useGoogleMaps, useGoogleRoadMaps } from '../actions/changeMap'
+import UIButton from '../components/UIButton.jsx'
+
+import { useOSMMaps, useGoogleSatelliteMaps, useGoogleRoadMaps, useGoogleHybridMaps, useGoogleTerrainMaps } from '../actions/changeMap'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
 
 let LeafletMap = ({bounds, map, tracks, dispatch}) => {
@@ -75,11 +77,17 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
 
   let Layer
   switch (map) {
-    case 'google':
-      Layer = (<GoogleTileLayer detail='' />)
+    case 'google_sattelite':
+      Layer = (<GoogleTileLayer mapType='SATELLITE' />)
       break
     case 'google_road':
-      Layer = (<GoogleTileLayer detail='ROADMAP' />)
+      Layer = (<GoogleTileLayer mapType='ROADMAP' />)
+      break
+    case 'google_hybrid':
+      Layer = (<GoogleTileLayer mapType='HYBRID' />)
+      break
+    case 'google_terrain':
+      Layer = (<GoogleTileLayer mapType='TERRAIN' />)
       break
     default:
       Layer = (
@@ -94,8 +102,10 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
     <div className='fill' >
       <div id='controls'>
         <div className='control-btn' onClick={() => dispatch(useOSMMaps())} >OSM</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleMaps())} >GoogleMaps Terrain</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
         <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
+        <div className='control-btn' onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
       </div>
       <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
         { Layer }
