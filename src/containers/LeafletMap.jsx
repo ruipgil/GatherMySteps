@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, TileLayer, MapControl } from 'react-leaflet'
+import { Map, TileLayer } from 'react-leaflet'
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import { Polyline } from 'react-leaflet'
@@ -14,7 +14,7 @@ import joinSegment from '../actions/joinSegment'
 import UIButton from '../components/UIButton.jsx'
 
 import { useOSMMaps, useGoogleSatelliteMaps, useGoogleRoadMaps, useGoogleHybridMaps, useGoogleTerrainMaps } from '../actions/changeMap'
-import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
+import LayersControl from '../components/LayersControl.jsx'
 
 let LeafletMap = ({bounds, map, tracks, dispatch}) => {
   const elements = tracks.map((track, i) => {
