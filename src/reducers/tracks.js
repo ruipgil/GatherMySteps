@@ -243,6 +243,20 @@ const toggleSegmentPointDetails = (state, action) => {
   return nextState
 }
 
+const toggleTrackRenaming = (state, action) => {
+  let nextState = [...state]
+  let track = nextState.find((t) => t.id === action.trackId)
+  track.renaming = !track.renaming
+  return nextState
+}
+
+const updateTrackName = (state, action) => {
+  let nextState = [...state]
+  let track = nextState.find((t) => t.id === action.trackId)
+  track.name = action.name
+  return nextState
+}
+
 const ACTION_REACTION = {
   'ADD_TRACK': addTrack,
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
@@ -256,7 +270,9 @@ const ACTION_REACTION = {
   'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
   'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
   'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails,
-  'JOIN_SEGMENT': joinSegment
+  'JOIN_SEGMENT': joinSegment,
+  'TOGGLE_TRACK_RENAMING': toggleTrackRenaming,
+  'UPDATE_TRACK_NAME': updateTrackName
 
 }
 

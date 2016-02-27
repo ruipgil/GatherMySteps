@@ -23,7 +23,8 @@ const addTrack = (track, file) => {
           pointDetails: false
         }
       }),
-      name: file.name
+      name: file.name,
+      renaming: false
     }
   }
 }
