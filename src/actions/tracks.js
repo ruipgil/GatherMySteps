@@ -1,3 +1,26 @@
+export const addTrack = (segments, file) => {
+  return {
+    segments,
+    name: file.name,
+    type: 'ADD_TRACK'
+  }
+}
+
+export const toggleTrackRenaming = (trackId) => {
+  return {
+    trackId,
+    type: 'TOGGLE_TRACK_RENAMING'
+  }
+}
+
+export const updateTrackName = (trackId, newName) => {
+  return {
+    trackId,
+    name: newName,
+    type: 'UPDATE_TRACK_NAME'
+  }
+}
+
 const exportGPX = (track) => {
   return track.segments.reduce((prev, s) => {
     return prev + s.points.reduce((prev, p) => {
@@ -22,10 +45,8 @@ var saveData = (function () {
   }
 }())
 
-const downloadTrack = (track) => {
+export const downloadTrack = (track) => {
   let str = exportGPX(track)
   saveData(str, track.name)
   return str
 }
-
-export default downloadTrack

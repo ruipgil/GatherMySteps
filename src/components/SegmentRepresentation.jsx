@@ -1,11 +1,13 @@
 import React from 'react'
-import toggleSegmentDisplay from '../actions/toggleSegmentDisplay'
-import toggleSegmentEditing from '../actions/toggleSegmentEditing'
-import removeSegment from '../actions/removeSegment'
-import toggleSegmentSpliting from '../actions/toggleSegmentSpliting'
-import toggleSegmentJoining from '../actions/toggleSegmentJoining'
-import updateBounds from '../actions/updateBounds'
-import toggleSegmentPointDetails from '../actions/toggleSegmentPointDetails'
+import {
+  toggleSegmentDisplay,
+  toggleSegmentEditing,
+  removeSegment,
+  toggleSegmentSpliting,
+  toggleSegmentJoining,
+  toggleSegmentPointDetails
+} from '../actions/segments'
+import { updateBounds } from '../actions/ui'
 
 import haversine from 'haversine'
 

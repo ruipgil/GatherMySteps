@@ -27,3 +27,10 @@ export const useGoogleSatelliteMaps = () => {
     type: 'USE_GOOGLE_SATTELITE_MAPS'
   }
 }
+
+export const updateBounds = (bounds) => {
+  return {
+    bounds,
+    type: 'UPDATE_BOUNDS'
+  }
+}

@@ -7,7 +7,6 @@ export default class GoogleTileLayer extends BaseTileLayer {
     this.leafletElement = new Google(mapType)
     map.addLayer(this.leafletElement)
     super.componentWillMount()
-    return null
   }
   componentDidUpdate () {
     const { mapType, map } = this.props

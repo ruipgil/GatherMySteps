@@ -1,20 +1,26 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, TileLayer } from 'react-leaflet'
+import { Map, TileLayer, Polyline } from 'react-leaflet'
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
-import { Polyline } from 'react-leaflet'
-import splitSegment from '../actions/splitSegment'
-import changeSegmentPoint from '../actions/changeSegmentPoint'
-import removeSegmentPoint from '../actions/removeSegmentPoint'
-import addSegmentPoint from '../actions/addSegmentPoint'
-import extendSegment from '../actions/extendSegment'
-import joinSegment from '../actions/joinSegment'
-
-import UIButton from '../components/UIButton.jsx'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
 
-import { useOSMMaps, useGoogleSatelliteMaps, useGoogleRoadMaps, useGoogleHybridMaps, useGoogleTerrainMaps } from '../actions/changeMap'
+import {
+  splitSegment,
+  changeSegmentPoint,
+  removeSegmentPoint,
+  addSegmentPoint,
+  extendSegment,
+  joinSegment
+} from '../actions/segments'
+
+import {
+  useOSMMaps,
+  useGoogleSatelliteMaps,
+  useGoogleRoadMaps,
+  useGoogleHybridMaps,
+  useGoogleTerrainMaps
+} from '../actions/ui'
 
 let LeafletMap = ({bounds, map, tracks, dispatch}) => {
   const elements = tracks.map((track, i) => {

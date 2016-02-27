@@ -1,15 +1,13 @@
 import React from 'react'
-import exportGPX from '../actions/exportGPX'
 import SegmentRepresentation from './SegmentRepresentation.jsx'
-import toggleTrackRenaming from '../actions/toggleTrackRenaming'
-import updateTrackName from '../actions/updateTrackName'
+import { downloadTrack, toggleTrackRenaming, updateTrackName } from '../actions/tracks'
 
 const TrackRepresentation = ({ dispatch, track }) => {
   const { name, segments, renaming, id } = track
   const totalPoints = segments.reduce((prev, segment) => {
     return prev + segment.points.length
   }, 0)
-  const onDownload = () => exportGPX(track)
+  const onDownload = () => downloadTrack(track)
   const updateName = (e) => {
     if (e.type) {
       const val = e.target.value

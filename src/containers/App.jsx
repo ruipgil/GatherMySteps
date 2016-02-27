@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import addTrack from '../actions/addTrack'
+import { addTrack } from '../actions/tracks'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from './LeafletMap.jsx'
 import TrackList from './TrackList.jsx'
