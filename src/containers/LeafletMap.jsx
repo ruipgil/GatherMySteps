@@ -12,9 +12,9 @@ import extendSegment from '../actions/extendSegment'
 import joinSegment from '../actions/joinSegment'
 
 import UIButton from '../components/UIButton.jsx'
+import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
 
 import { useOSMMaps, useGoogleSatelliteMaps, useGoogleRoadMaps, useGoogleHybridMaps, useGoogleTerrainMaps } from '../actions/changeMap'
-import LayersControl from '../components/LayersControl.jsx'
 
 let LeafletMap = ({bounds, map, tracks, dispatch}) => {
   const elements = tracks.map((track, i) => {
@@ -101,11 +101,11 @@ let LeafletMap = ({bounds, map, tracks, dispatch}) => {
   return (
     <div className='fill' >
       <div id='controls'>
-        <div className='control-btn' onClick={() => dispatch(useOSMMaps())} >OSM</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
-        <div className='control-btn' onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
+        <div className={'clickable' + (map === 'map' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
+        <div className={'clickable' + (map === 'google_sattelite' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
+        <div className={'clickable' + (map === 'google_road' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
+        <div className={'clickable' + (map === 'google_hybrid' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
+        <div className={'clickable' + (map === 'google_terrain' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
       </div>
       <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
         { Layer }

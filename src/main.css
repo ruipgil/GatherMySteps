@@ -52,6 +52,7 @@ html, body {
   top: 10px;
   background-color: white;
   padding: 4px;
+  border-radius: 6px;
 }
 #controls .control {
   cursor: pointer;
@@ -61,4 +62,7 @@ html, body {
 }
 .clickable {
   cursor: pointer
+}
+.bold-text {
+  font-weight: bold
 }
