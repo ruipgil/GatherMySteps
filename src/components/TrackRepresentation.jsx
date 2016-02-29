@@ -2,10 +2,14 @@ import React from 'react'
 import SegmentRepresentation from './SegmentRepresentation.jsx'
 import { downloadTrack, toggleTrackRenaming, updateTrackName } from '../actions/tracks'
 
-const TrackRepresentation = ({ dispatch, track }) => {
-  const { name, segments, renaming, id } = track
+const TrackRepresentation = ({ dispatch, track, segments }) => {
+  // const { name, segments, renaming, id } = track
+  const id = track.get('id')
+  const name = track.get('name')
+  const renaming = track.get('renaming')
+
   const totalPoints = segments.reduce((prev, segment) => {
-    return prev + segment.points.length
+    return prev + segment.get('points').count()
   }, 0)
   const onDownload = () => downloadTrack(track)
   const updateName = (e) => {
@@ -38,7 +42,7 @@ const TrackRepresentation = ({ dispatch, track }) => {
       <div style={{fontSize: '1.5rem'}}>
         {title}
       </div>
-      <span style={{fontSize: '0.8rem', color: 'gray'}}>{segments.length} segment{segments.length === 1 ? '' : 's'}, {totalPoints} points</span>
+      <span style={{fontSize: '0.8rem', color: 'gray'}}>{segments.count()} segment{segments.count() === 1 ? '' : 's'}, {totalPoints} points</span>
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
         {
           segments.map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)

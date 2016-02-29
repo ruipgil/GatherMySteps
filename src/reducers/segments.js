@@ -1,68 +1,54 @@
 import {
+  /*
   updateBoundsWithPoint,
   calculateBounds,
   getSegmentById,
   getTrackBySegmentId,
+  */
   createSegmentObj
 } from './utils'
-import { removeSegment as removeSegmentAction } from '../actions/segments'
+import {
+  removeSegment as removeSegmentAction
+} from '../actions/segments'
+import { fromJS } from 'immutable'
 
-const updateSegment = (segment) => {
-  segment.start = segment.points[0].time
-  segment.end = segment.points[segment.points.length - 1].time
-  segment.bounds = calculateBounds(segment.points)
-}
-
-const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails']
-const toggleSegProp = (segment, prop, propSet = defaultPropSet) => {
-  propSet.forEach((p) => {
-    segment[p] = (p === prop ? !segment[p] : false)
+const updateSegment = (state, id) => {
+  // TODO update bounds
+  return state.updateIn(['segments', id], (segment) => {
+    return segment
+      .set('start', segment.get('points').get(0).get('time'))
+      .set('end', segment.get('points').get(-1).get('time'))
   })
 }
 
-const toggleSegmentDisplay = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  segment.display = !segment.display
-  return nextState
-}
-
-const toggleSegmentEditing = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  toggleSegProp(segment, 'editing')
-  return nextState
-}
-
 const changeSegmentPoint = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  segment.points[action.index].lat = action.lat
-  segment.points[action.index].lon = action.lon
-  segment.bounds = updateBoundsWithPoint(segment.points[action.index], segment.bounds)
-  return nextState
+  const id = action.segmentId
+  state = state.setIn(['segments', id, 'points', action.index, 'lat'], action.lat)
+  state = state.setIn(['segments', id, 'points', action.index, 'lon'], action.lon)
+  // TODO updateBounds
+  // const updatedBounds = updateBoundsWithPoint(action, state.get('segments').get(id).get('bounds').toJS())
+  // return state.setIn(['segments', action.segmentId, action.index, 'bounds'], fromJS(updatedBounds))
+  return state
 }
 
 const removeSegmentPoint = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  segment.points = segment.points.filter((_, i) => i !== action.index)
-  segment.bounds = calculateBounds(segment.points)
-  return nextState
+  const id = action.segmentId
+  return state
+    .deleteIn(['segments', id, 'points', action.index])
 }
 
 const extendSegmentPoint = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  const extrapolateTime = (state, n) => {
+  const id = action.segmentId
+
+  const extrapolateTime = (points, n) => {
     if (n === 0) {
-      let prev = state[0].time
-      let next = state[1].time
+      let prev = points.get(0).get('time')
+      let next = points.get(1).get('time')
       let prediction = prev.clone().subtract(prev.diff(next))
       return prediction
     } else {
-      let prev = state[state.length - 1].time
-      let next = state[state.length - 2].time
+      let prev = points.get(-1).get('time')
+      let next = points.get(-2).get('time')
       let prediction = prev.clone().add(prev.diff(next))
       return prediction
     }
@@ -71,23 +57,22 @@ const extendSegmentPoint = (state, action) => {
   let point = {
     lat: action.lat,
     lon: action.lon,
-    time: extrapolateTime(segment.points, action.index)
+    time: extrapolateTime(state.get('segments').get(id).get('points'), action.index)
   }
-  segment.bounds = updateBoundsWithPoint(point, segment.bounds)
-  if (action.index === 0) {
-    segment.points.unshift(point)
-  } else {
-    segment.points.push(point)
-  }
-  return nextState
+  return state.updateIn(['segments', id, 'points'], (points) => {
+    if (action.index === 0) {
+      return points.unshift(point)
+    } else {
+      return points.push(point)
+    }
+  })
 }
 
 const addSegmentPoint = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  const extrapolateTimeA = (state, n) => {
-    let prev = state[n - 1].time
-    let next = state[n + 1].time
+  const id = action.segmentId
+  const extrapolateTimeA = (points, n) => {
+    let prev = points.get(n - 1).get('time')
+    let next = points.get(n + 1).get('time')
     let diff = prev.diff(next) / 2
     return prev.clone().add(diff)
   }
@@ -95,78 +80,132 @@ const addSegmentPoint = (state, action) => {
   let pointA = {
     lat: action.lat,
     lon: action.lon,
-    time: extrapolateTimeA(segment.points, action.index)
+    time: extrapolateTimeA(state.get('segments').get(id).get('points'), action.index)
   }
-  segment.bounds = updateBoundsWithPoint(pointA, segment.bounds)
-  segment.points.splice(action.index, 0, pointA)
-  return nextState
+  // TODO update bounds
+  // segment.set('bounds', updateBoundsWithPoint(pointA, segment.bounds))
+  return state.updateIn(['segments', id, 'points'], (points) => {
+    return points.insert(action.index, fromJS(pointA))
+  })
 }
 const removeSegment = (state, action) => {
-  let track = state.map((track) => track.segments.find((s) => s.id === action.segmentId) ? track : null).find((x) => !!x)
-  let stateF = [...state]
-  if (track.segments.length === 1) {
-    stateF.splice(stateF.indexOf(track), 1)
+  // TOFIX needs update to remove from map
+  const id = action.segmentId
+  const trackId = state.get('segments').get(id).get('trackId')
+  state = state
+    .deleteIn(['segments', action.segmentId])
+  if (state.get('tracks').get(trackId).get('segments').count() === 1) {
+    state = state.deleteIn(['tracks', trackId])
   } else {
-    let ix = track.segments.indexOf(track.segments.find((s) => s.id === action.segmentId))
-    track.segments.splice(ix, 1)
+    state = state.updateIn(['tracks', trackId, 'segments'], (segments) => {
+      return segments.delete(segments.indexOf(id))
+    })
   }
-  return stateF
+  return state
 }
 const splitSegment = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  let trackG = getTrackBySegmentId(action.segmentId, nextState)
+  const id = action.segmentId
+  const segment = state.get('segments').get(id)
+  let _points = segment.get('points')
+  const rest = _points.slice(action.index, _points.count())
+  state = state.updateIn(['segments', id, 'points'], (points) => {
+    return points
+      .slice(0, action.index + 1)
+  })
+  state = updateSegment(state, id)
 
-  let rest = segment.points.splice(action.index)
-  segment.points.push(rest[0])
-  segment.end = segment.points[segment.points.length - 1].time
-  segment.spliting = false
-  segment.bounds = calculateBounds(segment.points)
+  const segData = createSegmentObj(segment.get('trackId'), rest.toJS())
+  state = state.setIn(['segments', segData.id], fromJS(segData))
 
-  let seg = createSegmentObj(rest)
-  seg.points = rest
-  seg.start = rest[0].time
-  seg.end = rest[rest.length - 1].time
-  seg.bounds = calculateBounds(seg.points)
+  state = state.updateIn(['tracks', segment.get('trackId'), 'segments'], (segments) => {
+    return segments.push(segData.id)
+  })
 
-  trackG.segments.push(seg)
-
-  return nextState
+  return toggleSegProp(state, id, 'spliting')
 }
+
+const joinSegment = (state, action) => {
+  const { details } = action
+  const toRemove = state.get('segments').get(details.segment)
+
+  state = state.updateIn(['segments', action.segmentId, 'points'], (points) => {
+    if (details.destiny !== 'START') {
+      toRemove.get('points').forEach((p) => {
+        points = points.push(p)
+      })
+    } else {
+      toRemove.get('points').reverse().forEach((p) => {
+        points = points.unshift(p)
+      })
+    }
+    return points
+  })
+
+  state = toggleSegProp(state, action.segmentId, 'joining')
+  state = segments(state, removeSegmentAction(toRemove.get('id')))
+
+  return state
+}
+
+const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails']
+const toggleSegProp = (state, id, prop, propSet = defaultPropSet) => {
+  const data = state.get('segments').get(id)
+  propSet.forEach((p) => {
+    state = state.setIn(['segments', id, p], (p === prop ? !data.get(p) : false))
+  })
+  return state
+}
+
+const toggleSegmentDisplay = (state, action) => {
+  const id = action.segmentId
+  state = toggleSegProp(state, id, 'display')
+  return state.setIn(['segments', id, 'display'], !state.get('segments').get(id).get('display'))
+}
+
+const toggleSegmentEditing = (state, action) => {
+  return toggleSegProp(state, action.segmentId, 'editing')
+}
+
+const toggleSegmentPointDetails = (state, action) => {
+  return toggleSegProp(state, action.segmentId, 'pointDetails')
+}
+
 const toggleSegmentSpliting = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  toggleSegProp(segment, 'spliting')
-  return nextState
+  return toggleSegProp(state, action.segmentId, 'spliting')
 }
 
 const toggleSegmentJoining = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  let track = getTrackBySegmentId(action.segmentId, nextState)
-  if (track.segments.length > 1) {
-    let possibilities = []
-    let candidates = [...track.segments]
-    candidates.splice(candidates.indexOf(segment), 1)
+  const id = action.segmentId
+  const segment = state.get('segments').get(id)
+  const trackId = segment.get('trackId')
+  const track = state.get('tracks').get(trackId)
 
-    let sStart = segment.start
-    let sEnd = segment.end
+  if (track.get('segments').count() > 1) {
+    let possibilities = []
+    let candidates = track.get('segments').toJS()
+    candidates.splice(candidates.indexOf(id), 1)
+
+    let sStart = segment.get('start')
+    let sEnd = segment.get('end')
 
     let closerToStart
     let closerToEnd
     let t_closerToStart = Infinity
     let t_closerToEnd = Infinity
     candidates.forEach((c, i) => {
-      let { start, end } = c
+      const _c = state.get('segments').get(c)
+      const start = _c.get('start')
+      const end = _c.get('end')
+
       let startDiff = start.diff(sEnd)
       let endDiff = end.diff(sStart)
 
       if (startDiff >= 0 && startDiff < t_closerToStart) {
         t_closerToStart = startDiff
-        closerToStart = c.id
+        closerToStart = _c.get('id')
       } else if (endDiff <= 0 && endDiff < t_closerToEnd) {
         t_closerToEnd = endDiff
-        closerToEnd = c.id
+        closerToEnd = _c.get('id')
       }
     })
 
@@ -185,44 +224,28 @@ const toggleSegmentJoining = (state, action) => {
       })
     }
 
-    segment.joinPossible = possibilities
-    toggleSegProp(segment, 'joining')
+    state = state.setIn(['segments', id, 'joinPossible'], possibilities)
+    return toggleSegProp(state, action.segmentId, 'joining')
+  } else {
+    alert('Can not join with any segment of the same track')
   }
-  return nextState
-}
-
-const joinSegment = (state, action) => {
-  let nextState = [...state]
-  const { details } = action
-  let segment = getSegmentById(action.segmentId, nextState)
-  let toJoin = getSegmentById(details.segment, nextState)
-  let index = details.destiny !== 'START' ? toJoin.points.length - 1 : 0
-  let toRemove = details.segment
-  segment.points.splice(index, 0, ...toJoin.points)
-  updateSegment(segment)
-  segment.joining = false
-  return segments(nextState, removeSegmentAction(toRemove))
-}
-
-const toggleSegmentPointDetails = (state, action) => {
-  let nextState = [...state]
-  let segment = getSegmentById(action.segmentId, nextState)
-  toggleSegProp(segment, 'pointDetails')
-  return nextState
+  return state
 }
 
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
+  'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
+  'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
+  'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails,
+
   'CHANGE_SEGMENT_POINT': changeSegmentPoint,
   'REMOVE_SEGMENT_POINT': removeSegmentPoint,
   'EXTEND_SEGMENT_POINT': extendSegmentPoint,
   'ADD_SEGMENT_POINT': addSegmentPoint,
+
   'REMOVE_SEGMENT': removeSegment,
   'SPLIT_SEGMENT': splitSegment,
-  'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
-  'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
-  'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails,
   'JOIN_SEGMENT': joinSegment
 }
 

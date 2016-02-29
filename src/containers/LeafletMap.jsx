@@ -22,111 +22,175 @@ import {
   useGoogleTerrainMaps
 } from '../actions/ui'
 
-let LeafletMap = ({bounds, map, tracks, dispatch}) => {
-  const elements = tracks.map((track, i) => {
-    return track.map((segment) => {
-      const points = segment.points
-      const t = points.map((t) => { return {lat: t.lat, lon: t.lon} })
+const EditableMapSegment = (points, trackId, id, color, dispatch) => {
+  return (
+    <EditablePolyline
+      opacity={1.0}
+      positions={points}
+      color={color}
+      key={trackId + ' ' + id + 'e'}
+      onChange={(n, points) => {
+        let {lat, lng} = points[n]._latlng
+        dispatch(changeSegmentPoint(id, n, lat, lng))
+      }}
+      onRemove={(n, points) => {
+        dispatch(removeSegmentPoint(id, n))
+      }}
+      onPointAdd={(n, points) => {
+        let {lat, lng} = points[n]._latlng
+        dispatch(addSegmentPoint(id, n, lat, lng))
+      }}
+      onExtend={(n, points) => {
+        let {lat, lng} = points[n]._latlng
+        dispatch(extendSegment(id, n, lat, lng))
+      }} />
+  )
+}
 
-      let Elm
-      if (segment.editing) {
-        Elm = EditablePolyline
-      } else if (segment.spliting || segment.joining || segment.pointDetails) {
-        Elm = PointPolyline
-      } else {
-        Elm = Polyline
-      }
-      const handlers = segment.editing ? {
-        onChange: (n, points) => {
-          let {lat, lng} = points[n]._latlng
-          dispatch(changeSegmentPoint(segment.id, n, lat, lng))
-        },
-        onRemove: (n, points) => {
-          dispatch(removeSegmentPoint(segment.id, n))
-        },
-        onPointAdd: (n, points) => {
-          let {lat, lng} = points[n]._latlng
-          dispatch(addSegmentPoint(segment.id, n, lat, lng))
-        },
-        onExtend: (n, points) => {
-          let {lat, lng} = points[n]._latlng
-          dispatch(extendSegment(segment.id, n, lat, lng))
-        }
-      } : {}
-      if (segment.spliting) {
-        handlers.onPointClick = (point, i) => {
-          dispatch(splitSegment(segment.id, i))
-        }
-      } else if (segment.joining) {
-        let p = segment.joinPossible
-        p.forEach((pp) => {
-          if (pp.show === 'END') {
-            handlers.showEnd = (point, i) => {
-              dispatch(joinSegment(segment.id, i, pp))
-            }
-          }
-          if (pp.show === 'START') {
-            handlers.showStart = (point, i) => {
-              dispatch(joinSegment(segment.id, i, pp))
-            }
-          }
-        })
-      } else if (segment.pointDetails) {
-        handlers.popupInfo = points
-      }
+const SplitableMapSegment = (points, trackId, id, color, dispatch) => {
+  return (
+    <PointPolyline
+      opacity={1.0}
+      positions={points}
+      color={color}
+      key={trackId + ' ' + id}
+      onPointClick={(point, i) => {
+        dispatch(splitSegment(id, i))
+      }} />
+  )
+}
 
-      return (<Elm opacity={1.0} positions={t} color={ segment.color } key={segment.id + ' ' + track.id} {...handlers} />)
-    })
+const JoinableMapSegment = (points, trackId, id, color, possibilities, dispatch) => {
+  let handlers = {}
+  possibilities.forEach((pp) => {
+    if (pp.show === 'END') {
+      handlers.showEnd = (point, i) => {
+        dispatch(joinSegment(id, i, pp))
+      }
+    }
+    if (pp.show === 'START') {
+      handlers.showStart = (point, i) => {
+        dispatch(joinSegment(id, i, pp))
+      }
+    }
   })
+  return (
+    <PointPolyline
+      opacity={1.0}
+      positions={points}
+      color={color}
+      key={trackId + ' ' + id}
+      {...handlers} />
+  )
+}
 
-  bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
+const PointDetailMapSegment = (points, trackId, id, color, possibilies) => {
+  return (
+    <PointPolyline
+      opacity={1.0}
+      positions={points}
+      color={color}
+      key={trackId + ' ' + id}
+      popupInfo={points} />
+  )
+}
+const mapStates = {
+  VANILLA: 0,
+  EDITING: 1,
+  SPLITING: 2,
+  JOINING: 3,
+  POINT_DETAILS: 4
+}
 
-  let Layer
+const SelectMapSegment = (points, id, color, trackId, state, joinPossible, dispatch) => {
+  switch (state) {
+    case mapStates.EDITING:
+      return EditableMapSegment(points, trackId, id, color, dispatch)
+    case mapStates.SPLITING:
+      return SplitableMapSegment(points, trackId, id, color, dispatch)
+    case mapStates.JOINING:
+      return JoinableMapSegment(points, trackId, id, color, joinPossible, dispatch)
+    case mapStates.POINT_DETAILS:
+      return PointDetailMapSegment(points, trackId, id, color, trackId)
+    default:
+      return <Polyline opacity={1.0} positions={points} color={ color } key={trackId + ' ' + id} />
+  }
+}
+
+const segmentStateSelector = (segment) => {
+  if (segment.get('editing')) {
+    return mapStates.EDITING
+  } else if (segment.get('spliting')) {
+    return mapStates.SPLITING
+  } else if (segment.get('joining')) {
+    return mapStates.JOINING
+  } else if (segment.get('pointDetails')) {
+    return mapStates.POINT_DETAILS
+  } else {
+    return mapStates.VANILLA
+  }
+}
+
+const TileLayerSelector = (map) => {
   switch (map) {
     case 'google_sattelite':
-      Layer = (<GoogleTileLayer mapType='SATELLITE' />)
-      break
+      return (<GoogleTileLayer mapType='SATELLITE' />)
     case 'google_road':
-      Layer = (<GoogleTileLayer mapType='ROADMAP' />)
-      break
+      return (<GoogleTileLayer mapType='ROADMAP' />)
     case 'google_hybrid':
-      Layer = (<GoogleTileLayer mapType='HYBRID' />)
-      break
+      return (<GoogleTileLayer mapType='HYBRID' />)
     case 'google_terrain':
-      Layer = (<GoogleTileLayer mapType='TERRAIN' />)
-      break
+      return (<GoogleTileLayer mapType='TERRAIN' />)
     default:
-      Layer = (
+      return (
         <TileLayer
           url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         />
       )
   }
+}
+
+let LeafletMap = ({bounds, map, segments, dispatch}) => {
+  const elms = segments.filter((segment) => segment.get('display')).map((segment) => {
+    const points = segment.get('points').toJS()
+    const state = segmentStateSelector(segment)
+    const color = segment.get('color')
+    const id = segment.get('id')
+    const trackId = segment.get('trackId')
+    const joinPossible = segment.get('joinPossible')
+    return SelectMapSegment(points, id, color, trackId, state, joinPossible, dispatch)
+  }).toJS()
+  const elements = Object.keys(elms).map((e) => elms[e])
+
+  bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
 
   return (
     <div className='fill' >
       <div id='controls'>
-        <div className={'clickable' + (map === 'map' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
+        <div className={'clickable' + (map === 'osm' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
         <div className={'clickable' + (map === 'google_sattelite' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
         <div className={'clickable' + (map === 'google_road' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
         <div className={'clickable' + (map === 'google_hybrid' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
         <div className={'clickable' + (map === 'google_terrain' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
       </div>
       <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
-        { Layer }
+        { TileLayerSelector(map) }
         { elements }
       </Map>
     </div>
   )
 }
 
+let pastState = null
 const mapStateToProps = (state) => {
-  return {
-    map: state.ui.map,
-    bounds: state.ui.bounds,
-    tracks: state.tracks.map((track) => track.segments.filter((segment) => segment.display))
+  const ss = {
+    map: state.get('ui').get('map'),
+    bounds: state.get('ui').get('bounds'),
+    segments: state.get('tracks').get('segments')
   }
+  pastState = ss
+  return ss
 }
 
 LeafletMap = connect(mapStateToProps)(LeafletMap)

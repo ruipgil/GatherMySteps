@@ -8,8 +8,9 @@ import { Provider } from 'react-redux'
 
 import App from './containers/App.jsx'
 import reducers from './reducers'
+import { Map } from 'immutable'
 
-let store = createStore(reducers)
+let store = createStore(reducers, Map({}))
 
 render((
   <Provider store={store}>

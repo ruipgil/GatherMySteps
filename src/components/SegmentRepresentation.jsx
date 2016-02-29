@@ -41,7 +41,7 @@ const calculateMetrics = (points) => {
 }
 
 const calculateDistance = (points) => {
-  let l = points.length - 2
+  let l = points.count() - 2
   return points.map((p) => {
     return { latitude: p.lat, longitude: p.lon }
   }).reduce((prev, curr, i, arr) => {
@@ -54,7 +54,19 @@ const calculateDistance = (points) => {
 }
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
-  const { id, name, points, start, end, display, color, editing, spliting, joining, pointDetails } = segment
+  const id = segment.get('id')
+  const name = segment.get('name')
+  const points = segment.get('points')
+  const start = segment.get('start')
+  const end = segment.get('end')
+  const display = segment.get('display')
+  const color = segment.get('color')
+  const editing = segment.get('editing')
+  const spliting = segment.get('spliting')
+  const joining = segment.get('joining')
+  const pointDetails = segment.get('pointDetails')
+  const bounds = segment.get('bounds').toJS()
+
   const toggleTrack = (segmentIndex) => {
     return () => dispatch(toggleSegmentDisplay(segmentIndex))
   }
@@ -71,20 +83,20 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
     return () => dispatch(toggleSegmentSpliting(segmentIndex))
   }
   const fit = (segmentIndex) => {
-    return () => dispatch(updateBounds(segment.bounds))
+    return () => dispatch(updateBounds(bounds))
   }
   const toggleDetails = (segmentIndex) => {
     return () => dispatch(toggleSegmentPointDetails(segmentIndex))
   }
-  let metrics = calculateMetrics(points)
-  let distance = metrics.reduce((prev, c) => { return prev + c.distance }, 0)
-  let avrgSpeed = metrics.reduce((prev, c) => { return prev + c.velocity }, 0) / metrics.length
+  // let metrics = calculateMetrics(points)
+  let distance = 0 // metrics.reduce((prev, c) => { return prev + c.distance }, 0)
+  let avrgSpeed = 0 // metrics.reduce((prev, c) => { return prev + c.velocity }, 0) / metrics.length
   return (
     <div>
     <div>
       <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} >
         <div onClick={toggleTrack(id)}>
-          <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.length} points</span></div>
+          <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.count()} points</span></div>
           <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
           <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
           <div style={{fontSize: '0.8rem', color: 'gray'}}>{ distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>

@@ -1,10 +1,12 @@
 import { genTrackId, genSegId } from './idState'
+import { Map, List, fromJS } from 'immutable'
 import colors from './colors'
 
 export const max = (a, b) => a >= b ? a : b
 export const min = (a, b) => a <= b ? a : b
 
 export const updateBoundsWithPoint = (point, bounds) => {
+  console.log(bounds.lat[0], bounds.lon[0])
   return [
     { lat: min(bounds.lat[0], point.lat),
       lon: min(bounds.lon[0], point.lon)
@@ -38,9 +40,10 @@ export const getTrackBySegmentId = (id, state) =>
     track.segments.find((s) => s.id === id) ? track : null
   ).find((x) => !!x)
 
-export const createSegmentObj = (points) => {
+export const createSegmentObj = (trackId, points) => {
   let sId = genSegId()
   return {
+    trackId,
     id: sId,
     points: points,
     display: true,
@@ -58,10 +61,14 @@ export const createSegmentObj = (points) => {
 
 export const createTrackObj = (name, segments) => {
   let id = genTrackId()
+  let segs = segments.map((segment) => createSegmentObj(id, segment))
   return {
-    id,
-    segments: segments.map((segment) => createSegmentObj(segment)),
-    name: name,
-    renaming: false
+    track: {
+      id,
+      segments: segs.map((s) => s.id),
+      name: name,
+      renaming: false
+    },
+    segments: segs
   }
 }
