@@ -53,7 +53,6 @@ const PointPolyline = (props) => {
 
   return (
     <LayerGroup map={map} >
-      <Polyline {...props} />
       { points }
     </LayerGroup>
   )

@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, TileLayer, Polyline } from 'react-leaflet'
+import { Map, TileLayer, Polyline, LayerGroup } from 'react-leaflet'
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
@@ -102,7 +102,7 @@ const mapStates = {
   POINT_DETAILS: 4
 }
 
-const SelectMapSegment = (points, id, color, trackId, state, joinPossible, dispatch) => {
+const ComplexMapSegments = (points, id, color, trackId, state, joinPossible, dispatch) => {
   switch (state) {
     case mapStates.EDITING:
       return EditableMapSegment(points, trackId, id, color, dispatch)
@@ -113,8 +113,17 @@ const SelectMapSegment = (points, id, color, trackId, state, joinPossible, dispa
     case mapStates.POINT_DETAILS:
       return PointDetailMapSegment(points, trackId, id, color, trackId)
     default:
-      return <Polyline opacity={1.0} positions={points} color={ color } key={trackId + ' ' + id} />
+      return null
   }
+}
+
+const SelectMapSegment = (points, id, color, trackId, state, joinPossible, dispatch) => {
+  return (
+    <LayerGroup key={trackId + ' ' + id} >
+      <Polyline opacity={1.0} positions={points} color={ color } />
+      {ComplexMapSegments(points, id, color, trackId, state, joinPossible, dispatch)}
+    </LayerGroup>
+  )
 }
 
 const segmentStateSelector = (segment) => {
@@ -168,7 +177,7 @@ let LeafletMap = ({bounds, map, segments, dispatch}) => {
   return (
     <div className='fill' >
       <div id='controls'>
-        <div className={'clickable' + (map === 'osm' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
+        <div className={'clickable' + (!map || map === 'osm' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
         <div className={'clickable' + (map === 'google_sattelite' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
         <div className={'clickable' + (map === 'google_road' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
         <div className={'clickable' + (map === 'google_hybrid' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
@@ -182,15 +191,12 @@ let LeafletMap = ({bounds, map, segments, dispatch}) => {
   )
 }
 
-let pastState = null
 const mapStateToProps = (state) => {
-  const ss = {
+  return {
     map: state.get('ui').get('map'),
     bounds: state.get('ui').get('bounds'),
     segments: state.get('tracks').get('segments')
   }
-  pastState = ss
-  return ss
 }
 
 LeafletMap = connect(mapStateToProps)(LeafletMap)
