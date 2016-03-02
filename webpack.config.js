@@ -17,6 +17,7 @@ var config = {
     /*'webpack-dev-server/client?http://0.0.0.0:3000',
     'webpack/hot/only-dev-server',*/
     'webpack-hot-middleware/client',
+    'babel-polyfill',
     './src/index.jsx',
   ],
   output: {
@@ -42,7 +43,7 @@ var config = {
       {
         test: /\.(png|woff2?)$/,
         loader: 'url-loader?limit=100000'
-      },
+      }
     ]
   },
   plugins: [

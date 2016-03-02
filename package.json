@@ -18,9 +18,11 @@
   },
   "homepage": "https://github.com/ruipgil/gathermysteps#readme",
   "dependencies": {
+    "babel-polyfill": "^6.6.1",
     "gxparser": "^1.0.0",
     "haversine": "^1.0.0",
     "immutable": "^3.7.6",
+    "isomorphic-fetch": "^2.2.1",
     "leaflet": "^0.7.7",
     "leaflet-easybutton": "github:ruipgil/Leaflet.EasyButton",
     "leaflet-editable-polyline": "github:ruipgil/leaflet-editable-polyline",
@@ -31,7 +33,10 @@
     "react-redux": "^4.3.0",
     "redux": "^3.2.1",
     "redux-immutable": "^3.0.5",
-    "togeojson": "^0.13.0"
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^1.0.3",
+    "thunk": "0.0.1",
+    "togeojson": "^0.13.0",
   },
   "devDependencies": {
     "babel-core": "^6.4.5",

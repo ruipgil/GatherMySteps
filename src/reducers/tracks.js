@@ -21,10 +21,24 @@ const toggleTrackRenaming = (state, action) => {
   return state.setIn(['tracks', action.trackId, 'renaming'], !state.get('tracks').get(id).get('renaming'))
 }
 
+import { addTrack as addTrackAction } from '../actions/tracks'
+
+const removeTracksFor = (state, action) => {
+  state = state
+    .updateIn(['tracks'], (tracks) => {
+      return tracks.clear()
+    })
+    .updateIn(['segments'], (segments) => {
+      return segments.clear()
+    })
+  return addTrack(state, addTrackAction(action.name, action.segments))
+}
+
 const ACTION_REACTION = {
   'ADD_TRACK': addTrack,
   'TOGGLE_TRACK_RENAMING': toggleTrackRenaming,
-  'UPDATE_TRACK_NAME': updateTrackName
+  'UPDATE_TRACK_NAME': updateTrackName,
+  'REMOVE_TRACKS_FOR': removeTracksFor
 }
 
 import segments from './segments'

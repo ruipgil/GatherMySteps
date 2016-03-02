@@ -1,7 +1,7 @@
-export const addTrack = (segments, file) => {
+export const addTrack = (segments, name) => {
   return {
     segments,
-    name: file.name,
+    name,
     type: 'ADD_TRACK'
   }
 }

@@ -3,14 +3,21 @@ import '../node_modules/leaflet/dist/leaflet.css'
 
 import React from 'react'
 import { render } from 'react-dom'
-import { createStore } from 'redux'
+import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
+import thunkMiddleware from 'redux-thunk'
+import createLogger from 'redux-logger'
 
 import App from './containers/App.jsx'
 import reducers from './reducers'
 import { Map } from 'immutable'
 
-let store = createStore(reducers, Map({}))
+const loggerMiddleware = createLogger()
+let store = createStore(
+  reducers,
+  Map({}),
+  applyMiddleware(thunkMiddleware, loggerMiddleware)
+)
 
 render((
   <Provider store={store}>

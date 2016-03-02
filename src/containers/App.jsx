@@ -4,8 +4,12 @@ import { addTrack } from '../actions/tracks'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from './LeafletMap.jsx'
 import TrackList from './TrackList.jsx'
+import Progress from './Progress.jsx'
+import ProgressBar from './ProgressBar.jsx'
 
 import loadFiles from '../loadFiles'
+
+import { nextStep } from '../actions/progress'
 
 let App = ({ ui, tracks, dispatch }) => {
   const onDrop = (e) => {
@@ -15,9 +19,19 @@ let App = ({ ui, tracks, dispatch }) => {
     loadFiles(files, (gpx, file) => {
       gpx.trk.forEach((trk) => {
         const trackPoints = trk.trkseg.map((seg) => seg.trkpt)
-        dispatch(addTrack(trackPoints, file))
+        dispatch(addTrack(trackPoints, file.name))
       })
     })
+  }
+
+  const onNext = (e) => {
+    dispatch(nextStep())
+      .then(() => {
+        console.log('hey')
+      })
+  }
+
+  const onPrevious = (e) => {
   }
 
   /*
@@ -33,7 +47,9 @@ let App = ({ ui, tracks, dispatch }) => {
       <div id='title'>GatherMySteps</div>
       <div id='details'>
         <TrackList />
+        <Progress onNext={ onNext } onPrevious={ onPrevious } />
       </div>
+      <ProgressBar />
       <LeafletMap />
     </Dropzone>
   )
