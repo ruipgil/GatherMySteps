@@ -1,10 +1,25 @@
+import {
+  ADD_SEGMENT_POINT,
+  CHANGE_SEGMENT_POINT,
+  EXTEND_SEGMENT_POINT,
+  FIT_SEGMENT,
+  JOIN_SEGMENT,
+  REMOVE_SEGMENT,
+  REMOVE_SEGMENT_POINT,
+  SPLIT_SEGMENT,
+  TOGGLE_SEGMENT_DISPLAY,
+  TOGGLE_SEGMENT_SPLITING,
+  TOGGLE_SEGMENT_POINT_DETAILS,
+  TOGGLE_SEGMENT_JOINING,
+  TOGGLE_SEGMENT_EDITING } from './'
+
 export const addSegmentPoint = (segmentId, index, lat, lon) => {
   return {
     segmentId,
     index,
     lat,
     lon,
-    type: 'ADD_SEGMENT_POINT'
+    type: ADD_SEGMENT_POINT
   }
 }
 
@@ -14,7 +29,7 @@ export const changeSegmentPoint = (segmentId, index, lat, lon) => {
     index,
     lat,
     lon,
-    type: 'CHANGE_SEGMENT_POINT'
+    type: CHANGE_SEGMENT_POINT
   }
 }
 
@@ -24,14 +39,14 @@ export const extendSegment = (segmentId, index, lat, lon) => {
     index,
     lat,
     lon,
-    type: 'EXTEND_SEGMENT_POINT'
+    type: EXTEND_SEGMENT_POINT
   }
 }
 
 export const fitSegment = (segmentId) => {
   return {
     segmentId,
-    type: 'FIT_SEGMENT'
+    type: FIT_SEGMENT
   }
 }
 
@@ -40,14 +55,14 @@ export const joinSegment = (segmentId, index, details) => {
     index,
     segmentId,
     details,
-    type: 'JOIN_SEGMENT'
+    type: JOIN_SEGMENT
   }
 }
 
 export const removeSegment = (segmentId) => {
   return {
     segmentId,
-    type: 'REMOVE_SEGMENT'
+    type: REMOVE_SEGMENT
   }
 }
 
@@ -55,7 +70,7 @@ export const removeSegmentPoint = (segmentId, index) => {
   return {
     segmentId,
     index,
-    type: 'REMOVE_SEGMENT_POINT'
+    type: REMOVE_SEGMENT_POINT
   }
 }
 
@@ -63,40 +78,40 @@ export const splitSegment = (segmentId, index) => {
   return {
     index,
     segmentId,
-    type: 'SPLIT_SEGMENT'
+    type: SPLIT_SEGMENT
   }
 }
 
 export const toggleSegmentDisplay = (segmentId, value) => {
   return {
     segmentId,
-    type: 'TOGGLE_SEGMENT_DISPLAY'
+    type: TOGGLE_SEGMENT_DISPLAY
   }
 }
 export const toggleSegmentEditing = (segmentId, value) => {
   return {
     segmentId,
-    type: 'TOGGLE_SEGMENT_EDITING'
+    type: TOGGLE_SEGMENT_EDITING
   }
 }
 
 export const toggleSegmentJoining = (segmentId) => {
   return {
     segmentId,
-    type: 'TOGGLE_SEGMENT_JOINING'
+    type: TOGGLE_SEGMENT_JOINING
   }
 }
 
 export const toggleSegmentPointDetails = (segmentId) => {
   return {
     segmentId,
-    type: 'TOGGLE_SEGMENT_POINT_DETAILS'
+    type: TOGGLE_SEGMENT_POINT_DETAILS
   }
 }
 
 export const toggleSegmentSpliting = (segmentId) => {
   return {
     segmentId,
-    type: 'TOGGLE_SEGMENT_SPLITING'
+    type: TOGGLE_SEGMENT_SPLITING
   }
 }
