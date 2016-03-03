@@ -15,7 +15,7 @@ export const nextStep = () => {
     if (step === undefined || step === 0) {
       const options = {
         method: 'POST',
-        mode: 'no-cors',
+        mode: 'cors',
         body: JSON.stringify({
           type: 'PROCESS',
           data: segmentsToJson(getState())
@@ -24,7 +24,13 @@ export const nextStep = () => {
 
       return fetch('//localhost:5000/process', options)
         .then((response) => response.json())
-        // .then((json) => dispatch(removeTracksFor(json.segments)))
+        .catch((err) => {
+          console.log(err)
+        })
+        .then((json) => {
+          console.log(json)
+          dispatch(removeTracksFor(json.results.points.filter((s) => s.length > 0)))
+        })
     } else if (step === 1) {
       /*return fetch('http://localhost:5000/semantic')
         .then((response) => response.json())

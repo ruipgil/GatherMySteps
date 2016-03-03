@@ -1,5 +1,5 @@
+import moment from 'moment'
 import { genTrackId, genSegId } from './idState'
-import { Map, List, fromJS } from 'immutable'
 import colors from './colors'
 
 export const max = (a, b) => a >= b ? a : b
@@ -45,7 +45,10 @@ export const createSegmentObj = (trackId, points) => {
   return {
     trackId,
     id: sId,
-    points: points,
+    points: points.map((point) => {
+      point.time = moment(point.time)
+      return point
+    }),
     display: true,
     start: points[0].time,
     end: points[points.length - 1].time,
@@ -61,6 +64,7 @@ export const createSegmentObj = (trackId, points) => {
 
 export const createTrackObj = (name, segments) => {
   let id = genTrackId()
+  console.log(name, segments)
   let segs = segments.map((segment) => createSegmentObj(id, segment))
   return {
     track: {
