@@ -1,3 +1,4 @@
+import { ADVANCE_TO_ADJUST } from './'
 import fetch from 'isomorphic-fetch'
 
 const segmentsToJson = (state) => {
@@ -7,6 +8,13 @@ const segmentsToJson = (state) => {
       name: segment.get('name')
     }
   }).toJS()
+}
+
+const advanceToAdjust = (track) => {
+  return {
+    type: ADVANCE_TO_ADJUST,
+    track
+  }
 }
 
 export const nextStep = () => {
@@ -28,8 +36,10 @@ export const nextStep = () => {
           console.log(err)
         })
         .then((json) => {
-          console.log(json)
-          dispatch(removeTracksFor(json.results.points.filter((s) => s.length > 0)))
+          const track = json.results.points.filter((s) => s.length > 0)
+          const action = advanceToAdjust(track)
+          dispatch(action)
+          dispatch(removeTracksFor(track))
         })
     } else if (step === 1) {
       /*return fetch('http://localhost:5000/semantic')

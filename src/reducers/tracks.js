@@ -2,7 +2,6 @@ import { createTrackObj } from './utils'
 
 const addTrack = (state, action) => {
   let { name, segments } = action
-  console.log(segments)
   let track = createTrackObj(name, segments)
   const ctrack = track.track
   const csegments = track.segments

@@ -5,7 +5,8 @@ import {
   getSegmentById,
   getTrackBySegmentId,
   */
-  createSegmentObj
+  createSegmentObj,
+  calculateMetrics
 } from './utils'
 import {
   removeSegment as removeSegmentAction
@@ -15,9 +16,19 @@ import { fromJS } from 'immutable'
 const updateSegment = (state, id) => {
   // TODO update bounds
   return state.updateIn(['segments', id], (segment) => {
+    const pts = segment.get('points')
+    const points = calculateMetrics(pts)
+    const totalDistance = points.reduce((total, point) => total + point.distance, 0)
+    const averageVelocity = points.reduce((total, point) => total + point.velocity, 0) / points.length
+
     return segment
-      .set('start', segment.get('points').get(0).get('time'))
-      .set('end', segment.get('points').get(-1).get('time'))
+      .set('start', pts.get(0).get('time'))
+      .set('end', pts.get(-1).get('time'))
+      .set('metrics', fromJS({
+        totalDistance,
+        averageVelocity,
+        points
+      }))
   })
 }
 

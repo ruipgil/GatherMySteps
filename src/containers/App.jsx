@@ -27,7 +27,6 @@ let App = ({ ui, tracks, dispatch }) => {
   const onNext = (e) => {
     dispatch(nextStep())
       .then(() => {
-        console.log('hey')
       })
   }
 

@@ -1,12 +1,12 @@
 import moment from 'moment'
 import { genTrackId, genSegId } from './idState'
 import colors from './colors'
+import haversine from 'haversine'
 
 export const max = (a, b) => a >= b ? a : b
 export const min = (a, b) => a <= b ? a : b
 
 export const updateBoundsWithPoint = (point, bounds) => {
-  console.log(bounds.lat[0], bounds.lon[0])
   return [
     { lat: min(bounds.lat[0], point.lat),
       lon: min(bounds.lon[0], point.lon)
@@ -58,13 +58,13 @@ export const createSegmentObj = (trackId, points) => {
     spliting: false,
     joining: false,
     pointDetails: false,
-    bounds: calculateBounds(points)
+    bounds: calculateBounds(points),
+    metrics: calculateMetrics(points)
   }
 }
 
 export const createTrackObj = (name, segments) => {
   let id = genTrackId()
-  console.log(name, segments)
   let segs = segments.map((segment) => createSegmentObj(id, segment))
   return {
     track: {
@@ -76,3 +76,42 @@ export const createTrackObj = (name, segments) => {
     segments: segs
   }
 }
+
+export const calculateMetrics = (points) => {
+  const convert = 1 / 3600000
+  points = points.map((p) => {
+    return { latitude: p.lat, longitude: p.lon, time: p.time }
+  }).map((curr, i, arr) => {
+    if (i !== 0) {
+      let prev = arr[i - 1]
+      let distance = haversine(prev, curr, {unit: 'km'})
+      let timeDiff = curr.time.diff(prev.time) * convert
+      let velocity = timeDiff === 0 ? 0 : distance / timeDiff
+      return {
+        distance,
+        velocity,
+        lat: curr.latitude,
+        lon: curr.longitude,
+        time: curr.time
+      }
+    } else {
+      return {
+        distance: 0,
+        velocity: 0,
+        lat: curr.latitude,
+        lon: curr.longitude,
+        time: curr.time
+      }
+    }
+  })
+
+  const totalDistance = points.reduce((total, point) => total + point.distance, 0)
+  const averageVelocity = points.reduce((total, point) => total + point.velocity, 0) / points.length
+
+  return {
+    totalDistance,
+    averageVelocity,
+    points
+  }
+}
+

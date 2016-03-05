@@ -1,13 +1,14 @@
 import React from 'react'
-import { LayerGroup, Polyline, Circle, Popup } from 'react-leaflet'
+import { LayerGroup, Circle, Popup } from 'react-leaflet'
 
-const buildPopup = (lat, lon, time, n) => {
+const buildPopup = (lat, lon, time, distance, velocity, n) => {
   return (
     <Popup>
       <div>
         <div>#{n}</div>
         <div>Lat: <b>{lat}</b> Lon: <b>{lon}</b></div>
         <div>Time: <b>{time.toString()}</b></div>
+        <div><b>{(distance * 1000).toFixed(3)}</b>m at <b>{velocity.toFixed(3)}</b>km/h</div>
       </div>
     </Popup>
   )
@@ -28,7 +29,7 @@ const PointPolyline = (props) => {
     points = popupInfo.map((point, i) => {
       return (
         <Circle center={{lat: point.lat, lon: point.lon}} radius={radius || 2} key={_id++} onClick={(e) => clickHandler(point, i, e)} >
-          { buildPopup(point.lat, point.lon, point.time, i) }
+          { buildPopup(point.lat, point.lon, point.time, point.distance, point.velocity, i) }
         </Circle>
       )
     })
