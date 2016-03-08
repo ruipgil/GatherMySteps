@@ -1,20 +1,12 @@
 import expect from 'expect'
-import moment from 'moment'
+import sampleSegment from './sampleSegment'
 import {
   ADD_TRACK, TOGGLE_TRACK_RENAMING, UPDATE_TRACK_NAME
 } from '../../src/actions'
 import * as tactions from '../../src/actions/tracks'
 
 describe('tactions', () => {
-  const segments = [
-    [
-      { lat: 1, lon: 1, time: moment().add(1, 's') },
-      { lat: 1.2, lon: 1, time: moment().add(2, 's') },
-      { lat: 1.3, lon: 1, time: moment().add(4, 's') },
-      { lat: 1.3, lon: 1.1, time: moment().add(8, 's') },
-      { lat: 1.4, lon: 1.1, time: moment().add(10, 's') }
-    ]
-  ]
+  const segments = sampleSegment
 
   it('should create an action to add a track', () => {
     const name = 'trackA.gpx'
@@ -23,7 +15,9 @@ describe('tactions', () => {
       name,
       segments
     }
-    expect(tactions.addTrack(segments, name)).toEqual(expectedAction)
+    const result = tactions.addTrack(segments, name)
+    expect(result).toEqual(expectedAction)
+    expect(result.type).toExist()
   })
 
   it('should create an action to toggle track renaming', () => {
@@ -32,7 +26,9 @@ describe('tactions', () => {
       type: TOGGLE_TRACK_RENAMING,
       trackId
     }
-    expect(tactions.toggleTrackRenaming(trackId)).toEqual(expectedAction)
+    const result = tactions.toggleTrackRenaming(trackId)
+    expect(result).toEqual(expectedAction)
+    expect(result.type).toExist()
   })
 
   it('should create an action to update the track name', () => {
@@ -43,6 +39,8 @@ describe('tactions', () => {
       name,
       trackId
     }
-    expect(tactions.updateTrackName(trackId, name)).toEqual(expectedAction)
+    const result = tactions.updateTrackName(trackId, name)
+    expect(result).toEqual(expectedAction)
+    expect(result.type).toExist()
   })
 })

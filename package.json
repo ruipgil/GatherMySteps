@@ -21,6 +21,7 @@
   "homepage": "https://github.com/ruipgil/gathermysteps#readme",
   "dependencies": {
     "babel-polyfill": "^6.6.1",
+    "draft-js": "^0.1.0",
     "gxparser": "^1.0.0",
     "haversine": "^1.0.0",
     "immutable": "^3.7.6",
