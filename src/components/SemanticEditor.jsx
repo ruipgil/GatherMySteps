@@ -63,6 +63,15 @@ const TagStrategy = (contentBlock, callback) => {
   }, 2, 'tag')
 }
 
+const SIMPLE_TAG_REGEX = /\[[^\]]*\]/g
+const SimpleTagStrategy = (contentBlock, callback) => {
+  findWithRegex(SIMPLE_TAG_REGEX, contentBlock, callback, 0, 'simple tag')
+}
+const SIMPLE_SEMANTICS_REGEX = /\{[^\}]*\}/g
+const SimpleSemanticStrategy = (contentBlock, callback) => {
+  findWithRegex(SIMPLE_SEMANTICS_REGEX, contentBlock, callback, 0, 'ss')
+}
+
 const SEMANTICS_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+(?:->[^\[\{\>\-]+)?(?:\[[^\]]*\])?\s*)(\{[^\}]+\})/g
 const SemanticStrategy = (contentBlock, callback) => {
   findWithRegex(SEMANTICS_REGEX, contentBlock, (a, b) => {
@@ -107,11 +116,11 @@ class SemanticEditor extends Component {
         component: Hour
       },
       {
-        strategy: TagStrategy,
+        strategy: SimpleTagStrategy,
         component: Hour
       },
       {
-        strategy: SemanticStrategy,
+        strategy: SimpleSemanticStrategy,
         component: Hour
       }
       /*
@@ -151,6 +160,6 @@ class SemanticEditor extends Component {
   }
 }
 
-const regEx = /(\d{4})-(\d{4}):\s*([^->\[\{]*)\s*(?:->([^\[\{]*))?\s*(?:\[([^\]]*)\])?\s*(?:\{([^}]*)\})?/g
+// const regEx = /(\d{4})-(\d{4}):\s*([^->\[\{]*)\s*(?:->([^\[\{]*))?\s*(?:\[([^\]]*)\])?\s*(?:\{([^}]*)\})?/g
 
 export default SemanticEditor
