@@ -2,9 +2,10 @@ import React from 'react'
 import { connect } from 'react-redux'
 import TrackRepresentation from '../components/TrackRepresentation.jsx'
 import SemanticEditor from '../components/SemanticEditor.jsx'
+import { PREVIEW_STAGE, ADJUST_STAGE, ANNOTATE_STAGE } from '../constants'
 
 let TrackList = ({ dispatch, tracks, segments, stage }) => {
-  if (stage <= 0) {
+  if (stage === PREVIEW_STAGE || stage === ADJUST_STAGE) {
     return (
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
       {
@@ -15,7 +16,7 @@ let TrackList = ({ dispatch, tracks, segments, stage }) => {
       }
       </ul>
     )
-  } else {
+  } else if (stage === ANNOTATE_STAGE) {
     return (
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
         <SemanticEditor />

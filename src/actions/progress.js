@@ -1,4 +1,5 @@
-import { ADVANCE_TO_ADJUST } from './'
+import { PREVIEW_STAGE, ADJUST_STAGE } from '../constants'
+import { ADVANCE_TO_ADJUST, ADVANCE_TO_ANNOTATE } from './'
 import fetch from 'isomorphic-fetch'
 
 const segmentsToJson = (state) => {
@@ -10,17 +11,22 @@ const segmentsToJson = (state) => {
   }).toJS()
 }
 
-const advanceToAdjust = (track) => {
+const advanceToAdjust = () => {
   return {
-    type: ADVANCE_TO_ADJUST,
-    track
+    type: ADVANCE_TO_ADJUST
+  }
+}
+
+const advanceToAnnotate = () => {
+  return {
+    type: ADVANCE_TO_ANNOTATE
   }
 }
 
 export const nextStep = () => {
   return (dispatch, getState) => {
     const step = getState().get('progress')
-    if (step === undefined || step === 0) {
+    if (step === PREVIEW_STAGE) {
       const options = {
         method: 'POST',
         mode: 'cors',
@@ -37,14 +43,16 @@ export const nextStep = () => {
         })
         .then((json) => {
           const track = json.results.points.filter((s) => s.length > 0)
-          const action = advanceToAdjust(track)
+          const action = advanceToAdjust()
           dispatch(action)
           dispatch(removeTracksFor(track))
         })
-    } else if (step === 1) {
-      /*return fetch('http://localhost:5000/semantic')
-        .then((response) => response.json())
-        .then((json) => dispatch(removeTracksFor(json.segments)))*/
+    } else if (step === ADJUST_STAGE) {
+      return Promise.resolve()
+        .then(() => {
+          const action = advanceToAnnotate()
+          dispatch(action)
+        })
     } else {
       console.log('no!')
     }
