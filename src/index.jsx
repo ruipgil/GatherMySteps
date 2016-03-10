@@ -12,7 +12,9 @@ import App from './containers/App.jsx'
 import reducers from './reducers'
 import { Map } from 'immutable'
 
-const loggerMiddleware = createLogger()
+const loggerMiddleware = createLogger({
+  stateTransformer: (state) => state.toJS()
+})
 let store = createStore(
   reducers,
   Map({}),

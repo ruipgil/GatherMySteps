@@ -10,7 +10,7 @@ function findWithRegex (regex, contentBlock, callback, mi = 1, log = null) {
   const text = contentBlock.getText()
   let matchArr, start, matched
   if (log) {
-    //console.log(regex.exec(text))
+    // console.log(regex.exec(text))
   }
   while ((matchArr = regex.exec(text)) !== null) {
     start = matchArr.index
@@ -45,14 +45,19 @@ const HourEndStrategy = (contentBlock, callback) => {
   findWithRegex(HOUR_END_REGEX, contentBlock, callback, 2)
 }
 
+const HOUR_REGEX = /^\d{4}-\d{4}/g
+const HourStrategy = (contentBlock, callback) => {
+  findWithRegex(HOUR_REGEX, contentBlock, callback, 0, 'hour')
+}
+
 const PLACE_START_REGEX = /^(\d{4}-\d{4}:\s*)([^\[\{\>\-]+)/g
 const PlaceStartStrategy = (contentBlock, callback) => {
-  findWithRegex(PLACE_START_REGEX, contentBlock, callback, 2, 'place-start')
+  findWithRegex(PLACE_START_REGEX, contentBlock, callback, 2)
 }
 
 const PLACE_END_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+\s*->\s*)([^\[\{\>\-]+\s*)/g
 const PlaceEndStrategy = (contentBlock, callback) => {
-  findWithRegex(PLACE_END_REGEX, contentBlock, callback, 2, 'place-end')
+  findWithRegex(PLACE_END_REGEX, contentBlock, callback, 2)
 }
 
 const TAG_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+(?:->[^\[\{\>\-]+)?)(\[[^\]]*\])/g
@@ -60,16 +65,16 @@ const TagStrategy = (contentBlock, callback) => {
   findWithRegex(TAG_REGEX, contentBlock, (a, b) => {
     console.log('tag', a, b, callback)
     callback(a, b)
-  }, 2, 'tag')
+  }, 2)
 }
 
 const SIMPLE_TAG_REGEX = /\[[^\]]*\]/g
 const SimpleTagStrategy = (contentBlock, callback) => {
-  findWithRegex(SIMPLE_TAG_REGEX, contentBlock, callback, 0, 'simple tag')
+  findWithRegex(SIMPLE_TAG_REGEX, contentBlock, callback, 0)
 }
 const SIMPLE_SEMANTICS_REGEX = /\{[^\}]*\}/g
 const SimpleSemanticStrategy = (contentBlock, callback) => {
-  findWithRegex(SIMPLE_SEMANTICS_REGEX, contentBlock, callback, 0, 'ss')
+  findWithRegex(SIMPLE_SEMANTICS_REGEX, contentBlock, callback, 0)
 }
 
 const SEMANTICS_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+(?:->[^\[\{\>\-]+)?(?:\[[^\]]*\])?\s*)(\{[^\}]+\})/g
@@ -77,7 +82,7 @@ const SemanticStrategy = (contentBlock, callback) => {
   findWithRegex(SEMANTICS_REGEX, contentBlock, (a, b) => {
     console.log('tag', a, b, callback)
     callback(a, b)
-  }, 2, 'semantics')
+  }, 2)
 }
 
 const Hour = (props) => {
@@ -99,12 +104,18 @@ class SemanticEditor extends Component {
       {
         strategy: Logger
       },
+      /*
       {
         strategy: HourStartStrategy,
         component: Hour
       },
       {
         strategy: HourEndStrategy,
+        component: Hour
+      },
+      */
+      {
+        strategy: HourStrategy,
         component: Hour
       },
       {
