@@ -1,5 +1,6 @@
 import React from 'react'
 import { Component } from 'react'
+import { Badge, Arrow } from 'rebass'
 import { CompositeDecorator, Editor, EditorState } from 'draft-js'
 
 function findWithRegex (regex, contentBlock, callback, mi = 1, log = null) {
@@ -35,19 +36,9 @@ function findWithRegex (regex, contentBlock, callback, mi = 1, log = null) {
   }
 }
 
-const HOUR_START_REGEX = /^(\d{4})-/g
-const HourStartStrategy = (contentBlock, callback) => {
-  findWithRegex(HOUR_START_REGEX, contentBlock, callback)
-}
-
-const HOUR_END_REGEX = /^(\d{4}-)(\d{4})/g
-const HourEndStrategy = (contentBlock, callback) => {
-  findWithRegex(HOUR_END_REGEX, contentBlock, callback, 2)
-}
-
 const HOUR_REGEX = /^\d{4}-\d{4}/g
 const HourStrategy = (contentBlock, callback) => {
-  findWithRegex(HOUR_REGEX, contentBlock, callback, 0, 'hour')
+  findWithRegex(HOUR_REGEX, contentBlock, callback, 0)
 }
 
 const PLACE_START_REGEX = /^(\d{4}-\d{4}:\s*)([^\[\{\>\-]+)/g
@@ -60,14 +51,6 @@ const PlaceEndStrategy = (contentBlock, callback) => {
   findWithRegex(PLACE_END_REGEX, contentBlock, callback, 2)
 }
 
-const TAG_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+(?:->[^\[\{\>\-]+)?)(\[[^\]]*\])/g
-const TagStrategy = (contentBlock, callback) => {
-  findWithRegex(TAG_REGEX, contentBlock, (a, b) => {
-    console.log('tag', a, b, callback)
-    callback(a, b)
-  }, 2)
-}
-
 const SIMPLE_TAG_REGEX = /\[[^\]]*\]/g
 const SimpleTagStrategy = (contentBlock, callback) => {
   findWithRegex(SIMPLE_TAG_REGEX, contentBlock, callback, 0)
@@ -77,43 +60,16 @@ const SimpleSemanticStrategy = (contentBlock, callback) => {
   findWithRegex(SIMPLE_SEMANTICS_REGEX, contentBlock, callback, 0)
 }
 
-const SEMANTICS_REGEX = /^(\d{4}-\d{4}:\s*[^\[\{\>\-]+(?:->[^\[\{\>\-]+)?(?:\[[^\]]*\])?\s*)(\{[^\}]+\})/g
-const SemanticStrategy = (contentBlock, callback) => {
-  findWithRegex(SEMANTICS_REGEX, contentBlock, (a, b) => {
-    console.log('tag', a, b, callback)
-    callback(a, b)
-  }, 2)
-}
-
 const Hour = (props) => {
   return (
-    <span {...props} className='hour' style={{border: 'solid black 2px'}}>
-      {props.children}
-    </span>
+    <Badge {...props} pill={true} rounded={true} theme='info'>{props.children}<Arrow direction='down' /></Badge>
   )
-}
-
-const Logger = (block, callback) => {
-  console.log('Logger: "%s"', block.getText())
 }
 
 class SemanticEditor extends Component {
   constructor () {
     super()
-    const compositeDecorator = new CompositeDecorator([
-      {
-        strategy: Logger
-      },
-      /*
-      {
-        strategy: HourStartStrategy,
-        component: Hour
-      },
-      {
-        strategy: HourEndStrategy,
-        component: Hour
-      },
-      */
+    const strategies = [
       {
         strategy: HourStrategy,
         component: Hour
@@ -134,38 +90,145 @@ class SemanticEditor extends Component {
         strategy: SimpleSemanticStrategy,
         component: Hour
       }
-      /*
-      {
-        strategy: TagStrategy,
-        element: Tag
-      },
-      {
-        strategy: DetailsStrategy,
-        element: Details
-      }*/
-    ])
+    ]
+    const compositeDecorator = new CompositeDecorator(strategies)
 
     this.state = {
-      editorState: EditorState.createEmpty(compositeDecorator)
+      editorState: EditorState.createEmpty(compositeDecorator),
+      suggestions: []
     }
 
     this.focus = () => this.refs.editor.focus()
     this.onChange = (editorState) => {
-      this.setState({editorState})
-      this.logState()
+      const sel = editorState.getSelection()
+      const index = sel.get('focusOffset')
+      const text = editorState.getCurrentContent().getLastBlock().getText().slice(0, index)
+      const PLACES = [
+        'home',
+        'work',
+        'school',
+        'wife\'s work',
+        'gym',
+        'central park'
+      ]
+      const TRANS = [
+        'walk',
+        'bike',
+        'bus',
+        'car',
+        'train',
+        'subway'
+      ]
+
+      const ARR_S = [
+        {
+          strategy: (text) => {
+            const TAG_COMPLETION_REGEX = /\[([^\]]*)$/g
+            const matched = TAG_COMPLETION_REGEX.exec(text)
+            return matched
+          },
+          suggester: (matched) => {
+            return PLACES.filter((s) => s.match(matched[1]))
+          }
+        },
+        {
+          strategy: (text) => {
+            const TAG_COMPLETION_REGEX = /\{([^\}]*)$/g
+            const matched = TAG_COMPLETION_REGEX.exec(text)
+            return matched
+          },
+          suggester: (matched) => {
+            return TRANS.filter((s) => s.match(matched[1]))
+          }
+        },
+        {
+          strategy: (text) => {
+            const TAG_COMPLETION_REGEX = /\:\s*([^\[\{\-\>]*)$/g
+            const matched = TAG_COMPLETION_REGEX.exec(text)
+            return matched
+          },
+          suggester: (matched) => {
+            return PLACES.filter((s) => s.match(matched[1]))
+          }
+        },
+        {
+          strategy: (text) => {
+            const TAG_COMPLETION_REGEX = /\-\>\s*([^\[\{\-\>]*)$/g
+            const matched = TAG_COMPLETION_REGEX.exec(text)
+            return matched
+          },
+          suggester: (matched) => {
+            return PLACES.filter((s) => s.match(matched[1]))
+          }
+        }
+
+      ]
+
+      const suggestions = ARR_S.reduce((prev, e) => {
+        const { suggester, strategy } = e
+        const found = strategy(text)
+        if (found) {
+          const result = suggester(found)
+          result.forEach((r) => prev.push(r))
+          return prev
+        }
+        return prev
+      }, [])
+
+      this.setState({
+        editorState,
+        suggestions,
+        sugSelected: -1
+      })
     }
-    this.logState = () => console.log(this.state.editorState.toJS())
   }
 
   render () {
+    const upArrow = (e) => {
+      let state = this.state
+      state.sugSelected = (state.sugSelected - 1) % state.suggestions.length
+      this.setState(state)
+    }
+    const downArrow = (e) => {
+      let state = this.state
+      state.sugSelected = (state.sugSelected + 1) % state.suggestions.length
+      this.setState(state)
+    }
+    const onReturn = (e) => {
+      let state = this.state
+      if (state.sugSelected >= 0) {
+        let option = state.suggestions[state.sugSelected]
+        return true
+      } else {
+        return false
+      }
+    }
     return (
       <div style={{ fontFamily: 'monospace' }}>
+        <div>
+        <div>
         <Editor
           editorState={this.state.editorState}
           onChange={this.onChange}
+          placeholder='Start typing'
+          stripPastedStyles={true}
+          onDownArrow={downArrow}
+          onUpArrow={upArrow}
+          handleReturn={onReturn}
           ref='editor'
           spellcheck={false}
         />
+        </div>
+        </div>
+        <ul>
+          {
+            this.state.suggestions.map((s, i) => {
+              return <li key={i} style={{
+                backgroundColor: (i === this.state.sugSelected) ? 'yellow' : 'transparent'
+              }}>{s}</li>
+            })
+          }
+        </ul>
       </div>
     )
   }
