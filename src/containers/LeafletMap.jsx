@@ -51,7 +51,7 @@ const SplitableMapSegment = (points, trackId, id, color, dispatch) => {
   return (
     <PointPolyline
       opacity={1.0}
-      positions={points}
+      positions={points.slice(1, -1)}
       color={color}
       key={trackId + ' ' + id}
       onPointClick={(point, i) => {

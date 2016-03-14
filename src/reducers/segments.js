@@ -17,18 +17,12 @@ const updateSegment = (state, id) => {
   // TODO update bounds
   return state.updateIn(['segments', id], (segment) => {
     const pts = segment.get('points')
-    const points = calculateMetrics(pts)
-    const totalDistance = points.reduce((total, point) => total + point.distance, 0)
-    const averageVelocity = points.reduce((total, point) => total + point.velocity, 0) / points.length
+    const metrics = calculateMetrics(pts.toJS())
 
     return segment
       .set('start', pts.get(0).get('time'))
       .set('end', pts.get(-1).get('time'))
-      .set('metrics', fromJS({
-        totalDistance,
-        averageVelocity,
-        points
-      }))
+      .set('metrics', fromJS(metrics))
   })
 }
 
