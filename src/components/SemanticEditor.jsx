@@ -2,6 +2,7 @@ import React from 'react'
 import { Component } from 'react'
 import { Badge, Arrow } from 'rebass'
 import { CompositeDecorator, Editor, EditorState } from 'draft-js'
+import completeWithSuggestion from './completeWithSuggestion'
 
 function findWithRegex (regex, contentBlock, callback, mi = 1, log = null) {
   if (log) {
@@ -119,7 +120,6 @@ class SemanticEditor extends Component {
         'train',
         'subway'
       ]
-
       const ARR_S = [
         {
           strategy: (text) => {
@@ -128,7 +128,11 @@ class SemanticEditor extends Component {
             return matched
           },
           suggester: (matched) => {
-            return PLACES.filter((s) => s.match(matched[1]))
+            return {
+              suggestions: PLACES.filter((s) => s.match(matched[1])),
+              begin: matched.index + 1,
+              end: matched.index + 1 + matched[1].length
+            }
           }
         },
         {
@@ -138,7 +142,11 @@ class SemanticEditor extends Component {
             return matched
           },
           suggester: (matched) => {
-            return TRANS.filter((s) => s.match(matched[1]))
+            return {
+              suggestions: TRANS.filter((s) => s.match(matched[1])),
+              begin: matched.index + 1,
+              end: matched.index + 1 + matched[1].length
+            }
           }
         },
         {
@@ -148,7 +156,11 @@ class SemanticEditor extends Component {
             return matched
           },
           suggester: (matched) => {
-            return PLACES.filter((s) => s.match(matched[1]))
+            return {
+              suggestions: PLACES.filter((s) => s.match(matched[1])),
+              begin: matched.index + 1,
+              end: matched.index + 1 + matched[1].length
+            }
           }
         },
         {
@@ -158,18 +170,26 @@ class SemanticEditor extends Component {
             return matched
           },
           suggester: (matched) => {
-            return PLACES.filter((s) => s.match(matched[1]))
+            return {
+              suggestions: PLACES.filter((s) => s.match(matched[1])),
+              begin: matched.index + 2,
+              end: matched.index + 2 + matched[1].length
+            }
           }
         }
 
       ]
 
+      let begin = 0
+      let end = 0
       const suggestions = ARR_S.reduce((prev, e) => {
         const { suggester, strategy } = e
         const found = strategy(text)
         if (found) {
           const result = suggester(found)
-          result.forEach((r) => prev.push(r))
+          begin = result.begin
+          end = result.end
+          result.suggestions.forEach((r) => prev.push(r))
           return prev
         }
         return prev
@@ -178,7 +198,11 @@ class SemanticEditor extends Component {
       this.setState({
         editorState,
         suggestions,
-        sugSelected: -1
+        sugSelected: -1,
+        details: {
+          begin,
+          end
+        }
       })
     }
   }
@@ -198,11 +222,20 @@ class SemanticEditor extends Component {
       let state = this.state
       if (state.sugSelected >= 0) {
         let option = state.suggestions[state.sugSelected]
+        onSuggestionSelect(option)
         return true
       } else {
         return false
       }
     }
+
+    const onSuggestionSelect = (suggestion) => {
+      console.log(this.state)
+      let { begin, end } = this.state.details
+      const newEditorState = completeWithSuggestion(this.state.editorState, suggestion, begin, end)
+      this.onChange(newEditorState)
+    }
+
     return (
       <div style={{ fontFamily: 'monospace' }}>
         <div>
@@ -223,7 +256,7 @@ class SemanticEditor extends Component {
         <ul>
           {
             this.state.suggestions.map((s, i) => {
-              return <li key={i} style={{
+              return <li key={i} onClick={onSuggestionSelect.bind(this, s)} style={{
                 backgroundColor: (i === this.state.sugSelected) ? 'yellow' : 'transparent'
               }}>{s}</li>
             })
