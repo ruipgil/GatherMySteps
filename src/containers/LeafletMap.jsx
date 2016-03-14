@@ -19,7 +19,9 @@ import {
   useGoogleSatelliteMaps,
   useGoogleRoadMaps,
   useGoogleHybridMaps,
-  useGoogleTerrainMaps
+  useGoogleTerrainMaps,
+  showDetails,
+  hideDetails
 } from '../actions/ui'
 
 const EditableMapSegment = (points, trackId, id, color, dispatch) => {
@@ -117,11 +119,12 @@ const ComplexMapSegments = (points, id, color, trackId, state, joinPossible, met
   }
 }
 
-const SelectMapSegment = (points, id, color, trackId, state, joinPossible, metrics, dispatch) => {
+const SelectMapSegment = (points, id, color, trackId, state, joinPossible, metrics, details, dispatch) => {
+  const complex = details ? ComplexMapSegments(points, id, color, trackId, state, joinPossible, metrics, dispatch) : null
   return (
     <LayerGroup key={trackId + ' ' + id} >
       <Polyline opacity={1.0} positions={points} color={ color } />
-      {ComplexMapSegments(points, id, color, trackId, state, joinPossible, metrics, dispatch)}
+      {complex}
     </LayerGroup>
   )
 }
@@ -160,7 +163,9 @@ const TileLayerSelector = (map) => {
   }
 }
 
-let LeafletMap = ({bounds, map, segments, dispatch}) => {
+let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
+  let useMaxZoom = false
+  let gBounds
   const elms = segments.filter((segment) => segment.get('display')).map((segment) => {
     const points = segment.get('points').toJS()
     const state = segmentStateSelector(segment)
@@ -169,11 +174,29 @@ let LeafletMap = ({bounds, map, segments, dispatch}) => {
     const trackId = segment.get('trackId')
     const joinPossible = segment.get('joinPossible')
     const metrics = segment.get('metrics')
-    return SelectMapSegment(points, id, color, trackId, state, joinPossible, metrics, dispatch)
+    if (state !== mapStates.VANILLA) {
+      useMaxZoom = true
+      const p = points[(points.length - 1) / 2]
+      gBounds = {
+        lat: p.lat,
+        lon: p.lon
+      }
+    }
+    return SelectMapSegment(points, id, color, trackId, state, joinPossible, metrics, details, dispatch)
   }).toJS()
   const elements = Object.keys(elms).map((e) => elms[e])
 
   bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
+
+  const onZoom = (e) => {
+    const zoom = e.target.getZoom()
+    const maxZoom = e.target.getMaxZoom()
+    if (zoom >= maxZoom && !details) {
+      dispatch(showDetails())
+    } else if (details) {
+      dispatch(hideDetails())
+    }
+  }
 
   return (
     <div className='fill' >
@@ -184,7 +207,7 @@ let LeafletMap = ({bounds, map, segments, dispatch}) => {
         <div className={'clickable' + (map === 'google_hybrid' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
         <div className={'clickable' + (map === 'google_terrain' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
       </div>
-      <Map id='map' bounds={bounds} boundsOptions={{paddingTopLeft: [300, 0]}} >
+      <Map id='map' bounds={bounds} center={gBounds} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined }>
         { TileLayerSelector(map) }
         { elements }
       </Map>
@@ -196,7 +219,8 @@ const mapStateToProps = (state) => {
   return {
     map: state.get('ui').get('map'),
     bounds: state.get('ui').get('bounds'),
-    segments: state.get('tracks').get('segments')
+    segments: state.get('tracks').get('segments'),
+    details: state.get('ui').get('details')
   }
 }
 

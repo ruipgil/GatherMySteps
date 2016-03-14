@@ -34,3 +34,14 @@ export const updateBounds = (bounds) => {
     type: 'UPDATE_BOUNDS'
   }
 }
+
+export const hideDetails = () => {
+  return {
+    type: 'HIDE_TRACK_DETAILS'
+  }
+}
+export const showDetails = () => {
+  return {
+    type: 'SHOW_TRACK_DETAILS'
+  }
+}
