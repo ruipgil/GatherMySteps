@@ -22,7 +22,8 @@ import {
   useGoogleHybridMaps,
   useGoogleTerrainMaps,
   showDetails,
-  hideDetails
+  hideDetails,
+  updateBounds
 } from '../actions/ui'
 
 const EditableMapSegment = (points, trackId, id, color, dispatch) => {
@@ -164,11 +165,43 @@ const TileLayerSelector = (map) => {
   }
 }
 
+const between = (a, b, c) => {
+  return a <= b && b <= c
+}
+/*
+const boundsFilter = (ne, sw) => {
+  console.log(ne, sw)
+  return (point) => {
+    const lat = point.get('lat')
+    const lon = point.get('lon')
+    return between(sw.lat, lat, ne.lat) &&
+      between(sw.lng, lon, ne.lng)
+  }
+}
+*/
+  const boundsFilter = (ne, sw) => {
+    return (point) => {
+    const lat = point.get('lat')
+    const lon = point.get('lon')
+      return ne.lat >= lat && lat >= sw.lat &&
+        ne.lng >= lon && lon >= sw.lng
+    }
+  }
+
 let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
   let useMaxZoom = false
   let gBounds
+
+  bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
+
   const elms = segments.filter((segment) => segment.get('display')).map((segment) => {
-    const points = segment.get('points').toJS()
+    const sBounds = segment.get('bounds').toJS()
+    const filter = boundsFilter(bounds[0], bounds[1])
+
+    const inclusive = true
+    const pts = segment.get('points')
+    const points = inclusive ? pts.toJS() : pts.filter(filter).toJS()
+
     const state = segmentStateSelector(segment)
     const color = segment.get('color')
     const id = segment.get('id')
@@ -186,8 +219,6 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     return SelectMapSegment(points, id, color, trackId, state, joinPossible, metrics, details, dispatch)
   }).toJS()
   const elements = Object.keys(elms).map((e) => elms[e])
-
-  bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
 
   const onZoom = (e) => {
     const zoom = e.target.getZoom()
@@ -223,9 +254,38 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     </ButtonFoldableGroup>
   )
   */
+  let _justRendered = true
+
+  let _m = null
+  const onMove = (e) => {
+    const bnds = e.target.getBounds()
+    const bndObj = [
+      {
+        lat: bnds._northEast.lat,
+        lng: bnds._northEast.lng
+      }, {
+        lat: bnds._southWest.lat,
+        lng: bnds._southWest.lng
+      }
+    ]
+
+    if (_justRendered || (bounds[0].lat === bndObj[0].lat && bounds[0].lng === bndObj[0].lng && bounds[1].lat === bndObj[1].lat && bounds[1].lng === bndObj[1].lng)) {
+      _justRendered = false
+      return
+    }
+    _m = updateBounds(bndObj)
+    setTimeout(() => {
+      if (_m) {
+        const m = _m
+        _m = null
+        dispatch(m)
+      }
+    }, 100)
+  }
+
   return (
     <div className='fill' >
-      <Map id='map' bounds={bounds} center={gBounds} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
+      <Map id='map' bounds={bounds} onMoveEnd={onMove} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
         <ZoomControl position='topright' />
         <ScaleControl position='bottomright' />
         { TileLayerSelector(map) }
