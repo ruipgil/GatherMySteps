@@ -1,6 +1,5 @@
 import React from 'react'
 import { Component } from 'react'
-import { Badge, Arrow } from 'rebass'
 import { CompositeDecorator, Editor, EditorState } from 'draft-js'
 import completeWithSuggestion from './completeWithSuggestion'
 
@@ -63,7 +62,7 @@ const SimpleSemanticStrategy = (contentBlock, callback) => {
 
 const Hour = (props) => {
   return (
-    <Badge {...props} pill={true} rounded={true} theme='info'>{props.children}<Arrow direction='down' /></Badge>
+    <span className='semantic-pill is-info' {...props}>{props.children}<i className='fa fa-angle-down' /></span>
   )
 }
 
@@ -230,16 +229,14 @@ class SemanticEditor extends Component {
     }
 
     const onSuggestionSelect = (suggestion) => {
-      console.log(this.state)
       let { begin, end } = this.state.details
       const newEditorState = completeWithSuggestion(this.state.editorState, suggestion, begin, end)
       this.onChange(newEditorState)
     }
 
+    const { className } = this.props
     return (
-      <div style={{ fontFamily: 'monospace' }}>
-        <div>
-        <div>
+      <div style={{ fontFamily: 'monospace' }} className={className}>
         <Editor
           editorState={this.state.editorState}
           onChange={this.onChange}
@@ -251,8 +248,6 @@ class SemanticEditor extends Component {
           ref='editor'
           spellcheck={false}
         />
-        </div>
-        </div>
         <ul>
           {
             this.state.suggestions.map((s, i) => {

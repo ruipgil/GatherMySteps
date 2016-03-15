@@ -43,9 +43,11 @@ let App = ({ ui, tracks, dispatch }) => {
 
   return (
     <Dropzone id='container' onDrop={onDrop} >
-      <div id='title'>GatherMySteps</div>
-      <div id='details'>
-        <Progress onNext={ onNext } onPrevious={ onPrevious } />
+      <div id='float-container'>
+        <div id='title'>GatherMySteps</div>
+        <div id='details'>
+          <Progress onNext={ onNext } onPrevious={ onPrevious } />
+        </div>
       </div>
       <ProgressBar />
       <LeafletMap />

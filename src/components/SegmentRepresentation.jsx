@@ -8,20 +8,6 @@ import {
   toggleSegmentPointDetails
 } from '../actions/segments'
 import { updateBounds } from '../actions/ui'
-import FA from 'react-fontawesome'
-
-const calculateDistance = (points) => {
-  let l = points.count() - 2
-  return points.map((p) => {
-    return { latitude: p.lat, longitude: p.lon }
-  }).reduce((prev, curr, i, arr) => {
-    if (i < l) {
-      return prev + haversine(curr, arr[i + 1], {unit: 'km'})
-    } else {
-      return prev
-    }
-  }, 0)
-}
 
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const id = segment.get('id')
@@ -59,9 +45,11 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   const toggleDetails = (segmentIndex) => {
     return () => dispatch(toggleSegmentPointDetails(segmentIndex))
   }
-  // let metrics = calculateMetrics(points)
+
   let distance = metrics.totalDistance
   let avrgSpeed = metrics.averageVelocity
+
+  const btnHighlight = ' is-success is-outlined'
   return (
     <div>
     <div>
@@ -74,12 +62,25 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
         </div>
 
         <div style={{marginTop: '2px'}}>
-          <div className='x-btn' onClick={remove(id)}><FA name='trash' /></div>
-          <div className='x-btn' onClick={fit(id)} ><FA name='arrows-alt' /></div>
-          <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><FA name='pencil' /></div>
-          <div className='x-btn' onClick={toggleSplit(id)} style={{backgroundColor: spliting ? '#ddd' : '#fff'}}><FA name='expand' /></div>
-          <div className='x-btn' onClick={toggleJoin(id)} style={{backgroundColor: joining ? '#ddd' : '#fff'}}><FA name='compress' /></div>
-          <div className='x-btn' onClick={toggleDetails(id)} style={{backgroundColor: pointDetails ? '#ddd' : '#fff'}}><FA name='map-pin' /></div>
+          <span className='button icon-button' onClick={remove(id)}>
+            <i className='fa fa-trash' />
+          </span>
+
+          <span className='button icon-button' onClick={fit(id)}>
+            <i className='fa fa-arrows-alt' />
+          </span>
+          <span className={'button icon-button' + (editing ? btnHighlight : '')} onClick={toggleEdit(id)}>
+            <i className='fa fa-pencil' />
+          </span>
+          <span className={'button icon-button' + (spliting ? btnHighlight : '')} onClick={toggleSplit(id)}>
+            <i className='fa fa-expand' />
+          </span>
+          <span className={'button icon-button' + (joining ? btnHighlight : '')} onClick={toggleJoin(id)}>
+            <i className='fa fa-compress' />
+          </span>
+          <span className={'button icon-button' + (pointDetails ? btnHighlight : '')} onClick={toggleDetails(id)}>
+            <i className='fa fa-map-pin' />
+          </span>
         </div>
       </li>
     </div>

@@ -1,7 +1,6 @@
 import React from 'react'
 import SegmentRepresentation from './SegmentRepresentation.jsx'
 import { downloadTrack, toggleTrackRenaming, updateTrackName } from '../actions/tracks'
-import FA from 'react-fontawesome'
 
 const TrackRepresentation = ({ dispatch, track, segments }) => {
   // const { name, segments, renaming, id } = track
@@ -24,22 +23,26 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
   let title
   if (renaming) {
     title = (
-      <div>
-        <input type='text' value={name} onChange={updateName} style={{ width: '70%' }} />
-        <button onClick={toggleEditing} style={{ width: '20%' }}>DONE</button>
+      <div className='control is-grouped'>
+        <input className='input' type='text' value={name} onChange={updateName} />
+        <a className='button is-info' onClick={toggleEditing}>
+          <i className='fa fa-check' />
+        </a>
       </div>
     )
   } else {
     title = (
       <div>
-        <div className='float-right clickable' onClick={onDownload}><FA name='download' /></div>
+        <div className='float-right clickable icon' onClick={onDownload}>
+          <i className='fa fa-download' />
+        </div>
         <div onClick={toggleEditing}>{name}</div>
       </div>
     )
   }
 
   return (
-    <div style={{paddingLeft: '2%'}} >
+    <div>
       <div style={{fontSize: '1.5rem'}}>
         {title}
       </div>

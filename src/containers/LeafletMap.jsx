@@ -4,8 +4,6 @@ import { Map, ScaleControl, ZoomControl, TileLayer, Polyline, LayerGroup } from 
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
-import FA from 'react-fontawesome'
-
 import { ButtonFoldableGroup, Button, ButtonGroup } from '../components/MapButton.jsx'
 
 import {
@@ -211,6 +209,20 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
   const chGRoads = () => dispatch(useGoogleRoadMaps())
   const chGHybrid = () => dispatch(useGoogleHybridMaps())
   const chGTerrain = () => dispatch(useGoogleTerrainMaps())
+  /*
+  const controls = (
+    <ButtonFoldableGroup style={{ minWidth: '26px', width: 'auto' }}>
+      <Button>
+        <FA name='globe' />
+      </Button>
+      <Button style={selectedStyle(!map || map === 'osm')} onClick={chOSM}>OpenStreetMaps</Button>
+      <Button style={selectedStyle(map === 'google_sattelite')} onClick={chGSat}>GoogleMaps Sattelite</Button>
+      <Button style={selectedStyle(map === 'google_road')} onClick={chGRoads}>GoogleMaps Roads</Button>
+      <Button style={selectedStyle(map === 'google_hybrid')} onClick={chGHybrid}>GoogleMaps Hybrid</Button>
+      <Button style={selectedStyle(map === 'google_terrain')} onClick={chGTerrain}>GoogleMaps Terrain</Button>
+    </ButtonFoldableGroup>
+  )
+  */
   return (
     <div className='fill' >
       <Map id='map' bounds={bounds} center={gBounds} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
@@ -218,16 +230,6 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
         <ScaleControl position='bottomright' />
         { TileLayerSelector(map) }
         { elements }
-        <ButtonFoldableGroup style={{ minWidth: '26px', width: 'auto' }}>
-          <Button>
-            <FA name='globe' />
-          </Button>
-          <Button style={selectedStyle(!map || map === 'osm')} onClick={chOSM}>OpenStreetMaps</Button>
-          <Button style={selectedStyle(map === 'google_sattelite')} onClick={chGSat}>GoogleMaps Sattelite</Button>
-          <Button style={selectedStyle(map === 'google_road')} onClick={chGRoads}>GoogleMaps Roads</Button>
-          <Button style={selectedStyle(map === 'google_hybrid')} onClick={chGHybrid}>GoogleMaps Hybrid</Button>
-          <Button style={selectedStyle(map === 'google_terrain')} onClick={chGTerrain}>GoogleMaps Terrain</Button>
-        </ButtonFoldableGroup>
       </Map>
     </div>
   )
