@@ -8,6 +8,7 @@ import {
   toggleSegmentPointDetails
 } from '../actions/segments'
 import { updateBounds } from '../actions/ui'
+import FA from 'react-fontawesome'
 
 const calculateDistance = (points) => {
   let l = points.count() - 2
@@ -73,12 +74,12 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
         </div>
 
         <div style={{marginTop: '2px'}}>
-          <div className='x-btn' onClick={remove(id)}><img src='/rubbish7.svg' alt='Remove' title='Remove' /></div>
-          <div className='x-btn' onClick={fit(id)} ><img src='/size2.svg' alt='Fit' title='Fit to view' /></div>
-          <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><img src='/pencils13.svg' alt='Edit' title='Edit' /></div>
-          <div className='x-btn' onClick={toggleSplit(id)} style={{backgroundColor: spliting ? '#ddd' : '#fff'}}><img src='/increase.svg' alt='Split' title='Split' /></div>
-          <div className='x-btn' onClick={toggleJoin(id)} style={{backgroundColor: joining ? '#ddd' : '#fff'}}><img src='/resize4.svg' alt='Join' title='Join' /></div>
-          <div className='x-btn' onClick={toggleDetails(id)} style={{backgroundColor: pointDetails ? '#ddd' : '#fff'}}><img src='/pin.svg' alt='Inspect points' title='Inspect points' /></div>
+          <div className='x-btn' onClick={remove(id)}><FA name='trash' /></div>
+          <div className='x-btn' onClick={fit(id)} ><FA name='arrows-alt' /></div>
+          <div className='x-btn' onClick={toggleEdit(id)} style={{backgroundColor: editing ? '#ddd' : '#fff'}}><FA name='pencil' /></div>
+          <div className='x-btn' onClick={toggleSplit(id)} style={{backgroundColor: spliting ? '#ddd' : '#fff'}}><FA name='expand' /></div>
+          <div className='x-btn' onClick={toggleJoin(id)} style={{backgroundColor: joining ? '#ddd' : '#fff'}}><FA name='compress' /></div>
+          <div className='x-btn' onClick={toggleDetails(id)} style={{backgroundColor: pointDetails ? '#ddd' : '#fff'}}><FA name='map-pin' /></div>
         </div>
       </li>
     </div>

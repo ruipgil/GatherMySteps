@@ -1,6 +1,7 @@
 import React from 'react'
 import SegmentRepresentation from './SegmentRepresentation.jsx'
 import { downloadTrack, toggleTrackRenaming, updateTrackName } from '../actions/tracks'
+import FA from 'react-fontawesome'
 
 const TrackRepresentation = ({ dispatch, track, segments }) => {
   // const { name, segments, renaming, id } = track
@@ -31,7 +32,7 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
   } else {
     title = (
       <div>
-        <div className='float-right clickable' style={{ width: '16px', height: '16px' }} onClick={onDownload}><img style={{ width: '16px', height: '16px' }} src='/arrows.svg' alt='Download' title='Download' /></div>
+        <div className='float-right clickable' onClick={onDownload}><FA name='download' /></div>
         <div onClick={toggleEditing}>{name}</div>
       </div>
     )

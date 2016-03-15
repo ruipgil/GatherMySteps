@@ -1,9 +1,12 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, TileLayer, Polyline, LayerGroup } from 'react-leaflet'
+import { Map, ScaleControl, ZoomControl, TileLayer, Polyline, LayerGroup } from 'react-leaflet'
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
+import FA from 'react-fontawesome'
+
+import { ButtonFoldableGroup, Button, ButtonGroup } from '../components/MapButton.jsx'
 
 import {
   splitSegment,
@@ -198,18 +201,33 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     }
   }
 
+  const btnStyle = { minWidth: 'auto', width: 'auto', fontSize: '0.8rem', textAlign: 'left' }
+  const selectedStyle = (is) => {
+    return Object.assign({}, btnStyle, is ? {textWeight: 'bold'} : {})
+  }
+
+  const chOSM = () => dispatch(useOSMMaps())
+  const chGSat = () => dispatch(useGoogleSatelliteMaps())
+  const chGRoads = () => dispatch(useGoogleRoadMaps())
+  const chGHybrid = () => dispatch(useGoogleHybridMaps())
+  const chGTerrain = () => dispatch(useGoogleTerrainMaps())
   return (
     <div className='fill' >
-      <div id='controls'>
-        <div className={'clickable' + (!map || map === 'osm' ? ' bold-text' : '')} onClick={() => dispatch(useOSMMaps())} >OpenStreetMaps</div>
-        <div className={'clickable' + (map === 'google_sattelite' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleSatelliteMaps())} >GoogleMaps Sattelite</div>
-        <div className={'clickable' + (map === 'google_road' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleRoadMaps())} >GoogleMaps Roads</div>
-        <div className={'clickable' + (map === 'google_hybrid' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleHybridMaps())} >GoogleMaps Hybrid</div>
-        <div className={'clickable' + (map === 'google_terrain' ? ' bold-text' : '')} onClick={() => dispatch(useGoogleTerrainMaps())} >GoogleMaps Terrain</div>
-      </div>
-      <Map id='map' bounds={bounds} center={gBounds} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined }>
+      <Map id='map' bounds={bounds} center={gBounds} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
+        <ZoomControl position='topright' />
+        <ScaleControl position='bottomright' />
         { TileLayerSelector(map) }
         { elements }
+        <ButtonFoldableGroup style={{ minWidth: '26px', width: 'auto' }}>
+          <Button>
+            <FA name='globe' />
+          </Button>
+          <Button style={selectedStyle(!map || map === 'osm')} onClick={chOSM}>OpenStreetMaps</Button>
+          <Button style={selectedStyle(map === 'google_sattelite')} onClick={chGSat}>GoogleMaps Sattelite</Button>
+          <Button style={selectedStyle(map === 'google_road')} onClick={chGRoads}>GoogleMaps Roads</Button>
+          <Button style={selectedStyle(map === 'google_hybrid')} onClick={chGHybrid}>GoogleMaps Hybrid</Button>
+          <Button style={selectedStyle(map === 'google_terrain')} onClick={chGTerrain}>GoogleMaps Terrain</Button>
+        </ButtonFoldableGroup>
       </Map>
     </div>
   )
