@@ -51,7 +51,7 @@ const PlaceEndStrategy = (contentBlock, callback) => {
   findWithRegex(PLACE_END_REGEX, contentBlock, callback, 2)
 }
 
-const SIMPLE_TAG_REGEX = /\[[^\]]*\]/g
+const SIMPLE_TAG_REGEX = /\[[^\]]*\]?/g
 const SimpleTagStrategy = (contentBlock, callback) => {
   findWithRegex(SIMPLE_TAG_REGEX, contentBlock, callback, 0)
 }
@@ -91,11 +91,13 @@ class SemanticEditor extends Component {
         component: Hour
       }
     ]
+    this.strategies = strategies
     const compositeDecorator = new CompositeDecorator(strategies)
 
     this.state = {
       editorState: EditorState.createEmpty(compositeDecorator),
-      suggestions: []
+      suggestions: [],
+      sugBox: { left: 0, top: 0 }
     }
 
     this.focus = () => this.refs.editor.focus()
@@ -194,6 +196,27 @@ class SemanticEditor extends Component {
         return prev
       }, [])
 
+      const _sel = window.getSelection()
+      let sbLeft = 0
+      let sbTop = 0
+      console.log(_sel)
+      const getValidParent = (elm) => {
+        if (elm.getBoundingClientRect) {
+          return elm
+        } else if (elm.parentElement) {
+          return getValidParent(elm.parentElement)
+        } else {
+          return null
+        }
+      }
+      if (_sel.rangeCount) {
+        const parent = getValidParent(_sel.baseNode)
+        const rect = parent.getBoundingClientRect()
+        const edp = React.findDOMNode(this.refs.editor).getBoundingClientRect()
+        sbLeft = rect.left - edp.left
+        sbTop = rect.bottom - edp.top + 4
+      }
+
       this.setState({
         editorState,
         suggestions,
@@ -201,9 +224,20 @@ class SemanticEditor extends Component {
         details: {
           begin,
           end
+        },
+        sugBox: {
+          left: sbLeft,
+          top: sbTop
         }
       })
     }
+  }
+
+  componentDidMount () {
+    this.strategies.forEach((s) => {
+      s.component.editor = this.refs.editor
+      console.log(s)
+    })
   }
 
   render () {
@@ -240,7 +274,6 @@ class SemanticEditor extends Component {
         <Editor
           editorState={this.state.editorState}
           onChange={this.onChange}
-          placeholder='Start typing'
           stripPastedStyles={true}
           onDownArrow={downArrow}
           onUpArrow={upArrow}
@@ -248,7 +281,24 @@ class SemanticEditor extends Component {
           ref='editor'
           spellcheck={false}
         />
-        <ul>
+        <ul ref='suggestionBox' style={
+          {
+            border: '1px solid #ddd',
+            minWidth: '180px',
+            position: 'absolute',
+            background: '#fff',
+            borderRadius: '4px',
+            boxShadow: '0px 4px 30px 0px rgba(220,220,220,1)',
+            cursor: 'pointer',
+            paddingTop: '2px',
+            paddingLeft: '8px',
+            paddingBottom: '2px',
+            zIndex: 800,
+            color: 'black',
+            left: this.state.sugBox.left + 'px',
+            top: this.state.sugBox.top + 'px'
+          }
+        }>
           {
             this.state.suggestions.map((s, i) => {
               return <li key={i} onClick={onSuggestionSelect.bind(this, s)} style={{
