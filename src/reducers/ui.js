@@ -17,6 +17,8 @@ const ui = (state = initialState, action) => {
       return state.set('map', 'google_road')
     case 'UPDATE_BOUNDS':
       return state.set('bounds', action.bounds)
+    case 'UPDATE_INTERNAL_BOUNDS':
+      return state.set('internalBounds', action.bounds)
     case 'SHOW_TRACK_DETAILS':
       return state.set('details', true)
     case 'HIDE_TRACK_DETAILS':

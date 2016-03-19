@@ -42,6 +42,13 @@ export const updateBounds = (bounds) => {
   }
 }
 
+export const updateInternalBounds = (bounds) => {
+  return {
+    bounds,
+    type: 'UPDATE_INTERNAL_BOUNDS'
+  }
+}
+
 export const hideDetails = () => {
   return {
     type: 'HIDE_TRACK_DETAILS'

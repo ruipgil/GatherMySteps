@@ -1,166 +1,34 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Map, ScaleControl, ZoomControl, TileLayer, Polyline, LayerGroup } from 'react-leaflet'
-import EditablePolyline from '../components/EditablePolyline.jsx'
-import PointPolyline from '../components/PointPolyline.jsx'
-import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
+import { Map, ScaleControl, ZoomControl } from 'react-leaflet'
 import ChangeMapProvider from '../components/ChangeMapProvider.jsx'
-
-import {
-  splitSegment,
-  changeSegmentPoint,
-  removeSegmentPoint,
-  addSegmentPoint,
-  extendSegment,
-  joinSegment
-} from '../actions/segments'
+import SelectMapSegment from '../components/SelectMapSegment.jsx'
+import TileLayerSelector from '../components/TileLayerSelector.jsx'
 
 import {
   changeMap,
   showDetails,
   hideDetails,
-  updateBounds
+  updateBounds,
+  updateInternalBounds
 } from '../actions/ui'
 
-const EditableMapSegment = (points, trackId, id, color, dispatch) => {
-  return (
-    <EditablePolyline
-      opacity={1.0}
-      positions={points}
-      color={color}
-      key={trackId + ' ' + id + 'e'}
-      onChange={(n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(changeSegmentPoint(id, n, lat, lng))
-      }}
-      onRemove={(n, points) => {
-        dispatch(removeSegmentPoint(id, n))
-      }}
-      onPointAdd={(n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(addSegmentPoint(id, n, lat, lng))
-      }}
-      onExtend={(n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(extendSegment(id, n, lat, lng))
-      }} />
-  )
-}
-
-const SplitableMapSegment = (points, trackId, id, color, dispatch) => {
-  return (
-    <PointPolyline
-      opacity={1.0}
-      positions={points.slice(1, -1)}
-      color={color}
-      key={trackId + ' ' + id}
-      onPointClick={(point, i) => {
-        dispatch(splitSegment(id, i))
-      }} />
-  )
-}
-
-const JoinableMapSegment = (points, trackId, id, color, possibilities, dispatch) => {
-  let handlers = {}
-  possibilities.forEach((pp) => {
-    if (pp.show === 'END') {
-      handlers.showEnd = (point, i) => {
-        dispatch(joinSegment(id, i, pp))
-      }
-    }
-    if (pp.show === 'START') {
-      handlers.showStart = (point, i) => {
-        dispatch(joinSegment(id, i, pp))
-      }
-    }
-  })
-  return (
-    <PointPolyline
-      opacity={1.0}
-      positions={points}
-      color={color}
-      key={trackId + ' ' + id}
-      {...handlers} />
-  )
-}
-
-const PointDetailMapSegment = (points, trackId, id, color, possibilies, details) => {
-  return (
-    <PointPolyline
-      opacity={1.0}
-      positions={points}
-      color={color}
-      key={trackId + ' ' + id}
-      popupInfo={details.toJS()} />
-  )
-}
-const mapStates = {
-  VANILLA: 0,
-  EDITING: 1,
-  SPLITING: 2,
-  JOINING: 3,
-  POINT_DETAILS: 4
-}
-
-const ComplexMapSegments = (points, id, color, trackId, state, joinPossible, metrics, dispatch) => {
-  switch (state) {
-    case mapStates.EDITING:
-      return EditableMapSegment(points, trackId, id, color, dispatch)
-    case mapStates.SPLITING:
-      return SplitableMapSegment(points, trackId, id, color, dispatch)
-    case mapStates.JOINING:
-      return JoinableMapSegment(points, trackId, id, color, joinPossible, dispatch)
-    case mapStates.POINT_DETAILS:
-      return PointDetailMapSegment(points, trackId, id, color, trackId, metrics.get('points'))
-    default:
-      return null
-  }
-}
-
-const SelectMapSegment = (points, id, color, trackId, state, joinPossible, metrics, details, dispatch) => {
-  const complex = details ? ComplexMapSegments(points, id, color, trackId, state, joinPossible, metrics, dispatch) : null
-  return (
-    <LayerGroup key={trackId + ' ' + id} >
-      <Polyline opacity={1.0} positions={points} color={ color } />
-      {complex}
-    </LayerGroup>
-  )
-}
+import { MAP_STATES } from '../constants'
 
 const segmentStateSelector = (segment) => {
   if (segment.get('editing')) {
-    return mapStates.EDITING
+    return MAP_STATES.EDITING
   } else if (segment.get('spliting')) {
-    return mapStates.SPLITING
+    return MAP_STATES.SPLITING
   } else if (segment.get('joining')) {
-    return mapStates.JOINING
+    return MAP_STATES.JOINING
   } else if (segment.get('pointDetails')) {
-    return mapStates.POINT_DETAILS
+    return MAP_STATES.POINT_DETAILS
   } else {
-    return mapStates.VANILLA
+    return MAP_STATES.VANILLA
   }
 }
-
-const TileLayerSelector = (map) => {
-  switch (map) {
-    case 'google_sattelite':
-      return (<GoogleTileLayer mapType='SATELLITE' />)
-    case 'google_road':
-      return (<GoogleTileLayer mapType='ROADMAP' />)
-    case 'google_hybrid':
-      return (<GoogleTileLayer mapType='HYBRID' />)
-    case 'google_terrain':
-      return (<GoogleTileLayer mapType='TERRAIN' />)
-    default:
-      return (
-        <TileLayer
-          url='http://{s}.tile.osm.org/{z}/{x}/{y}.png'
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        />
-      )
-  }
-}
-
+/*
 const between = (a, b, c) => {
   return a <= b && b <= c
 }
@@ -175,23 +43,22 @@ const boundsFilter = (ne, sw) => {
   }
 }
 */
-  const boundsFilter = (ne, sw) => {
-    return (point) => {
+const boundsFilter = (ne, sw) => {
+  return (point) => {
     const lat = point.get('lat')
     const lon = point.get('lon')
-      return ne.lat >= lat && lat >= sw.lat &&
-        ne.lng >= lon && lon >= sw.lng
-    }
+    return ne.lat >= lat && lat >= sw.lat &&
+      ne.lng >= lon && lon >= sw.lng
   }
+}
 
 let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
   let useMaxZoom = false
-  let gBounds
 
   bounds = bounds || [{lat: 67.47492238478702, lng: 225}, {lat: -55.17886766328199, lng: -225}]
 
   const elms = segments.filter((segment) => segment.get('display')).map((segment) => {
-    const sBounds = segment.get('bounds').toJS()
+    // const sBounds = segment.get('bounds').toJS()
     const filter = boundsFilter(bounds[0], bounds[1])
 
     const inclusive = true
@@ -204,13 +71,15 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     const trackId = segment.get('trackId')
     const joinPossible = segment.get('joinPossible')
     const metrics = segment.get('metrics')
-    if (state !== mapStates.VANILLA) {
+    if (state !== MAP_STATES.VANILLA) {
       useMaxZoom = true
+      /*
       const p = points[(points.length - 1) / 2]
       gBounds = {
         lat: p.lat,
         lon: p.lon
       }
+      */
     }
     return SelectMapSegment(points, id, color, trackId, state, joinPossible, metrics, details, dispatch)
   }).toJS()
@@ -226,9 +95,6 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     }
   }
 
-  let _justRendered = true
-/*
-  let _m = null
   const onMove = (e) => {
     const bnds = e.target.getBounds()
     const bndObj = [
@@ -240,25 +106,12 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
         lng: bnds._southWest.lng
       }
     ]
-
-    if (_justRendered || (bounds[0].lat === bndObj[0].lat && bounds[0].lng === bndObj[0].lng && bounds[1].lat === bndObj[1].lat && bounds[1].lng === bndObj[1].lng)) {
-      _justRendered = false
-      return
-    }
-    _m = updateBounds(bndObj)
-    setTimeout(() => {
-      if (_m) {
-        const m = _m
-        _m = null
-        dispatch(m)
-      }
-    }, 100)
+    dispatch(updateInternalBounds(bndObj))
   }
-  */
 
   return (
     <div className='fill' >
-      <Map id='map' bounds={bounds}  onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
+      <Map id='map' bounds={bounds} onMoveEnd={onMove} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
         <ZoomControl position='topright' />
         <ChangeMapProvider mapType={map} onChange={(toType) => dispatch(changeMap(toType))} />
         <ScaleControl position='bottomright' />

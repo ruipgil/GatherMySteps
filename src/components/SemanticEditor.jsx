@@ -32,7 +32,7 @@ const SimpleSemanticStrategy = (contentBlock, callback) => {
   findWithRegex(SIMPLE_SEMANTICS_REGEX, contentBlock, callback, 0)
 }
 
-const Hour = (props) => {
+const SemanticPill = (props) => {
   return (
     <span className='semantic-pill is-info' {...props}>{props.children}<i className='fa fa-angle-down' /></span>
   )
@@ -41,23 +41,23 @@ const Hour = (props) => {
 const Strategies = [
   {
     strategy: HourStrategy,
-    component: Hour
+    component: SemanticPill
   },
   {
     strategy: PlaceStartStrategy,
-    component: Hour
+    component: SemanticPill
   },
   {
     strategy: PlaceEndStrategy,
-    component: Hour
+    component: SemanticPill
   },
   {
     strategy: SimpleTagStrategy,
-    component: Hour
+    component: SemanticPill
   },
   {
     strategy: SimpleSemanticStrategy,
-    component: Hour
+    component: SemanticPill
   }
 ]
 
