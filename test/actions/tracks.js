@@ -1,5 +1,5 @@
 import expect from 'expect'
-import sampleSegment from './sampleSegment'
+import sampleSegment from '../sampleSegment'
 import {
   ADD_TRACK, TOGGLE_TRACK_RENAMING, UPDATE_TRACK_NAME
 } from '../../src/actions'
