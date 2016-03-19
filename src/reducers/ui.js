@@ -3,6 +3,8 @@ import { Map } from 'immutable'
 const initialState = Map({})
 const ui = (state = initialState, action) => {
   switch (action.type) {
+    case 'CHANGE_MAP':
+      return state.set('map', action.to)
     case 'USE_OSM_MAPS':
       return state.set('map', 'osm')
     case 'USE_GOOGLE_SATTELITE_MAPS':

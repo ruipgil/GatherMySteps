@@ -28,6 +28,13 @@ export const useGoogleSatelliteMaps = () => {
   }
 }
 
+export const changeMap = (newType) => {
+  return {
+    type: 'CHANGE_MAP',
+    to: newType
+  }
+}
+
 export const updateBounds = (bounds) => {
   return {
     bounds,

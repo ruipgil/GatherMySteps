@@ -4,7 +4,7 @@ import { Map, ScaleControl, ZoomControl, TileLayer, Polyline, LayerGroup } from 
 import EditablePolyline from '../components/EditablePolyline.jsx'
 import PointPolyline from '../components/PointPolyline.jsx'
 import GoogleTileLayer from '../components/GoogleTileLayer.jsx'
-import { ButtonFoldableGroup, Button, ButtonGroup } from '../components/MapButton.jsx'
+import ChangeMapProvider from '../components/ChangeMapProvider.jsx'
 
 import {
   splitSegment,
@@ -16,11 +16,7 @@ import {
 } from '../actions/segments'
 
 import {
-  useOSMMaps,
-  useGoogleSatelliteMaps,
-  useGoogleRoadMaps,
-  useGoogleHybridMaps,
-  useGoogleTerrainMaps,
+  changeMap,
   showDetails,
   hideDetails,
   updateBounds
@@ -230,32 +226,8 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
     }
   }
 
-  const btnStyle = { minWidth: 'auto', width: 'auto', fontSize: '0.8rem', textAlign: 'left' }
-  const selectedStyle = (is) => {
-    return Object.assign({}, btnStyle, is ? {textWeight: 'bold'} : {})
-  }
-
-  const chOSM = () => dispatch(useOSMMaps())
-  const chGSat = () => dispatch(useGoogleSatelliteMaps())
-  const chGRoads = () => dispatch(useGoogleRoadMaps())
-  const chGHybrid = () => dispatch(useGoogleHybridMaps())
-  const chGTerrain = () => dispatch(useGoogleTerrainMaps())
-  /*
-  const controls = (
-    <ButtonFoldableGroup style={{ minWidth: '26px', width: 'auto' }}>
-      <Button>
-        <FA name='globe' />
-      </Button>
-      <Button style={selectedStyle(!map || map === 'osm')} onClick={chOSM}>OpenStreetMaps</Button>
-      <Button style={selectedStyle(map === 'google_sattelite')} onClick={chGSat}>GoogleMaps Sattelite</Button>
-      <Button style={selectedStyle(map === 'google_road')} onClick={chGRoads}>GoogleMaps Roads</Button>
-      <Button style={selectedStyle(map === 'google_hybrid')} onClick={chGHybrid}>GoogleMaps Hybrid</Button>
-      <Button style={selectedStyle(map === 'google_terrain')} onClick={chGTerrain}>GoogleMaps Terrain</Button>
-    </ButtonFoldableGroup>
-  )
-  */
   let _justRendered = true
-
+/*
   let _m = null
   const onMove = (e) => {
     const bnds = e.target.getBounds()
@@ -282,11 +254,13 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
       }
     }, 100)
   }
+  */
 
   return (
     <div className='fill' >
-      <Map id='map' bounds={bounds} onMoveEnd={onMove} onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
+      <Map id='map' bounds={bounds}  onZoomEnd={onZoom} zoom={ useMaxZoom ? 18 : undefined } zoomControl={false}>
         <ZoomControl position='topright' />
+        <ChangeMapProvider mapType={map} onChange={(toType) => dispatch(changeMap(toType))} />
         <ScaleControl position='bottomright' />
         { TileLayerSelector(map) }
         { elements }

@@ -38,6 +38,7 @@ export class ButtonGroup extends MapComponent {
   }
 }
 
+let _id = 0
 export class ButtonFoldableGroup extends MapComponent {
   constructor (props) {
     super(props)
@@ -58,7 +59,7 @@ export class ButtonFoldableGroup extends MapComponent {
     newProps.children = head.props.children
     let FinalHead = cloneElement(head, newProps)
 
-    const childs = this.props.children.slice(1)
+    const childs = this.props.children.slice(1).map((child) => cloneElement(child, Object.assign({}, child.props, { key: _id++ })))
     if (open) {
       return (<ButtonGroup map={map}>{ FinalHead }{ childs }</ButtonGroup>)
     } else {
