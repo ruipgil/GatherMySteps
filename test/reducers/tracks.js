@@ -1,6 +1,7 @@
 import expect from 'expect'
 import reducer from '../../src/reducers/tracks'
 import * as types from '../../src/actions'
+import { reset as clearIds } from '../../src/reducers/idState'
 
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
@@ -14,6 +15,7 @@ const middlewares = [ thunk ]
 const mockStore = configureMockStore(middlewares)
 
 describe('tracks reducer', () => {
+  beforeEach(() => clearIds())
   it('should return the initial state', () => {
     expect(
       reducer(undefined, {}).toJS()
