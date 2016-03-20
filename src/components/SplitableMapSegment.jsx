@@ -10,7 +10,7 @@ const SplitableMapSegment = (points, trackId, id, color, dispatch) => {
       color={color}
       key={trackId + ' ' + id}
       onPointClick={(point, i) => {
-        dispatch(splitSegment(id, i))
+        dispatch(splitSegment(id, i + 1))
       }} />
   )
 }
