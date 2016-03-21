@@ -1,9 +1,9 @@
 import { render } from 'react-dom'
 import { control, DomUtil } from 'leaflet'
-import React, { cloneElement } from 'react'
-import { MapComponent } from 'react-leaflet'
+import React, { cloneElement, Component } from 'react'
 
-export class ButtonGroup extends MapComponent {
+let _group = 0
+export class ButtonGroup extends Component {
   onAdd () {
     const container = DomUtil.create('div', 'leaflet-control-zoom leaflet-bar')
     const children = Array.isArray(this.props.children) ? this.props.children : [this.props.children]
@@ -19,15 +19,20 @@ export class ButtonGroup extends MapComponent {
         return (<a key={i} className='leaflet-control-zoom-in' href='#' {...this.props} >{ elm }</a>)
       }
     }
-    render(<div>{ children.map((child, i) => {
-      return populateProps(child, i)
-    }) }</div>, container)
+    let id = _group++
+    let childs = children.map((child, i) => {
+      let key = id + '-' + i
+      return populateProps(child, key)
+    })
+    render(<div>{ childs }</div>, container)
     return container
   }
 
   componentWillMount () {
     this.leafletElement = control('topright')
     this.leafletElement.onAdd = this.onAdd.bind(this)
+  }
+  componentDidMount () {
     this.leafletElement.addTo(this.props.map)
   }
   componentWillUnmount () {
@@ -39,7 +44,7 @@ export class ButtonGroup extends MapComponent {
 }
 
 let _id = 0
-export class ButtonFoldableGroup extends MapComponent {
+export class ButtonFoldableGroup extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -59,7 +64,17 @@ export class ButtonFoldableGroup extends MapComponent {
     newProps.children = head.props.children
     let FinalHead = cloneElement(head, newProps)
 
-    const childs = this.props.children.slice(1).map((child) => cloneElement(child, Object.assign({}, child.props, { key: _id++ })))
+    const childs = this
+    .props.children.slice(1)
+    .map((child) => {
+      const iid = _id++
+      return cloneElement(
+        child,
+        Object.assign(
+          {},
+          child.props,
+          { key: iid }))
+    })
     if (open) {
       return (<ButtonGroup map={map}>{ FinalHead }{ childs }</ButtonGroup>)
     } else {
@@ -68,7 +83,7 @@ export class ButtonFoldableGroup extends MapComponent {
   }
 }
 
-export class Button extends MapComponent {
+export class Button extends Component {
   onAdd () {
     const container = this.props.container || DomUtil.create('div', 'leaflet-control-zoom leaflet-bar')
     const children = Array.isArray(this.props.children) ? this.props.children : [this.props.children]
@@ -82,7 +97,9 @@ export class Button extends MapComponent {
   }
 
   componentWillUnmount () {
-    this.leafletElement.removeFrom(this.props.map)
+    if (this.leafletElement) {
+      this.leafletElement.removeFrom(this.props.map)
+    }
   }
   componentWillMount () {
     if (!this.props.container) {
