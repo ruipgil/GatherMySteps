@@ -4,21 +4,29 @@ var webpack = require('webpack')
 var nodeModulesDir = path.resolve(__dirname, 'node_modules')
 
 var deps = [
-  /*'react/dist/react.js',
+  /*
+  'babel-polyfill/dist/polyfill.js',
+  'react/dist/react.js',
   'react-dom/dist/react-dom.js',
   'redux/dist/redux.js',
   'react-redux/dist/react-redux.js',
-  'react-leaflet/dist/react-leaflet.js',*/
-];
+  'react-leaflet/dist/react-leaflet.js',
+  'immutable/dist/immutable.js',
+  'moment/moment.js',
+  'draft-js/dist/draft.js'
+  */
+]
 
 var config = {
   devtool: 'cheap-module-eval-source-map',
   entry: [
-    /*'webpack-dev-server/client?http://0.0.0.0:3000',
-    'webpack/hot/only-dev-server',*/
+    /*
+    'webpack-dev-server/client?http://0.0.0.0:3000',
+    'webpack/hot/only-dev-server',
+    */
     'webpack-hot-middleware/client',
     'babel-polyfill',
-    './src/index.jsx',
+    './src/index.jsx'
   ],
   output: {
     path: path.join(__dirname, 'build'),
@@ -26,7 +34,12 @@ var config = {
     publicPath: '/static/'
   },
   resolve: {
-    alias: {}
+    alias: {},
+    modulesDirectories: [
+      'src',
+      'node_modules'
+    ],
+    extensions: ['', '.js', '.jsx']
   },
   module: {
     noParse: [],
@@ -55,7 +68,13 @@ var config = {
     ]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.DefinePlugin({
+      __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'true')),
+      __PRERELEASE__: JSON.stringify(JSON.parse(process.env.BUILD_PRERELEASE || 'false'))
+    })
   ]
 }
 
