@@ -1,11 +1,14 @@
 import React from 'react'
+import TimeSlider from 'components/TimeSlider'
 import {
   toggleSegmentDisplay,
   toggleSegmentEditing,
   removeSegment,
   toggleSegmentSpliting,
   toggleSegmentJoining,
-  toggleSegmentPointDetails
+  toggleSegmentPointDetails,
+  toggleTimeFilter,
+  updateTimeFilterSegment
 } from '../actions/segments'
 import { updateBounds } from '../actions/ui'
 
@@ -23,6 +26,7 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   const pointDetails = segment.get('pointDetails')
   const bounds = segment.get('bounds').toJS()
   const metrics = segment.get('metrics').toJS()
+  const showTimeFilter = segment.get('showTimeFilter')
 
   const toggleTrack = (segmentIndex) => {
     return () => dispatch(toggleSegmentDisplay(segmentIndex))
@@ -44,6 +48,14 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   }
   const toggleDetails = (segmentIndex) => {
     return () => dispatch(toggleSegmentPointDetails(segmentIndex))
+  }
+  const updateFilter = (segmentIndex) => {
+    return (lower, higher) => dispatch(updateTimeFilterSegment(segmentIndex, lower, higher))
+  }
+  const toggleTF = (segmentIndex) => {
+    return () => {
+      dispatch(toggleTimeFilter(segmentIndex))
+    }
   }
 
   let distance = metrics.totalDistance
@@ -81,7 +93,16 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
           <span className={'button icon-button' + (pointDetails ? btnHighlight : '')} onClick={toggleDetails(id)}>
             <i className='fa fa-map-pin' />
           </span>
+
+          <span className={'button icon-button' + (showTimeFilter ? btnHighlight : '')} onClick={toggleTF(id)}>
+            <i className='fa fa-calendar' />
+          </span>
         </div>
+        {
+          showTimeFilter
+            ? <TimeSlider start={start} end={end} onChange={updateFilter(id)}/>
+            : null
+        }
       </li>
     </div>
     </div>

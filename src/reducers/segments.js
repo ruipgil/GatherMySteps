@@ -152,6 +152,18 @@ const joinSegment = (state, action) => {
   return state
 }
 
+const updateTimeFilterSegment = (state, action) => {
+  return state.updateIn(['segments', action.segmentId, 'timeFilter'], (f) => {
+    return f.set(0, action.lower).set(1, action.upper)
+  })
+}
+
+const toggleTimeFilter = (state, action) => {
+  return state.updateIn(['segments', action.segmentId, 'showTimeFilter'], (f) => {
+    return !f
+  })
+}
+
 const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails']
 const toggleSegProp = (state, id, prop, propSet = defaultPropSet) => {
   const data = state.get('segments').get(id)
@@ -251,7 +263,9 @@ const ACTION_REACTION = {
 
   'REMOVE_SEGMENT': removeSegment,
   'SPLIT_SEGMENT': splitSegment,
-  'JOIN_SEGMENT': joinSegment
+  'JOIN_SEGMENT': joinSegment,
+  'TOGGLE_TIME_FILTER': toggleTimeFilter,
+  'UPDATE_TIME_FILTER_SEGMENT': updateTimeFilterSegment
 }
 
 const segments = (state = [], action) => {

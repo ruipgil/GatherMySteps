@@ -7,6 +7,8 @@ import {
   REMOVE_SEGMENT,
   REMOVE_SEGMENT_POINT,
   SPLIT_SEGMENT,
+  UPDATE_TIME_FILTER_SEGMENT,
+  TOGGLE_TIME_FILTER,
   TOGGLE_SEGMENT_DISPLAY,
   TOGGLE_SEGMENT_SPLITING,
   TOGGLE_SEGMENT_POINT_DETAILS,
@@ -79,6 +81,22 @@ export const splitSegment = (segmentId, index) => {
     index,
     segmentId,
     type: SPLIT_SEGMENT
+  }
+}
+
+export const updateTimeFilterSegment = (segmentId, lower, upper) => {
+  return {
+    segmentId,
+    lower,
+    upper,
+    type: UPDATE_TIME_FILTER_SEGMENT
+  }
+}
+
+export const toggleTimeFilter = (segmentId) => {
+  return {
+    segmentId,
+    type: TOGGLE_TIME_FILTER
   }
 }
 

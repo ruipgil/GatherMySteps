@@ -58,6 +58,8 @@ export const createSegmentObj = (trackId, points) => {
     spliting: false,
     joining: false,
     pointDetails: false,
+    timeFilter: [],
+    showTimeFilter: false,
     bounds: calculateBounds(points),
     metrics: calculateMetrics(points)
   }
