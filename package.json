@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/ruipgil/gathermysteps#readme",
   "dependencies": {
+    "async": "^2.0.0-rc.1",
     "babel-polyfill": "^6.6.1",
     "bulma": "0.0.16",
     "draft-js": "^0.2.2",

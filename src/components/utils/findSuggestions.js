@@ -1,21 +1,34 @@
-export default function findSuggestions (text, strategies) {
+import { reduce } from 'async'
+
+export default function findSuggestions (text, strategies, callback) {
   let begin = 0
   let end = 0
-  const suggestions = strategies.reduce((prev, e) => {
+  reduce(strategies, [], (prev, e, done) => {
     const { suggester, strategy } = e
     const found = strategy(text)
     if (found) {
-      const result = suggester(found)
-      begin = result.begin
-      end = result.end
-      result.suggestions.forEach((r) => prev.push(r))
-      return prev
+      suggester(found, (result) => {
+        begin = result.begin
+        end = result.end
+        result.suggestions.forEach((r) => prev.push(r))
+        done(null, prev)
+      })
+    } else {
+      done(null, prev)
     }
-    return prev
-  }, [])
-  return {
-    suggestions,
-    begin,
-    end
-  }
+  }, (err, suggestions) => {
+    if (err) {
+      callback({
+        suggestions: [],
+        begin: 0,
+        end: 0
+      })
+    } else {
+      callback({
+        suggestions,
+        begin,
+        end
+      })
+    }
+  })
 }

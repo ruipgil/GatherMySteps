@@ -34,7 +34,7 @@ const SimpleSemanticStrategy = (contentBlock, callback) => {
 
 const SemanticPill = (props) => {
   return (
-    <span className='semantic-pill is-info' {...props}>{props.children}<i className='fa fa-angle-down' /></span>
+    <span className='tag is-info' {...props}>{props.children}<i className='fa fa-angle-down' /></span>
   )
 }
 
@@ -71,71 +71,55 @@ const PLACES = [
   'gym',
   'central park'
 ]
-const TRANS = [
+const TAGS = [
   'walk',
   'bike',
   'bus',
   'car',
   'train',
-  'subway'
+  'subway',
+  'concert',
+  'movies'
 ]
+const SEMANTIC = [
+  'Start Wars',
+  'McDonalds',
+  'AC/DC'
+]
+
+const suggestionRegExStrat = (re) => {
+  return (text) => {
+    const matched = re.exec(text)
+    return matched
+  }
+}
+
+const staticSuggestionGetter = (suggestions, offset = 1) => {
+  return (matched, callback) => {
+    callback({
+      suggestions: suggestions.filter((s) => s.match(matched[1])),
+      begin: matched.index + offset,
+      end: matched.index + offset + matched[1].length
+    })
+  }
+}
 
 const SuggestionsStrategies = [
   {
-    strategy: (text) => {
-      const TAG_COMPLETION_REGEX = /\[([^\]]*)$/g
-      const matched = TAG_COMPLETION_REGEX.exec(text)
-      return matched
-    },
-    suggester: (matched) => {
-      return {
-        suggestions: PLACES.filter((s) => s.match(matched[1])),
-        begin: matched.index + 1,
-        end: matched.index + 1 + matched[1].length
-      }
-    }
+    strategy: suggestionRegExStrat(/\[([^\]]*)$/g),
+    suggester: staticSuggestionGetter(TAGS)
   },
   {
-    strategy: (text) => {
-      const TAG_COMPLETION_REGEX = /\{([^\}]*)$/g
-      const matched = TAG_COMPLETION_REGEX.exec(text)
-      return matched
-    },
-    suggester: (matched) => {
-      return {
-        suggestions: TRANS.filter((s) => s.match(matched[1])),
-        begin: matched.index + 1,
-        end: matched.index + 1 + matched[1].length
-      }
-    }
+    strategy: suggestionRegExStrat(/\{([^\}]*)$/g),
+    suggester: staticSuggestionGetter(SEMANTIC)
   },
   {
-    strategy: (text) => {
-      const TAG_COMPLETION_REGEX = /\:\s*([^\[\{\-\>]*)$/g
-      const matched = TAG_COMPLETION_REGEX.exec(text)
-      return matched
-    },
-    suggester: (matched) => {
-      return {
-        suggestions: PLACES.filter((s) => s.match(matched[1])),
-        begin: matched.index + 1,
-        end: matched.index + 1 + matched[1].length
-      }
-    }
+    strategy: suggestionRegExStrat(/\:\s*([^\[\{\-\>]*)$/g),
+    suggester: staticSuggestionGetter(PLACES)
   },
   {
-    strategy: (text) => {
-      const TAG_COMPLETION_REGEX = /\-\>\s*([^\[\{\-\>]*)$/g
-      const matched = TAG_COMPLETION_REGEX.exec(text)
-      return matched
-    },
-    suggester: (matched) => {
-      return {
-        suggestions: PLACES.filter((s) => s.match(matched[1])),
-        begin: matched.index + 2,
-        end: matched.index + 2 + matched[1].length
-      }
-    }
+    strategy: suggestionRegExStrat(/\-\>\s*([^\[\{\-\>]*)$/g),
+    suggester: staticSuggestionGetter(PLACES, 2)
   }
 ]
 
@@ -160,17 +144,25 @@ class SemanticEditor extends Component {
     const sel = editorState.getSelection()
     const index = sel.get('focusOffset')
     const text = editorState.getCurrentContent().getLastBlock().getText().slice(0, index)
-    const { suggestions, begin, end } = findSuggestions(text, SuggestionsStrategies)
 
-    this.setState({
-      editorState,
-      suggestions,
-      sugSelected: -1,
-      details: {
-        begin,
-        end
-      },
-      sugBox: findSuggestionBoxPosition(this.refs.editor)
+    this.state.editorState = editorState
+    this.setState(this.state)
+
+    findSuggestions(text, SuggestionsStrategies, (result) => {
+      if (this.state.editorState === editorState) {
+        const { suggestions, begin, end } = result
+        this.setState({
+          editorState,
+          suggestions,
+          sugSelected: -1,
+          details: {
+            begin,
+            end
+          },
+          sugBox: findSuggestionBoxPosition(this.refs.editor)
+        })
+      } else {
+      }
     })
   }
 
