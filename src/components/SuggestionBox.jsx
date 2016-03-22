@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SuggestionBox = ({ left, top, selected, onSelect, suggestions }) => {
+const SuggestionBox = ({ left, top, selected, onSelect, suggestions, show }) => {
   const style = {
     border: '1px solid #ddd',
     minWidth: '180px',
@@ -15,7 +15,8 @@ const SuggestionBox = ({ left, top, selected, onSelect, suggestions }) => {
     zIndex: 800,
     color: 'black',
     left: left + 'px',
-    top: top + 'px'
+    top: top + 'px',
+    display: show ? 'block' : 'none'
   }
 
   return (

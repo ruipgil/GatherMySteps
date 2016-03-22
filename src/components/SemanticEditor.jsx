@@ -1,6 +1,6 @@
 import React from 'react'
 import { Component } from 'react'
-import { CompositeDecorator, Editor, EditorState } from 'draft-js'
+import { CompositeDecorator, Editor, EditorState, Modifier } from 'draft-js'
 
 import SuggestionBox from './SuggestionBox.jsx'
 import findWithRegex from './utils/findWithRegex'
@@ -71,6 +71,14 @@ const PLACES = [
   'gym',
   'central park'
 ]
+const PLACES_TO = [
+  'home_',
+  'work_',
+  'school_',
+  'wife\'s work_',
+  'gym_',
+  'central park_'
+]
 const TAGS = [
   'walk',
   'bike',
@@ -88,10 +96,7 @@ const SEMANTIC = [
 ]
 
 const suggestionRegExStrat = (re) => {
-  return (text) => {
-    const matched = re.exec(text)
-    return matched
-  }
+  return (text) => re.exec(text)
 }
 
 const staticSuggestionGetter = (suggestions, offset = 1) => {
@@ -104,22 +109,213 @@ const staticSuggestionGetter = (suggestions, offset = 1) => {
   }
 }
 
+const addTextAt = (editorState, text, index) => {
+  const sel = editorState.getSelection().merge({
+    anchorOffset: index,
+    focusOffset: index
+  })
+  const closeTagReplacedContent = Modifier.replaceText(
+    editorState.getCurrentContent(),
+    sel,
+    text,
+    null,
+    null
+  )
+
+  const newEditorState = EditorState.push(
+    editorState,
+    closeTagReplacedContent,
+    'complete-place-from'
+  )
+  return EditorState.forceSelection(newEditorState, closeTagReplacedContent.getSelectionAfter())
+}
+
+const cursorAt = (editorState, index) => {
+  const newSel = editorState.getSelection().merge({
+    anchorOffset: index,
+    focusOffset: index
+  })
+  return EditorState.forceSelection(editorState, newSel)
+}
+const removeTextAt = (editorState, from, to) => {
+  const range = editorState.getSelection().merge({
+    anchorOffset: from,
+    focusOffset: to
+  })
+
+  let newContent = Modifier.removeRange(
+    editorState.getCurrentContent(),
+    range,
+    null
+  )
+
+  const newEditorState = EditorState.push(
+    editorState,
+    newContent,
+    'remove-span-arrow'
+  )
+  return EditorState.forceSelection(newEditorState, newContent.getSelectionAfter())
+}
+
 const SuggestionsStrategies = [
   {
-    strategy: suggestionRegExStrat(/\[([^\]]*)$/g),
-    suggester: staticSuggestionGetter(TAGS)
+    strategy: suggestionRegExStrat(/\[([^\]]*)\]?/),
+    suggester: staticSuggestionGetter(TAGS),
+    id: 'tags',
+    tabCompletion: (editorState) => {
+      const sel = editorState.getSelection()
+      const index = sel.get('focusOffset')
+
+      const text = editorState.getCurrentContent().getLastBlock().getText()
+      const right = text.slice(index)
+
+      let closeMatch = right.match(/]/)
+      if (closeMatch) {
+        // Position cursor at the end
+        const toIndex = closeMatch.index + index + 1
+        return cursorAt(editorState, toIndex)
+      } else {
+        const RE = /\[([^\]]*)\]?/g
+        const e = RE.exec(text)
+        console.log(e)
+        if (e && e[1].trim() === '') {
+          // Remove [, it's an empty tag
+          return removeTextAt(editorState, e.index, e.index + e.length)
+        } else if (e && e[0].trim().match(/\]$/)) {
+          // Add {
+          return addTextAt(editorState, '{', index)
+        } else {
+          // Add ]
+          return addTextAt(editorState, ']', index)
+        }
+      }
+    }
   },
   {
-    strategy: suggestionRegExStrat(/\{([^\}]*)$/g),
-    suggester: staticSuggestionGetter(SEMANTIC)
+    strategy: suggestionRegExStrat(/\{([^\}]*)$/),
+    suggester: staticSuggestionGetter(SEMANTIC),
+    id: 'semantic',
+    tabCompletion: (editorState) => {
+      const sel = editorState.getSelection()
+      const index = sel.get('focusOffset')
+
+      const text = editorState.getCurrentContent().getLastBlock().getText()
+      const right = text.slice(index)
+
+      let closeMatch = right.match(/}/)
+      if (closeMatch) {
+        // Position cursor at the end
+        const toIndex = closeMatch.index + index + 1
+        return cursorAt(editorState, toIndex)
+      } else {
+        const RE = /\{([^\}]*)\}?/g
+        const e = RE.exec(text)
+        if (e && e[1].trim() === '') {
+          // Remove {, it's an empty semantic
+          return removeTextAt(editorState, e.index, e.index + e.length)
+        } else {
+          // Add }
+          return addTextAt(editorState, '}', index)
+        }
+      }
+    }
   },
   {
-    strategy: suggestionRegExStrat(/\:\s*([^\[\{\-\>]*)$/g),
-    suggester: staticSuggestionGetter(PLACES)
+    strategy: suggestionRegExStrat(/\:\s*([^\[\{\-\>]*)$/),
+    suggester: staticSuggestionGetter(PLACES),
+    id: 'placeFrom',
+    tabCompletion: (editorState) => {
+      const sel = editorState.getSelection()
+      const index = sel.get('focusOffset')
+
+      const text = editorState.getCurrentContent().getLastBlock().getText()
+      const right = text.slice(index)
+
+      let closeMatch = right.match(/->/)
+      if (closeMatch) {
+        // Position cursor at the end
+        const toIndex = closeMatch.index + index + 2
+        return cursorAt(editorState, toIndex)
+      } else {
+        // Add ->
+        return addTextAt(editorState, '->', index)
+      }
+    }
   },
   {
-    strategy: suggestionRegExStrat(/\-\>\s*([^\[\{\-\>]*)$/g),
-    suggester: staticSuggestionGetter(PLACES, 2)
+    strategy: suggestionRegExStrat(/\-\>\s*([^\[\{\-\>]*)$/),
+    suggester: staticSuggestionGetter(PLACES_TO, 2),
+    id: 'placeTo',
+    tabCompletion: (editorState) => {
+      const sel = editorState.getSelection()
+      const index = sel.get('focusOffset')
+
+      const text = editorState.getCurrentContent().getLastBlock().getText()
+
+      const RE = /\-\>\s*([^\[\{\-\>]*)/g
+      let match = RE.exec(text)
+      if (match && match[1].trim() === '') {
+        // Remove '->' & start tag
+
+        const range = sel.merge({
+          anchorOffset: match.index,
+          focusOffset: match.index + match[0].length
+        })
+
+        let newContent = Modifier.replaceText(
+          editorState.getCurrentContent(),
+          range,
+          ' [',
+          null
+        )
+
+        const newEditorState = EditorState.push(
+          editorState,
+          newContent,
+          'remove-span-arrow'
+        )
+        const newState = EditorState.forceSelection(newEditorState, newContent.getSelectionAfter())
+
+        return newState
+      } else if (match) {
+        return addTextAt(editorState, ' [', match.index + match[0].length)
+      }
+      /*
+      let closeMatch = right.match(/[\[\{]|$/)
+      console.log(closeMatch)
+      if (closeMatch) {
+        // Position cursor at the end
+        const toIndex = closeMatch.index + index
+
+        const newSel = sel.merge({
+          anchorOffset: toIndex,
+          focusOffset: toIndex
+        })
+        const newState = EditorState.forceSelection(editorState, newSel)
+
+        return newState
+      } else {
+        // Add ]
+
+        let closeTagReplacedContent = Modifier.replaceText(
+          editorState.getCurrentContent(),
+          sel,
+          '[',
+          null,
+          null
+        )
+
+        const newEditorState = EditorState.push(
+          editorState,
+          closeTagReplacedContent,
+          'complete-place-from'
+        )
+        const newState = EditorState.forceSelection(newEditorState, closeTagReplacedContent.getSelectionAfter())
+
+        return newState
+      }
+      */
+    }
   }
 ]
 
@@ -150,10 +346,12 @@ class SemanticEditor extends Component {
 
     findSuggestions(text, SuggestionsStrategies, (result) => {
       if (this.state.editorState === editorState) {
-        const { suggestions, begin, end } = result
+        const { strategy, suggestions, begin, end } = result
+        const tabCompletion = strategy ? strategy.tabCompletion : null
         this.setState({
           editorState,
           suggestions,
+          tabCompletion,
           sugSelected: -1,
           details: {
             begin,
@@ -195,6 +393,16 @@ class SemanticEditor extends Component {
     this.onChange(newEditorState)
   }
 
+  onTab (e) {
+    e.preventDefault()
+    if (this.state.tabCompletion) {
+      const newEditorState = this.state.tabCompletion(this.state.editorState)
+      if (newEditorState) {
+        this.onChange(newEditorState)
+      }
+    }
+  }
+
   render () {
     const { className } = this.props
     const { left, top } = this.state.sugBox
@@ -209,12 +417,14 @@ class SemanticEditor extends Component {
           onDownArrow={this.onDownArrow.bind(this)}
           onUpArrow={this.onUpArrow.bind(this)}
           handleReturn={this.onReturn.bind(this)}
+          onTab={this.onTab.bind(this)}
           ref='editor'
           spellcheck={false}
         />
         <SuggestionBox
           left={left}
           top={top}
+          show={this.state.suggestions.length > 0}
           selected={sugSelected}
           onSelect={this.onSuggestionSelect.bind(this)}
           suggestions={suggestions}
