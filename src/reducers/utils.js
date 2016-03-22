@@ -17,6 +17,19 @@ export const updateBoundsWithPoint = (point, bounds) => {
   ]
 }
 
+export const calculateBoundsImmutable = (points) => {
+  let bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
+  points
+  .map((t) => { return {lat: t.get('lat'), lon: t.get('lon')} })
+  .forEach((elm) => {
+    bounds[0].lat = min(bounds[0].lat, elm.lat)
+    bounds[0].lon = min(bounds[0].lon, elm.lon)
+    bounds[1].lat = max(bounds[1].lat, elm.lat)
+    bounds[1].lon = max(bounds[1].lon, elm.lon)
+  })
+  return bounds
+}
+
 export const calculateBounds = (points) => {
   let bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
   points

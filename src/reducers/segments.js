@@ -1,10 +1,10 @@
 import {
   /*
   updateBoundsWithPoint,
-  calculateBounds,
   getSegmentById,
   getTrackBySegmentId,
   */
+  calculateBoundsImmutable,
   createSegmentObj,
   calculateMetrics
 } from './utils'
@@ -14,12 +14,13 @@ import {
 import { fromJS } from 'immutable'
 
 const updateSegment = (state, id) => {
-  // TODO update bounds
   return state.updateIn(['segments', id], (segment) => {
     const pts = segment.get('points')
     const metrics = calculateMetrics(pts.toJS())
+    const bounds = calculateBoundsImmutable(pts)
 
     return segment
+      .set('bounds', fromJS(bounds))
       .set('start', pts.get(0).get('time'))
       .set('end', pts.get(-1).get('time'))
       .set('metrics', fromJS(metrics))
@@ -30,16 +31,13 @@ const changeSegmentPoint = (state, action) => {
   const id = action.segmentId
   state = state.setIn(['segments', id, 'points', action.index, 'lat'], action.lat)
   state = state.setIn(['segments', id, 'points', action.index, 'lon'], action.lon)
-  // TODO updateBounds
-  // const updatedBounds = updateBoundsWithPoint(action, state.get('segments').get(id).get('bounds').toJS())
-  // return state.setIn(['segments', action.segmentId, action.index, 'bounds'], fromJS(updatedBounds))
-  return state
+  return updateSegment(state, id)
 }
 
 const removeSegmentPoint = (state, action) => {
   const id = action.segmentId
-  return state
-    .deleteIn(['segments', id, 'points', action.index])
+  return updateSegment(state
+    .deleteIn(['segments', id, 'points', action.index]), id)
 }
 
 const extendSegmentPoint = (state, action) => {
@@ -64,13 +62,13 @@ const extendSegmentPoint = (state, action) => {
     lon: action.lon,
     time: extrapolateTime(state.get('segments').get(id).get('points'), action.index)
   }
-  return state.updateIn(['segments', id, 'points'], (points) => {
+  return updateSegment(state.updateIn(['segments', id, 'points'], (points) => {
     if (action.index === 0) {
       return points.unshift(point)
     } else {
       return points.push(point)
     }
-  })
+  }), id)
 }
 
 const addSegmentPoint = (state, action) => {
@@ -87,14 +85,12 @@ const addSegmentPoint = (state, action) => {
     lon: action.lon,
     time: extrapolateTimeA(state.get('segments').get(id).get('points'), action.index)
   }
-  // TODO update bounds
-  // segment.set('bounds', updateBoundsWithPoint(pointA, segment.bounds))
-  return state.updateIn(['segments', id, 'points'], (points) => {
+
+  return updateSegment(state.updateIn(['segments', id, 'points'], (points) => {
     return points.insert(action.index, fromJS(pointA))
-  })
+  }), id)
 }
 const removeSegment = (state, action) => {
-  // TOFIX needs update to remove from map
   const id = action.segmentId
   const trackId = state.get('segments').get(id).get('trackId')
   state = state
@@ -149,7 +145,7 @@ const joinSegment = (state, action) => {
   state = toggleSegProp(state, action.segmentId, 'joining')
   state = segments(state, removeSegmentAction(toRemove.get('id')))
 
-  return state
+  return updateSegment(state, action.segmentId)
 }
 
 const updateTimeFilterSegment = (state, action) => {
