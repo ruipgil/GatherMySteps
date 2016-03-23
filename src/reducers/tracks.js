@@ -34,11 +34,44 @@ const removeTracksFor = (state, action) => {
   return addTrack(state, addTrackAction(action.segments, action.name))
 }
 
+const undo = (state, action) => {
+  let toPut = state.get('history').get('past').get(-1)
+  if (toPut) {
+    return state
+      .set('tracks', toPut.get('tracks'))
+      .set('segments', toPut.get('segments'))
+      .updateIn(['history', 'past'], (past) => {
+        return past.pop()
+      })
+      .updateIn(['history', 'future'], (future) => {
+        return future.push(state)
+      })
+  } else {
+    return state
+  }
+}
+
+const redo = (state, action) => {
+  let toPut = state.get('history').get('future').get(-1)
+  if (toPut) {
+    return state
+      .set('tracks', toPut.get('tracks'))
+      .set('segments', toPut.get('segments'))
+      .updateIn(['history', 'future'], (future) => {
+        return future.pop()
+      })
+  } else {
+    return state
+  }
+}
+
 const ACTION_REACTION = {
   'ADD_TRACK': addTrack,
   'TOGGLE_TRACK_RENAMING': toggleTrackRenaming,
   'UPDATE_TRACK_NAME': updateTrackName,
-  'REMOVE_TRACKS_FOR': removeTracksFor
+  'REMOVE_TRACKS_FOR': removeTracksFor,
+  'UNDO': undo,
+  'REDO': redo
 }
 
 import segments from './segments'
@@ -46,13 +79,29 @@ import { fromJS } from 'immutable'
 
 const initalState = fromJS({
   tracks: {},
-  segments: {}
+  segments: {},
+  history: {
+    past: [],
+    future: []
+  }
 })
+
+import { TOGGLE_TRACK_RENAMING, TOGGLE_SEGMENT_DISPLAY, TOGGLE_SEGMENT_SPLITING, TOGGLE_SEGMENT_POINT_DETAILS, TOGGLE_SEGMENT_JOINING, TOGGLE_SEGMENT_EDITING } from 'actions'
+
+const BLACK_LISTED_ACTIONS = [TOGGLE_TRACK_RENAMING, TOGGLE_SEGMENT_DISPLAY, TOGGLE_SEGMENT_SPLITING, TOGGLE_SEGMENT_POINT_DETAILS, TOGGLE_SEGMENT_JOINING, TOGGLE_SEGMENT_EDITING, 'UNDO', 'REDO']
 const tracks = (state = initalState, action) => {
+  let result
   if (ACTION_REACTION[action.type]) {
-    return ACTION_REACTION[action.type](state, action)
+    result = ACTION_REACTION[action.type](state, action)
   } else {
-    return segments(state, action)
+    result = segments(state, action)
+  }
+  if (result !== state && BLACK_LISTED_ACTIONS.indexOf(action.type) === -1) {
+    return result.updateIn(['history', 'past'], (past) => {
+      return past.push(state)
+    })
+  } else {
+    return result
   }
 }
 

@@ -65,3 +65,15 @@ export const removeTracksFor = (segments) => {
     type: 'REMOVE_TRACKS_FOR'
   }
 }
+
+export const redo = () => {
+  return {
+    type: 'REDO'
+  }
+}
+
+export const undo = () => {
+  return {
+    type: 'UNDO'
+  }
+}
