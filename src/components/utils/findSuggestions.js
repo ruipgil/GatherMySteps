@@ -5,7 +5,11 @@ export default function findSuggestions (text, strategies, callback) {
   let end = 0
   let strateg = null
   reduce(strategies, [], (prev, e, done) => {
-    const { suggester, strategy } = e
+    const { suggester, suggestionStrategy } = e
+    const strategy = suggestionStrategy
+    if (!strategy) {
+      return done(null, prev)
+    }
     const found = strategy(text)
     if (found) {
       strateg = e

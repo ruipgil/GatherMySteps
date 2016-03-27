@@ -10,7 +10,6 @@ const SuggestionBox = ({ left, top, selected, onSelect, suggestions, show }) => 
     boxShadow: '0px 4px 30px 0px rgba(220,220,220,1)',
     cursor: 'pointer',
     paddingTop: '2px',
-    paddingLeft: '8px',
     paddingBottom: '2px',
     zIndex: 800,
     color: 'black',
@@ -24,7 +23,8 @@ const SuggestionBox = ({ left, top, selected, onSelect, suggestions, show }) => 
       {
         suggestions.map((s, i) => {
           return <li key={i} onClick={() => onSelect(s)} style={{
-            backgroundColor: (i === selected) ? 'yellow' : 'transparent'
+            paddingLeft: '8px',
+            backgroundColor: (i === selected) ? '#EAEAEA' : 'transparent'
           }}>{s}</li>
         })
       }

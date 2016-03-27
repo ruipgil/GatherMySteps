@@ -2,16 +2,19 @@ export default function findWithRegex (regex, contentBlock, callback, mi = 1, lo
   if (log) {
     console.log(log)
     console.log(regex)
+    console.log(mi)
   }
   const text = contentBlock.getText()
   let matchArr, start, matched
   if (log) {
+    console.log(text)
     // console.log(regex.exec(text))
   }
   while ((matchArr = regex.exec(text)) !== null) {
     start = matchArr.index
     matched = matchArr[mi]
     if (log) {
+      console.log(matchArr)
       console.log('matched: "%s"', matched)
       console.log('index %d', matchArr.index)
     }

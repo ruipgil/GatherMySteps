@@ -10,7 +10,7 @@ const getValidParent = (elm) => {
   }
 }
 
-export default function findSuggestionBoxPosition (editorRef) {
+export default function findSuggestionBoxPosition (editorRef, last) {
   const _sel = window.getSelection()
   let sbLeft = 0
   let sbTop = 0
@@ -21,5 +21,9 @@ export default function findSuggestionBoxPosition (editorRef) {
     sbLeft = rect.left - edp.left
     sbTop = rect.bottom - edp.top + 4
   }
-  return { left: sbLeft, top: sbTop }
+  if (sbTop === 0) {
+    return last
+  } else {
+    return { left: sbLeft, top: sbTop }
+  }
 }
