@@ -4,6 +4,7 @@ import { Map, ScaleControl, ZoomControl } from 'react-leaflet'
 import ChangeMapProvider from '../components/ChangeMapProvider.jsx'
 import SelectMapSegment from '../components/SelectMapSegment.jsx'
 import TileLayerSelector from '../components/TileLayerSelector.jsx'
+import { ButtonGroup, Button } from 'components/MapButton'
 
 import {
   changeMap,
@@ -12,6 +13,10 @@ import {
   updateBounds,
   updateInternalBounds
 } from '../actions/ui'
+
+import {
+  undo, redo
+} from 'actions/progress'
 
 import { MAP_STATES } from '../constants'
 
@@ -124,6 +129,14 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
         <ZoomControl position='topright' />
         <ChangeMapProvider mapType={map} onChange={(toType) => dispatch(changeMap(toType))} />
         <ScaleControl position='bottomright' />
+        <ButtonGroup position='topleft'>
+          <Button onClick={() => dispatch(undo())}>
+            <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-undo' />
+          </Button>
+          <Button onClick={() => dispatch(redo())}>
+            <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-redo' />
+          </Button>
+        </ButtonGroup>
         { TileLayerSelector(map) }
         { elements }
       </Map>

@@ -23,7 +23,7 @@ let Progress = ({ dispatch, stage, canProceed }) => {
   return (
     <div className='container is-flex' style={{ height: '100%', flexDirection: 'column' }}>
       <Pane className='is-flexgrow' />
-      <div className='columns is-gapless' style={{ marginBottom: '10px' }}>
+      <div className='columns' style={{ marginBottom: '10px' }}>
         <span className='column is-half is-gapless is-text-centered'>
           <a className={'button is-warning' + ((stage === 0) ? ' is-disabled' : '')} onClick={onPrevious}>
             <i className='fa fa-chevron-left' />

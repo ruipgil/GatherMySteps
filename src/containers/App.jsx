@@ -9,7 +9,7 @@ import ProgressBar from './ProgressBar.jsx'
 
 import loadFiles from '../loadFiles'
 
-import { nextStep, undo, redo } from '../actions/progress'
+import { nextStep } from '../actions/progress'
 
 let App = ({ ui, tracks, dispatch }) => {
   const onDrop = (e) => {
@@ -45,10 +45,6 @@ let App = ({ ui, tracks, dispatch }) => {
     <Dropzone id='container' onDrop={onDrop} >
       <div id='float-container'>
         <div id='title'>GatherMySteps</div>
-        <div>
-          <div onClick={() => dispatch(undo())}>Undo</div>
-          <div onClick={() => dispatch(redo())}>Redo</div>
-        </div>
         <div id='details'>
           <Progress onNext={ onNext } onPrevious={ onPrevious } />
         </div>
