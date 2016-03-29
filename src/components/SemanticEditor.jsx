@@ -72,22 +72,6 @@ const SuggestionsStrategies = [
     component: SemanticPill
   },
   {
-    id: 'tags',
-    suggestionStrategy: suggestionRegExStrat(/\[([^\]]*)\]?/),
-    suggester: staticSuggestionGetter(TAGS),
-    tabCompletion: generateTabFromSeparator(']', /\[([^\]]*)\]?/g, '{'),
-    strategy: RegExStrategy(/\[([^\]]*)\]?/g),
-    component: SemanticPill
-  },
-  {
-    id: 'semantic',
-    suggestionStrategy: suggestionRegExStrat(/\{([^\}]*)\}?/),
-    suggester: staticSuggestionGetter(SEMANTIC),
-    tabCompletion: generateTabFromSeparator('}', /\{([^\}]*)\}?/g),
-    strategy: RegExStrategy(/\{([^\}]*)\}?/g),
-    component: SemanticPill
-  },
-  {
     id: 'placeFrom',
     suggestionStrategy: suggestionRegExStrat(/\:\s*([^\[\{\-\>]*)/),
     suggester: staticSuggestionGetter(PLACES),
@@ -120,7 +104,8 @@ const SuggestionsStrategies = [
     id: 'placeTo',
     strategy: RegExStrategy(/(\-\>\s*)([^\[\{\-\>]*)/g, 2),
     component: SemanticPill,
-    tabCompletion: (editorState) => {
+    tabCompletion: generateTabFromSeparator('', /(\-\>\s*)([^\[\{\-\>]*)/g, '[', 2)
+    /*tabCompletion: (editorState) => {
       const sel = editorState.getSelection()
 
       const text = editorState.getCurrentContent().getLastBlock().getText()
@@ -153,7 +138,23 @@ const SuggestionsStrategies = [
       } else if (match) {
         return addTextAt(editorState, ' [', match.index + match[0].length)
       }
-    }
+      }*/
+  },
+  {
+    id: 'tags',
+    suggestionStrategy: suggestionRegExStrat(/\[([^\]]*)\]?/),
+    suggester: staticSuggestionGetter(TAGS),
+    tabCompletion: generateTabFromSeparator(']', /\[([^\]]*)\]?/g, '{'),
+    strategy: RegExStrategy(/\[([^\]]*)\]?/g),
+    component: SemanticPill
+  },
+  {
+    id: 'semantic',
+    suggestionStrategy: suggestionRegExStrat(/\{([^\}]*)\}?/),
+    suggester: staticSuggestionGetter(SEMANTIC),
+    tabCompletion: generateTabFromSeparator('}', /\{([^\}]*)\}?/g),
+    strategy: RegExStrategy(/\{([^\}]*)\}?/g),
+    component: SemanticPill
   }
 ]
 
