@@ -15,7 +15,7 @@ import {
 } from '../actions/ui'
 
 import {
-  undo, redo
+  undo, redo, requestServerState
 } from 'actions/progress'
 
 import { MAP_STATES } from '../constants'
@@ -134,7 +134,10 @@ let LeafletMap = ({bounds, map, segments, details, dispatch}) => {
             <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-undo' />
           </Button>
           <Button onClick={() => dispatch(redo())}>
-            <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-redo' />
+            <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-repeat' />
+          </Button>
+          <Button onClick={() => dispatch(requestServerState())}>
+            <i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-refresh' />
           </Button>
         </ButtonGroup>
         { TileLayerSelector(map) }

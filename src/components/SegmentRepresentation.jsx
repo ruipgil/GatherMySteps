@@ -62,15 +62,20 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   let avrgSpeed = metrics.averageVelocity
 
   const btnHighlight = ' is-success is-outlined'
+  const style = {
+    fontSize: '1rem',
+    color: 'gray',
+    margin: '0.1rem 0'
+  }
   return (
-    <div>
+    <div className='slide-from-top-fade-in'>
     <div>
       <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} >
         <div onClick={toggleTrack(id)}>
-          <div style={{fontSize: '1rem', color: 'gray'}}>{name.length === 0 ? 'untitled' : name} <span style={{fontSize: '0.8rem', color: 'gray'}}>{points.count()} points</span></div>
-          <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('L')} - {end.format('L')}, {end.fromNow()}</div>
-          <div style={{fontSize: '0.8rem', color: 'gray'}}>{start.format('LT')} - {end.format('LT')}, {start.to(end, true)}</div>
-          <div style={{fontSize: '0.8rem', color: 'gray'}}>{ distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>
+          <div style={style}>{start.format('L')} - {end.format('L')}</div>
+          <div style={style}>{start.format('LT')} - {end.format('LT')}</div>
+          <div style={style}>{end.fromNow()} during {start.to(end, true)}</div>
+          <div style={style}>{points.count()} points, { distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>
         </div>
 
         <div style={{marginTop: '2px'}}>

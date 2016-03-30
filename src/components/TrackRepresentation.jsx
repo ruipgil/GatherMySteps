@@ -42,7 +42,7 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
   }
 
   return (
-    <div>
+    <div className='fade-in'>
       <div style={{fontSize: '1.5rem'}}>
         {title}
       </div>
