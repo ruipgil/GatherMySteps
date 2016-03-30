@@ -1,19 +1,31 @@
+import { fromJS } from 'immutable'
 import { ADJUST_STAGE, ANNOTATE_STAGE } from '../constants'
 
 const advanceToAdjust = (state, action) => {
-  return ADJUST_STAGE
+  return state.set('step', ADJUST_STAGE)
 }
 
 const advanceToAnnotate = (state, action) => {
-  return ANNOTATE_STAGE
+  return state.set('step', ANNOTATE_STAGE)
+}
+
+const setServerState = (state, action) => {
+  return state.set('step', action.step)
+    .set('remainingTracks', fromJS(action.tracksRemaining))
 }
 
 const ACTION_REACTION = {
   'ADVANCE_TO_ADJUST': advanceToAdjust,
-  'ADVANCE_TO_ANNOTATE': advanceToAnnotate
+  'ADVANCE_TO_ANNOTATE': advanceToAnnotate,
+  'SET_SERVER_STATE': setServerState
 }
 
-const progress = (state = 0, action) => {
+const initialState = fromJS({
+  step: 0,
+  remainingTracks: [],
+  server: 'http://localhost:5000'
+})
+const progress = (state = initialState, action) => {
   if (ACTION_REACTION[action.type]) {
     return ACTION_REACTION[action.type](state, action)
   } else {

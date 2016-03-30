@@ -23,6 +23,32 @@ const advanceToAnnotate = () => {
   }
 }
 
+export const setServerState = (step, tracksRemaining) => {
+  return {
+    step,
+    tracksRemaining,
+    type: 'SET_SERVER_STATE'
+  }
+}
+
+export const requestServerState = () => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    fetch(getState().get('progress').get('server') + '/current', options)
+      .then((response) => response.json())
+      .catch((err) => {
+        console.log(err)
+      })
+      .then((json) => {
+        dispatch(setServerState(json.step, json.files))
+        dispatch(removeTracksFor(json.track))
+      })
+  }
+}
+
 export const nextStep = () => {
   return (dispatch, getState) => {
     const step = getState().get('progress')

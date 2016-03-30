@@ -23,6 +23,8 @@ const ui = (state = initialState, action) => {
       return state.set('details', true)
     case 'HIDE_TRACK_DETAILS':
       return state.set('details', false)
+    case 'TOGGLE_REMAINING_TRACKS':
+      return state.set('showRemainingTracks', !state.get('showRemainingTracks'))
     default:
       return state
   }

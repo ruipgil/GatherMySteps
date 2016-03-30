@@ -59,3 +59,8 @@ export const showDetails = () => {
     type: 'SHOW_TRACK_DETAILS'
   }
 }
+export const toggleRemainingTracks = () => {
+  return {
+    type: 'TOGGLE_REMAINING_TRACKS'
+  }
+}

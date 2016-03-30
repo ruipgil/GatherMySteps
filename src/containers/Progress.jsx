@@ -4,8 +4,11 @@ import { connect } from 'react-redux'
 import TrackList from './TrackList.jsx'
 import SemanticEditor from '../components/SemanticEditor.jsx'
 import { nextStep } from '../actions/progress'
+import { toggleRemainingTracks } from 'actions/ui'
 
-let Progress = ({ dispatch, stage, canProceed }) => {
+import { TransitionMotion, spring } from 'react-motion'
+
+let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let Pane
   switch (stage) {
     case ADJUST_STAGE:
@@ -20,10 +23,51 @@ let Progress = ({ dispatch, stage, canProceed }) => {
   const onPrevious = () => {}
   const onNext = () => dispatch(nextStep())
 
-  return (
-    <div className='container is-flex' style={{ height: '100%', flexDirection: 'column' }}>
-      <Pane className='is-flexgrow' />
-      <div className='columns' style={{ marginBottom: '10px' }}>
+  const remainingMessage = (n) => {
+    switch (n) {
+      case 0:
+        return (
+          <span>
+            <i className='fa fa-check fa-fw fa-ih' /> All tracks are processed
+          </span>
+        )
+      case 1:
+        return (
+          <span>
+            <i className='fa fa-ellipsis-h fa-ih' /> One track left
+          </span>
+        )
+      default:
+        return (
+          <span>
+            <i className='fa fa-ellipsis-h fa-ih' /> { n } tracks left
+          </span>
+        )
+    }
+  }
+
+  let toShow
+  if (showList) {
+    toShow = (
+      <ul className='is-flexgrow slide-from-top-fade-in'>
+        {
+          remaining.map((track) => {
+            return (
+              <li>
+                { track.get('name') }
+              </li>
+            )
+          })
+        }
+      </ul>
+    )
+  } else {
+    toShow = (
+      <div style={{ height: '100%' }}>
+      <div className='is-flexgrow'>
+        <Pane className='is-flexgrow' />
+      </div>
+      <div className=''>
         <span className='column is-half is-gapless is-text-centered'>
           <a className={'button is-warning' + ((stage === 0) ? ' is-disabled' : '')} onClick={onPrevious}>
             <i className='fa fa-chevron-left' />
@@ -38,12 +82,24 @@ let Progress = ({ dispatch, stage, canProceed }) => {
         </span>
       </div>
     </div>
+    )
+  }
+
+  return (
+    <div className='container is-flex' style={{ height: '100%', flexDirection: 'column' }}>
+      { toShow }
+      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} onClick={() => dispatch(toggleRemainingTracks())}>
+        { remainingMessage(remaining.count()) }
+      </div>
+    </div>
   )
 }
 
 const mapStateToProps = (state) => {
   return {
-    stage: state.get('progress'),
+    stage: state.get('progress').get('step'),
+    showList: state.get('ui').get('showRemainingTracks'),
+    remaining: state.get('progress').get('remainingTracks'),
     canProceed: state.get('tracks').get('tracks').count() > 0
   }
 }

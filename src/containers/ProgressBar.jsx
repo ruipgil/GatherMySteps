@@ -19,7 +19,7 @@ let ProgressBar = ({ state, children }) => {
 
 const mapStateToProps = (state) => {
   return {
-    state: state.get('progress') || 0
+    state: state.get('progress').get('step') || 0
   }
 }
 

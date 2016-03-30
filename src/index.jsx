@@ -23,6 +23,9 @@ let store = createStore(
   applyMiddleware(thunkMiddleware, loggerMiddleware)
 )
 
+import { requestServerState } from 'actions/progress'
+store.dispatch(requestServerState())
+
 render((
   <Provider store={store}>
     <App />
