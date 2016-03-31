@@ -49,7 +49,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let toShow
   if (showList) {
     toShow = (
-      <ul className='is-flexgrow slide-from-top-fade-in'>
+      <ul className='is-flexgrow slide-from-top-fade-in' className='is-flexgrow'>
         {
           remaining.map((track) => {
             return (
@@ -63,11 +63,16 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     )
   } else {
     toShow = (
-      <div style={{ height: '100%' }}>
-      <div className='is-flexgrow'>
+      <div className='is-flexgrow fade-scroll' style={{ overflowY: 'auto' }} >
         <Pane className='is-flexgrow' />
       </div>
-      <div className=''>
+    )
+  }
+
+  return (
+    <div className='container' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      { toShow }
+      <div style={{ marginTop: '0.5rem' }}>
         <span className='column is-half is-gapless is-text-centered'>
           <a className={'button is-warning' + ((stage === 0) ? ' is-disabled' : '')} onClick={onPrevious}>
             <i className='fa fa-chevron-left' />
@@ -80,16 +85,9 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
             <i className='fa fa-chevron-right' />
           </a>
         </span>
-      </div>
-    </div>
-    )
-  }
-
-  return (
-    <div className='container is-flex' style={{ height: '100%', flexDirection: 'column' }}>
-      { toShow }
       <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} onClick={() => dispatch(toggleRemainingTracks())}>
         { remainingMessage(remaining.count()) }
+      </div>
       </div>
     </div>
   )

@@ -78,7 +78,7 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
           <div style={style}>{points.count()} points, { distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>
         </div>
 
-        <div style={{marginTop: '2px'}}>
+        <div style={{ marginTop: '2px', display: 'flex', justifyContent: 'space-around' }}>
           <span className='button icon-button' onClick={remove(id)}>
             <i className='fa fa-trash' />
           </span>
