@@ -36,6 +36,23 @@ export const requestServerState = () => {
   }
 }
 
+export const previousStep = () => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    return fetch(getState().get('progress').get('server') + '/previous', options)
+      .then((response) => response.json())
+      .catch((err) => console.log(err))
+      .then((json) => {
+        console.log(json)
+        dispatch(setServerState(json.step, json.files))
+        dispatch(removeTracksFor(json.track.segments, json.track.name))
+      })
+  }
+}
+
 export const nextStep = () => {
   return (dispatch, getState) => {
     const options = {

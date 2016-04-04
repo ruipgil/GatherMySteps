@@ -74,7 +74,10 @@ export const createSegmentObj = (trackId, points) => {
     timeFilter: [],
     showTimeFilter: false,
     bounds: calculateBounds(points),
-    metrics: calculateMetrics(points)
+    metrics: calculateMetrics(points),
+
+    location: {},
+    transportationModes: []
   }
 }
 

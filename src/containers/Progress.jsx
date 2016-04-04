@@ -3,10 +3,8 @@ import { ADJUST_STAGE, PREVIEW_STAGE, ANNOTATE_STAGE } from '../constants'
 import { connect } from 'react-redux'
 import TrackList from './TrackList.jsx'
 import SemanticEditor from '../components/SemanticEditor.jsx'
-import { nextStep } from '../actions/progress'
+import { nextStep, previousStep } from '../actions/progress'
 import { toggleRemainingTracks } from 'actions/ui'
-
-import { TransitionMotion, spring } from 'react-motion'
 
 let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let Pane
@@ -20,7 +18,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       break
   }
 
-  const onPrevious = () => {}
+  const onPrevious = () => dispatch(previousStep())
   const onNext = () => dispatch(nextStep())
 
   const remainingMessage = (n) => {
@@ -49,7 +47,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let toShow
   if (showList) {
     toShow = (
-      <ul className='is-flexgrow slide-from-top-fade-in' className='is-flexgrow'>
+      <ul className='is-flexgrow slide-from-top-fade-in' style={{ overflowY: 'auto' }}>
         {
           remaining.map((track) => {
             return (
@@ -68,7 +66,6 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       </div>
     )
   }
-
   return (
     <div className='container' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       { toShow }
