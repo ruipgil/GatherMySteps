@@ -53,7 +53,7 @@ export const getTrackBySegmentId = (id, state) =>
     track.segments.find((s) => s.id === id) ? track : null
   ).find((x) => !!x)
 
-export const createSegmentObj = (trackId, points) => {
+export const createSegmentObj = (trackId, points, nSegs) => {
   let sId = genSegId()
   return {
     trackId,
@@ -65,7 +65,7 @@ export const createSegmentObj = (trackId, points) => {
     display: true,
     start: points[0].time,
     end: points[points.length - 1].time,
-    color: colors(sId),
+    color: colors(nSegs),
     name: '',
     editing: false,
     spliting: false,
@@ -81,9 +81,9 @@ export const createSegmentObj = (trackId, points) => {
   }
 }
 
-export const createTrackObj = (name, segments) => {
+export const createTrackObj = (name, segments, n = 0) => {
   let id = genTrackId()
-  let segs = segments.map((segment) => createSegmentObj(id, segment))
+  let segs = segments.map((segment, i) => createSegmentObj(id, segment, n + i))
   return {
     track: {
       id,

@@ -115,7 +115,7 @@ const splitSegment = (state, action) => {
   })
   state = updateSegment(state, id)
 
-  const segData = createSegmentObj(segment.get('trackId'), rest.toJS())
+  const segData = createSegmentObj(segment.get('trackId'), rest.toJS(), state.get('segments').count())
   state = state.setIn(['segments', segData.id], fromJS(segData))
 
   state = state.updateIn(['tracks', segment.get('trackId'), 'segments'], (segments) => {

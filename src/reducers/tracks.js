@@ -2,7 +2,7 @@ import { createTrackObj } from './utils'
 
 const addTrack = (state, action) => {
   let { name, segments } = action
-  let track = createTrackObj(name, segments)
+  let track = createTrackObj(name, segments, state.get('segments').count())
   const ctrack = track.track
   const csegments = track.segments
   state = state.setIn(['tracks', ctrack.id], fromJS(ctrack))

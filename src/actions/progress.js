@@ -47,8 +47,8 @@ export const previousStep = () => {
       .catch((err) => console.log(err))
       .then((json) => {
         console.log(json)
-        dispatch(setServerState(json.step, json.files))
         dispatch(removeTracksFor(json.track.segments, json.track.name))
+        dispatch(setServerState(json.step, json.files))
       })
   }
 }
@@ -71,8 +71,8 @@ export const nextStep = () => {
       .catch((err) => console.log(err))
       .then((json) => {
         console.log(json)
-        dispatch(setServerState(json.step, json.files))
         dispatch(removeTracksFor(json.track.segments, json.track.name))
+        dispatch(setServerState(json.step, json.files))
       })
   }
 }
