@@ -61,7 +61,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     )
   } else {
     toShow = (
-      <div className='is-flexgrow fade-scroll' style={{ overflowY: 'auto' }} >
+      <div className='is-flexgrow' style={{ overflowY: 'auto' }} >
         <Pane className='is-flexgrow' />
       </div>
     )
@@ -82,7 +82,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
             <i className='fa fa-chevron-right' />
           </a>
         </span>
-      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} onClick={() => dispatch(toggleRemainingTracks())}>
+      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
         { remainingMessage(remaining.count()) }
       </div>
       </div>

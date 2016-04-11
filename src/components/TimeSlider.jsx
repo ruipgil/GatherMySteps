@@ -23,7 +23,7 @@ export default class TimeSlider extends Component {
       clearTimeout(this.timer)
       this.timer = setTimeout(() => {
         this.props.onChange(lower, upper)
-      }, 100)
+      }, 200)
     }
   }
 

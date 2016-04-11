@@ -1,4 +1,4 @@
-import { Map } from 'immutable'
+import { Map, fromJS } from 'immutable'
 
 const initialState = Map({})
 const ui = (state = initialState, action) => {
@@ -16,7 +16,7 @@ const ui = (state = initialState, action) => {
     case 'USE_GOOGLE_ROAD_MAPS':
       return state.set('map', 'google_road')
     case 'UPDATE_BOUNDS':
-      return state.set('bounds', action.bounds)
+      return state.set('bounds', fromJS(action.bounds))
     case 'UPDATE_INTERNAL_BOUNDS':
       return state.set('internalBounds', action.bounds)
     case 'SHOW_TRACK_DETAILS':
