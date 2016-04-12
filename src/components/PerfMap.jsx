@@ -1,4 +1,4 @@
-import Leaflet, { FeatureGroup, Polyline, CircleMarker, Icon, Control } from 'leaflet'
+import Leaflet, { FeatureGroup, Polyline, CircleMarker, DivIcon, Control } from 'leaflet'
 import { Google } from 'leaflet-plugins/layer/tile/Google.js'
 import React, { Component } from 'react'
 import { Set } from 'immutable'
@@ -17,14 +17,16 @@ import { PolylineEditor } from 'leaflet-editable-polyline'
 // TODO, update editable polyline when undo
 
 const CIRCLE_OPTIONS = {
-  opacity: 0.7,
+  opacity: 1,
+  radius: 10,
+  fillColor: 'white',
   fillOpacity: 1
 }
 
 const createCircleOptions = (color) => Object.assign({}, CIRCLE_OPTIONS, { color })
 const createPointsFeatureGroup = (pts, color, pointsEventMap = {}) => {
   const cpts = pts.map((point, i) => {
-    const p = new CircleMarker(point, 10)
+    const p = new CircleMarker(point)
     p.index = i
     return p
   })
@@ -34,13 +36,23 @@ const createPointsFeatureGroup = (pts, color, pointsEventMap = {}) => {
   pointsLayer.on(pointsEventMap)
   return pointsLayer
 }
-const PointPopup = ({ lat, lon, time, distance, velocity, n }) => {
+const PointPopup = ({ lat, lon, time, distance, velocity, n, onMove }) => {
+  const flexAlignStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 10px'
+  }
   return (
-    <div>
-      <div>#{n}</div>
-      <div>Lat: <b>{lat}</b> Lon: <b>{lon}</b></div>
-      <div>Time: <b>{time.toString()}</b></div>
-      <div><b>{(distance * 1000).toFixed(3)}</b>m at <b>{velocity.toFixed(3)}</b>km/h</div>
+    <div className='is-flex'>
+      <span style={flexAlignStyle} onClick={() => onMove(n - 1)} className='clickable'><i className='fa fa-chevron-left' /></span>
+      <span>
+        <div>#<strong>{n}</strong></div>
+        <div>Lat: <strong>{lat}</strong> Lon: <strong>{lon}</strong></div>
+        <div>Time: <strong>{time.format('dddd, MMMM Do YYYY, HH:mm:ss')}</strong></div>
+        <div><strong>{(distance * 1000).toFixed(3)}</strong>m at <strong>{velocity.toFixed(3)}</strong>km/h</div>
+      </span>
+      <span style={flexAlignStyle} onClick={() => onMove(n + 1)} className='clickable'><i className='fa fa-chevron-right' /></span>
     </div>
   )
 }
@@ -315,13 +327,31 @@ export default class PerfMap extends Component {
   detailMode (lseg, current, previous) {
     lseg.points.on('click', (target) => {
       const index = target.layer.index
-      const point = current.get('points').get(index)
-      const pm = current.get('metrics').get('points').get(index)
 
-      const popup = <PointPopup lat={point.get('lat')} lon={point.get('lon')} time={point.get('time')} distance={pm.get('distance')} velocity={pm.get('velocity')} n={index} />
-      const div = document.createElement('div')
-      render(popup, div)
-      target.layer.bindPopup(div).openPopup()
+      const openPopupFor = (target, index) => {
+        const point = current.get('points').get(index)
+        const pm = current.get('metrics').get('points').get(index)
+        const next = (i) => {
+          target.closePopup()
+          target = lseg.points.getLayers()[i]
+          openPopupFor(target, i)
+        }
+        const popup = (
+          <PointPopup
+            lat={point.get('lat')}
+            lon={point.get('lon')}
+            time={point.get('time')}
+            distance={pm.get('distance')}
+            velocity={pm.get('velocity')}
+            n={index}
+            onMove={next} />
+        )
+        const div = document.createElement('div')
+        render(popup, div)
+        target.bindPopup(div).openPopup()
+      }
+
+      openPopupFor(target.layer, index)
     })
     lseg.points.addTo(lseg.layergroup)
     lseg.tearDown = () => {
@@ -334,6 +364,7 @@ export default class PerfMap extends Component {
   editMode (lseg, current, previous) {
     const { dispatch } = this.props
     const id = current.get('id')
+    const color = current.get('color')
     let options = {
       onChange: (n, points) => {
         let {lat, lng} = points[n]._latlng
@@ -351,17 +382,18 @@ export default class PerfMap extends Component {
         dispatch(extendSegment(id, n, lat, lng))
       }
     }
-    options.pointIcon = new Icon({
-      iconUrl: '/pointIcon.svg',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6]
+    options.pointIcon = new DivIcon({
+      className: 'fa editable-point border-color-' + color.substr(1),
+      iconAnchor: [12, 12]
     })
-    options.newPointIcon = new Icon({
-      iconUrl: '/newPointIcon.svg',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6]
+    options.newPointIcon = new DivIcon({
+      className: 'fa fa-plus editable-point new-editable-point',
+      iconAnchor: [12, 12]
     })
-    options.maxMarkers = 1000
+    options.maxMarkers = 500
+    options.weight = 0
+    const opts = createCircleOptions(color)
+    Object.keys(opts).forEach((option) => (options[option] = opts[option]))
 
     const editable = PolylineEditor(current.get('points').toJS(), options)
     editable.addTo(lseg.layergroup)
@@ -397,7 +429,7 @@ export default class PerfMap extends Component {
 
   shouldUpdateColor (segment, color, prev) {
     if (color !== prev) {
-      segment.setStyle({
+      segment.layergroup.setStyle({
         color
       })
     }
@@ -405,7 +437,7 @@ export default class PerfMap extends Component {
 
   shouldUpdateDisplay (segment, display, prev) {
     if (display !== prev) {
-      segment.setStyle({
+      segment.layergroup.setStyle({
         opacity: display ? 1 : 0
       })
     }

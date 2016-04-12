@@ -238,3 +238,54 @@ html, body {
   background: -webkit-linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
   background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
 }
+
+.editable-point {
+  background-color: white;
+  border-radius: 50%;
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 20px !important;
+  padding: 2px;
+  border-width: 5px;
+  border-style: solid;
+}
+.new-editable-point {
+  border-width: 0;
+  opacity: 0.7;
+}
+.border-color-a6cee3 {
+  border-color: #a6cee3;
+}
+.border-color-1f78b4 {
+  border-color: #1f78b4;
+}
+.border-color-b2df8a {
+  border-color: #b2df8a;
+}
+.border-color-33a02c {
+  border-color: #33a02c;
+}
+.border-color-fb9a99 {
+  border-color: #fb9a99;
+}
+.border-color-e31a1c {
+  border-color: #e31a1c;
+}
+.border-color-fdbf6f {
+  border-color: #fdbf6f;
+}
+.border-color-ff7f00 {
+  border-color: #ff7f00;
+}
+.border-color-cab2d6 {
+  border-color: #cab2d6;
+}
+.border-color-6a3d9a {
+  border-color: #6a3d9a;
+}
+.border-color-ffff99 {
+  border-color: #ffff99;
+}
+.border-color-b15928 {
+  border-color: #b15928;
+}
