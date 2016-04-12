@@ -1,5 +1,5 @@
 import Leaflet, { FeatureGroup, Polyline, CircleMarker, DivIcon, Control } from 'leaflet'
-import { Google } from 'leaflet-plugins/layer/tile/Google.js'
+// import { Google } from 'leaflet-plugins/layer/tile/Google.js'
 import React, { Component } from 'react'
 import { Set } from 'immutable'
 import { findDOMNode, render } from 'react-dom'
@@ -123,22 +123,20 @@ export default class PerfMap extends Component {
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
     var osm = new Leaflet.TileLayer(osmUrl, {attribution: osmAttrib})
-    var osm2 = new Leaflet.TileLayer(osmUrl, {attribution: osmAttrib})
 
     var zoomControl = new Control.Zoom({
       position: 'topright'
     })
     zoomControl.addTo(this.map)
 
-    const ggl = new Google()
-
+    /* const ggl = new Google()
     var layersControl = new Control.Layers({
       'OpenStreetMaps': osm,
       'OpenStreetMaps2': osm2,
       'Google Maps: Terrain': new Google('google_terrain'),
       'Google Maps: Sattelite': ggl
     }, {})
-    layersControl.addTo(this.map)
+    layersControl.addTo(this.map)*/
 
     const { dispatch } = this.props
     const btn = new Button([
@@ -157,7 +155,8 @@ export default class PerfMap extends Component {
 
     new Button({
       button: (<i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-map-marker' />),
-      title: 'Position on your location'
+      title: 'Position on your location',
+      onClick: () => this.map.locate({setView: true})
     }).addTo(this.map)
     // start the map in South-East England
     // this.map.setView(new Leaflet.LatLng(51.3, 0.7), 9)
@@ -243,7 +242,7 @@ export default class PerfMap extends Component {
 
   shouldUpdateMode (lseg, current, previous) {
     if (lseg.tearDown) {
-      lseg.tearDown(current)
+      lseg.tearDown(current, previous)
     }
     if (current.get('spliting') !== previous.get('spliting')) {
       if (current.get('spliting')) {
@@ -398,8 +397,8 @@ export default class PerfMap extends Component {
     const editable = PolylineEditor(current.get('points').toJS(), options)
     editable.addTo(lseg.layergroup)
 
-    lseg.tearDown = (segment) => {
-      if (!segment.get('editing')) {
+    lseg.tearDown = (current, prev) => {
+      if (!current.get('editing')) {
         lseg.layergroup.removeLayer(editable)
         lseg.tearDown = null
       }
