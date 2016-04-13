@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Editor, EditorState, CompositeDecorator } from 'draft-js'
+import { Editor, EditorState, CompositeDecorator, ContentState } from 'draft-js'
 
 import SuggestionBox from 'components/SuggestionBox.jsx'
 
@@ -12,8 +12,10 @@ class SemanticEditor extends Component {
     super(props)
     const decorator = new CompositeDecorator(props.strategies)
 
+    const { initial } = props
+    console.log(props)
     this.state = {
-      editorState: EditorState.createEmpty(decorator),
+      editorState: EditorState.createWithContent(ContentState.createFromText(initial || ''), decorator),
       suggestions: {
         show: false,
         list: [],

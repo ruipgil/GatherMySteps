@@ -1,4 +1,5 @@
 import React from 'react'
+import { connect } from 'react-redux'
 import { EditorState, Modifier } from 'draft-js'
 
 import SemanticEditor from './SemanticEditor/index.jsx'
@@ -158,10 +159,49 @@ const SuggestionsStrategies = [
   }
 ]
 
-const SE = (props) => {
+let SE = ({ segments }) => {
+  let buff = ''
+  segments.forEach((segment) => {
+    const start = segment.get('start')
+    const end = segment.get('end')
+    const from = segment.get('locations').get(0)
+    const to = segment.get('locations').get(1)
+    const transp = segment.get('transportationModes')
+
+    const DATE_FORMAT = 'HHmm'
+    const span = start.format(DATE_FORMAT) + '-' + end.format(DATE_FORMAT)
+    buff += span + ': '
+    buff += from.get('label')
+    if (to) {
+      buff += ' -> ' + to.get('label')
+    }
+
+    if (transp) {
+      if (transp.count() === 1) {
+        buff += ' [' + transp[0] + ']'
+      } else {
+        buff += transp.forEach((t) => {
+          const tSpan = t.start.format(DATE_FORMAT) + '-' + t.end.format(DATE_FORMAT)
+          buff += '\n\t' + tSpan + ': [' + t.mode + ']'
+        })
+      }
+    }
+
+    buff += '\n'
+  })
+  console.log(buff)
+
   return (
-    <SemanticEditor strategies={SuggestionsStrategies} />
+    <SemanticEditor strategies={SuggestionsStrategies} initial={ buff } segments={ segments }>
+    </SemanticEditor>
   )
 }
 
+const mapStateToProps = (state) => {
+  return {
+    segments: state.get('tracks').get('segments')
+  }
+}
+
+SE = connect(mapStateToProps)(SE)
 export default SE

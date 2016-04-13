@@ -31,7 +31,7 @@ export const requestServerState = () => {
       .then((json) => {
         console.log(json)
         dispatch(setServerState(json.step, json.files))
-        dispatch(removeTracksFor(json.track.segments, json.track.name))
+        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
       })
   }
 }
@@ -47,7 +47,7 @@ export const previousStep = () => {
       .catch((err) => console.log(err))
       .then((json) => {
         console.log(json)
-        dispatch(removeTracksFor(json.track.segments, json.track.name))
+        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
         dispatch(setServerState(json.step, json.files))
       })
   }
@@ -71,16 +71,18 @@ export const nextStep = () => {
       .catch((err) => console.log(err))
       .then((json) => {
         console.log(json)
-        dispatch(removeTracksFor(json.track.segments, json.track.name))
+        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
         dispatch(setServerState(json.step, json.files))
       })
   }
 }
 
-export const removeTracksFor = (segments, name) => {
+export const removeTracksFor = (segments, name, locations = [], transModes = []) => {
   return {
     segments,
     name,
+    locations,
+    transModes,
     type: 'REMOVE_TRACKS_FOR'
   }
 }

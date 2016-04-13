@@ -53,7 +53,7 @@ export const getTrackBySegmentId = (id, state) =>
     track.segments.find((s) => s.id === id) ? track : null
   ).find((x) => !!x)
 
-export const createSegmentObj = (trackId, points, nSegs) => {
+export const createSegmentObj = (trackId, points, location, transModes, nSegs) => {
   let sId = genSegId()
   return {
     trackId,
@@ -76,14 +76,14 @@ export const createSegmentObj = (trackId, points, nSegs) => {
     bounds: calculateBounds(points),
     metrics: calculateMetrics(points),
 
-    location: {},
-    transportationModes: []
+    locations: location,
+    transportationModes: transModes
   }
 }
 
-export const createTrackObj = (name, segments, n = 0) => {
+export const createTrackObj = (name, segments, locations = [], transModes = [], n = 0) => {
   let id = genTrackId()
-  let segs = segments.map((segment, i) => createSegmentObj(id, segment, n + i))
+  let segs = segments.map((segment, i) => createSegmentObj(id, segment, locations[i], transModes[i], n + i))
   return {
     track: {
       id,

@@ -308,9 +308,9 @@ export default class PerfMap extends Component {
 
   splitMode (lseg, current, previous) {
     const { dispatch } = this.props
+    const id = current.get('id')
     lseg.points.on('click', (target) => {
       const index = target.layer.index
-      const id = current.get('id')
 
       lseg.layergroup.removeLayer(lseg.points)
       dispatch(splitSegment(id, index))

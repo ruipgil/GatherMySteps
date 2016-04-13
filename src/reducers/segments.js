@@ -109,13 +109,13 @@ const splitSegment = (state, action) => {
   const segment = state.get('segments').get(id)
   let _points = segment.get('points')
   const rest = _points.slice(action.index, _points.count())
+  console.log(action.index)
   state = state.updateIn(['segments', id, 'points'], (points) => {
-    return points
-      .slice(0, action.index + 1)
+    return points.slice(0, action.index + 3)
   })
   state = updateSegment(state, id)
 
-  const segData = createSegmentObj(segment.get('trackId'), rest.toJS(), state.get('segments').count())
+  const segData = createSegmentObj(segment.get('trackId'), rest.toJS(), [], [], state.get('segments').count())
   state = state.setIn(['segments', segData.id], fromJS(segData))
 
   state = state.updateIn(['tracks', segment.get('trackId'), 'segments'], (segments) => {
@@ -193,7 +193,7 @@ const toggleSegmentJoining = (state, action) => {
   const trackId = segment.get('trackId')
   const track = state.get('tracks').get(trackId)
 
-  if (track.get('segments').count() > 1) {
+  if (track.get('segments').count() >= 1) {
     let possibilities = []
     let candidates = track.get('segments').toJS()
     candidates.splice(candidates.indexOf(id), 1)

@@ -1,8 +1,8 @@
 import { createTrackObj } from './utils'
 
 const addTrack = (state, action) => {
-  let { name, segments } = action
-  let track = createTrackObj(name, segments, state.get('segments').count())
+  let { name, segments, locations, transModes } = action
+  let track = createTrackObj(name, segments, locations, transModes, state.get('segments').count())
   const ctrack = track.track
   const csegments = track.segments
   state = state.setIn(['tracks', ctrack.id], fromJS(ctrack))
@@ -31,7 +31,7 @@ const removeTracksFor = (state, action) => {
     .updateIn(['segments'], (segments) => {
       return segments.clear()
     })
-  return addTrack(state, addTrackAction(action.segments, action.name))
+  return addTrack(state, addTrackAction(action.segments, action.name, action.locations, action.transModes))
 }
 
 const undo = (state, action) => {

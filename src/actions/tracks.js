@@ -4,10 +4,12 @@ import {
   UPDATE_TRACK_NAME
 } from './'
 
-export const addTrack = (segments, name) => {
+export const addTrack = (segments, name, locations = [], transModes = []) => {
   return {
     segments,
     name,
+    locations,
+    transModes,
     type: ADD_TRACK
   }
 }
