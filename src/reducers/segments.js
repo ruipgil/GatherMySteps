@@ -57,11 +57,11 @@ const extendSegmentPoint = (state, action) => {
     }
   }
 
-  let point = {
+  let point = fromJS({
     lat: action.lat,
     lon: action.lon,
     time: extrapolateTime(state.get('segments').get(id).get('points'), action.index)
-  }
+  })
   return updateSegment(state.updateIn(['segments', id, 'points'], (points) => {
     if (action.index === 0) {
       return points.unshift(point)
@@ -111,7 +111,7 @@ const splitSegment = (state, action) => {
   const rest = _points.slice(action.index, _points.count())
   console.log(action.index)
   state = state.updateIn(['segments', id, 'points'], (points) => {
-    return points.slice(0, action.index + 3)
+    return points.slice(0, action.index + 1)
   })
   state = updateSegment(state, id)
 

@@ -45,7 +45,6 @@ const PointPopup = ({ lat, lon, time, distance, velocity, i, onMove, count }) =>
   }
   const displayPrev = i !== 0
   const displayNext = (i + 1) < count
-  console.log(displayNext, i, i + 1, count)
   return (
     <div className='is-flex'>
       <span style={Object.assign({}, flexAlignStyle, { opacity: displayPrev ? 1 : 0.5 })} onClick={() => (displayPrev ? onMove(i - 1) : null)} className='clickable'><i className='fa fa-chevron-left' /></span>
@@ -340,7 +339,6 @@ export default class PerfMap extends Component {
           target = lseg.points.getLayers()[i]
           openPopupFor(target, i)
         }
-        console.log(current.get('points').toJS())
         const popup = (
           <PointPopup
             lat={point.get('lat')}
@@ -381,8 +379,6 @@ export default class PerfMap extends Component {
       iconAnchor: [12, 12]
     })
 
-    console.log('EDIT MODE')
-
     const pointInBetween = (prev, after) => {
       const latDiff = after.get('lat') - prev.get('lat')
       const lonDiff = after.get('lon') - prev.get('lon')
@@ -392,16 +388,23 @@ export default class PerfMap extends Component {
     let group
 
     const createMarker = (point, icon) => new Marker(point, { icon, draggable: true })
+    const removePoint = (e) => {
+      const {lat, lng} = e.target.getLatLng()
+      dispatch(removeSegmentPoint(id, e.target.index, lat, lng))
+      lseg.layergroup.removeLayer(group)
+    }
     const handler = (e) => {
       const { target } = e
-      const { type, index, previous, next } = target
+      const { type, index } = target
+      const {lat, lng} = target.getLatLng()
       if (type === 'NEW') {
-        let {lat, lng} = target.getLatLng()
         dispatch(addSegmentPoint(id, index, lat, lng))
         lseg.layergroup.removeLayer(group)
       } else if (type === 'MOVE') {
-        let {lat, lng} = target.getLatLng()
         dispatch(changeSegmentPoint(id, index, lat, lng))
+        lseg.layergroup.removeLayer(group)
+      } else if (type === 'EXTEND') {
+        dispatch(extendSegment(id, index, lat, lng))
         lseg.layergroup.removeLayer(group)
       }
     }
@@ -410,19 +413,25 @@ export default class PerfMap extends Component {
       const { previous, next } = e.target
       const points = lseg.points.getLayers()
 
-      console.log(previous, next, points.length)
       const latlngs = [
         previous < 0 ? null : points[previous].getLatLng(),
         e.target.getLatLng(),
         next >= points.length ? null : points[next].getLatLng()
       ]
-      if (e.type === 'movestart') {
-        helperLine = new Polyline(latlngs.filter((x) => x), { color: current.get('color'), opacity: 0.8 })
-        helperLine.addTo(group)
-      } else if (e.type === 'move') {
-        helperLine.setLatLngs(latlngs.filter((x) => x))
-      } else if (e.type === 'moveend') {
-        group.removeLayer(helperLine)
+
+      if (e.target.helperLine) {
+        if (e.type === 'move') {
+          e.target.helperLine.setLatLngs(latlngs.filter((x) => x))
+        }
+      } else {
+        if (e.type === 'movestart') {
+          helperLine = new Polyline(latlngs.filter((x) => x), { color: current.get('color'), opacity: 0.8 })
+          helperLine.addTo(group)
+        } else if (e.type === 'move') {
+          helperLine.setLatLngs(latlngs.filter((x) => x))
+        } else if (e.type === 'moveend') {
+          group.removeLayer(helperLine)
+        }
       }
     }
 
@@ -445,10 +454,38 @@ export default class PerfMap extends Component {
       existingPoint.previous = i - 1
       existingPoint.next = i + 1
       existingPoint.on('moveend', handler)
+      existingPoint.on('contextmenu', removePoint)
       existingPoint.on('move movestart moveend', visualHelper)
       overlay.push(existingPoint)
       prevPoint = point
     })
+
+    // extend polyline at start
+    const interpolated = [points.get(0).get('lat') - (points.get(1).get('lat') - points.get(0).get('lat')), points.get(0).get('lon') - (points.get(1).get('lon') - points.get(0).get('lon'))]
+    const interpolated2 = [points.get(-1).get('lat') - (points.get(-2).get('lat') - points.get(-1).get('lat')), points.get(-1).get('lon') - (points.get(-2).get('lon') - points.get(-1).get('lon'))]
+    const extendStart = createMarker(interpolated, newPointIcon)
+    extendStart.on('moveend click', handler)
+    extendStart.on('move movestart moveend', visualHelper)
+    extendStart.type = 'EXTEND'
+    extendStart.index = 0
+    extendStart.previous = -1
+    extendStart.next = 0
+    overlay.push(extendStart)
+    const extendStartGuide = new Polyline([ lseg.points.getLayers()[0].getLatLng(), interpolated ], { color: current.get('color'), dashArray: '5, 5' })
+    overlay.push(extendStartGuide)
+    extendStart.helperLine = extendStartGuide
+
+    const extendEnd = createMarker(interpolated2, newPointIcon)
+    extendEnd.on('moveend click', handler)
+    extendEnd.on('move movestart moveend', visualHelper)
+    extendEnd.type = 'EXTEND'
+    extendEnd.index = points.count()
+    extendEnd.previous = points.count() - 1
+    extendEnd.next = points.count() - 1
+    overlay.push(extendEnd)
+    const extendEndGuide = new Polyline([ lseg.points.getLayers()[lseg.points.getLayers().length - 1].getLatLng(), interpolated2 ], { color: current.get('color'), dashArray: '5, 5' })
+    overlay.push(extendEndGuide)
+    extendEnd.helperLine = extendEndGuide
 
     group = new FeatureGroup(overlay)
     group.addTo(lseg.layergroup)
@@ -514,9 +551,11 @@ export default class PerfMap extends Component {
         const t = point.get('time').valueOf()
         return tfLower <= t && t <= tfUpper
       }
-      const pts = points.filter(timeFilter).map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
+      const pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
       segment.polyline.setLatLngs(pts)
+      segment.layergroup.removeLayer(segment.points.length, segment.points)
       segment.points = createPointsFeatureGroup(pts, color, segment.pointsEventMap)
+      // segment.points.addTo(segment.layergroup)
     }
   }
 
@@ -578,7 +617,7 @@ export default class PerfMap extends Component {
 
   render () {
     return (
-      <div ref='map' style={{ height: '100%', zIndex: '1' }} ></div>
+      <div ref='map' style={{ height: '100%', zIndex: '1' }}></div>
     )
   }
 }
