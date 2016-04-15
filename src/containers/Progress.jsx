@@ -6,6 +6,39 @@ import SemanticEditor from '../components/SemanticEditor.jsx'
 import { nextStep, previousStep } from '../actions/progress'
 import { toggleRemainingTracks } from 'actions/ui'
 
+import { addAlert } from 'actions/ui'
+
+class AsyncButton extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      className: '',
+      content: this.props.children
+    }
+  }
+
+  onClick (e) {
+    if (this.props.onClick) {
+      this.props.onClick(e, (className, content) => {
+        console.log('a with', className)
+        this.state.className = className || ''
+        this.state.content = content || this.props.children
+        this.setState(this.state)
+      })
+    }
+  }
+
+  render () {
+    const classes = ['button', this.props.disabled ? 'is-disabled' : null, this.props.className, this.state.className].filter((x) => x)
+    console.log(classes, this.state.content)
+    return (
+      <a className={classes.join(' ')} onClick={this.onClick.bind(this)}>
+        { this.state.content }
+      </a>
+    )
+  }
+}
+
 let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let Pane
   switch (stage) {
@@ -18,8 +51,37 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       break
   }
 
-  const onPrevious = () => dispatch(previousStep())
-  const onNext = () => dispatch(nextStep())
+  const buttonAction = (promise) => {
+    return (e, modifier) => {
+      modifier('is-loading')
+      promise()
+      .then(() => modifier())
+      .catch(() => {
+        modifier('is-error')
+        setTimeout(() => modifier())
+      })
+    }
+  }
+
+  const onPrevious = (e, modifier) => {
+    modifier('is-loading')
+    dispatch(previousStep())
+    .then(() => modifier())
+    .catch((err) => {
+      dispatch(addAlert('There was an error'))
+      modifier('is-danger')
+      setTimeout(() => modifier(), 2000)
+    })
+  }
+  const onNext = (e, modifier) => {
+    modifier('is-loading')
+    dispatch(nextStep())
+    .then(() => modifier())
+    .catch(() => {
+      modifier('is-danger')
+      setTimeout(() => modifier(), 2000)
+    })
+  }
 
   const remainingMessage = (n) => {
     switch (n) {
@@ -71,16 +133,16 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       { toShow }
       <div style={{ marginTop: '0.5rem' }}>
         <span className='column is-half is-gapless is-text-centered'>
-          <a className={'button is-warning' + ((stage === 0) ? ' is-disabled' : '')} onClick={onPrevious}>
+          <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
             <i className='fa fa-chevron-left' />
             Previous
-          </a>
+          </AsyncButton>
         </span>
         <span className='column is-half is-text-centered'>
-          <a className={'button is-success' + (!canProceed ? ' is-disabled' : '')} onClick={onNext}>
+          <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
             Continue
             <i className='fa fa-chevron-right' />
-          </a>
+          </AsyncButton>
         </span>
       <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
         { remainingMessage(remaining.count()) }
