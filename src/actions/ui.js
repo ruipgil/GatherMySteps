@@ -64,3 +64,18 @@ export const toggleRemainingTracks = () => {
     type: 'TOGGLE_REMAINING_TRACKS'
   }
 }
+
+export const addAlert = (message, type = 'error') => {
+  return {
+    message,
+    alertType: type,
+    type: 'ADD_ALERT'
+  }
+}
+
+export const removeAlert = (alert) => {
+  return {
+    alert,
+    type: 'REMOVE_ALERT'
+  }
+}

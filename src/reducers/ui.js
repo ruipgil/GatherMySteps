@@ -1,6 +1,6 @@
-import { Map, fromJS } from 'immutable'
+import { fromJS } from 'immutable'
 
-const initialState = Map({})
+const initialState = fromJS({ alerts: [] })
 const ui = (state = initialState, action) => {
   switch (action.type) {
     case 'CHANGE_MAP':
@@ -25,6 +25,17 @@ const ui = (state = initialState, action) => {
       return state.set('details', false)
     case 'TOGGLE_REMAINING_TRACKS':
       return state.set('showRemainingTracks', !state.get('showRemainingTracks'))
+    case 'REMOVE_ALERT':
+      return state.update('alerts', (alerts) => {
+        const index = alerts.findIndex((a) => a === action.alert)
+        if (index !== undefined) {
+          return alerts.delete(index)
+        } else {
+          return alerts
+        }
+      })
+    case 'ADD_ALERT':
+      return state.update('alerts', (alerts) => alerts.push({ type: action.alertType, message: action.message }))
     default:
       return state
   }

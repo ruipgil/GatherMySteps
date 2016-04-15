@@ -6,6 +6,8 @@ import LeafletMap from './LeafletMap.jsx'
 import Progress from './Progress.jsx'
 import ProgressBar from './ProgressBar.jsx'
 
+import AlertBox from 'containers/AlertBox'
+
 import loadFiles from '../loadFiles'
 
 import { nextStep, undo, redo } from '../actions/progress'
@@ -60,6 +62,7 @@ let App = ({ ui, tracks, dispatch }) => {
 
   return (
     <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
+      <AlertBox />
       <div id='float-container'>
         <div id='title'>GatherMySteps</div>
         <div id='details'>
