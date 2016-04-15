@@ -124,7 +124,7 @@ export default class PerfMap extends Component {
     })
     var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     var osmAttrib = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-    var osm = new Leaflet.TileLayer(osmUrl, {attribution: osmAttrib})
+    var osm = new Leaflet.TileLayer(osmUrl, {attribution: osmAttrib, detectRetina: true, maxZoom: 22, maxNativeZoom: 18})
 
     var zoomControl = new Control.Zoom({
       position: 'topright'
