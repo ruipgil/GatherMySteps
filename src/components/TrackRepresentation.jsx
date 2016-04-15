@@ -49,7 +49,9 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
       <span style={{fontSize: '0.8rem', color: 'gray'}}>{segments.count()} segment{segments.count() === 1 ? '' : 's'}, {totalPoints} points</span>
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
         {
-          segments.map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)
+          segments
+          .sort((a, b) => a.get('start').diff(b.get('start')))
+          .map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)
         }
       </ul>
     </div>
