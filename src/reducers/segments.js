@@ -109,7 +109,6 @@ const splitSegment = (state, action) => {
   const segment = state.get('segments').get(id)
   let _points = segment.get('points')
   const rest = _points.slice(action.index, _points.count())
-  console.log(action.index)
   state = state.updateIn(['segments', id, 'points'], (points) => {
     return points.slice(0, action.index + 1)
   })
@@ -127,8 +126,30 @@ const splitSegment = (state, action) => {
 
 const joinSegment = (state, action) => {
   const { details } = action
+  const union = details.union[action.index]
   const toRemove = state.get('segments').get(details.segment)
 
+  const isEqual = (pa, pb) => pa.get('lat') === pb.get('lat') && pa.get('lon') === pb.get('lon') && pa.get('time').isSame(pb.get('time'))
+  state = state.updateIn(['segments', action.segmentId, 'points'], (points) => {
+    const removeEnd = union.length === 2 && isEqual(union[0], union[1])
+    console.log(removeEnd)
+    const betweeners = union.slice(1, -1)
+    // console.log(points.get(-1).toJS(), union[0].toJS())
+    if (points.get(-1) === union[0]) {
+      // Join end of this with the start of the other segment
+      return points
+      .push(...betweeners)
+      .push(...(removeEnd ? toRemove.get('points').rest() : toRemove))
+    } else {
+      // Join start of this with the end of the other segment
+      console.log('start with end')
+      return points
+      .unshift(...betweeners)
+      .unshift(...(removeEnd ? toRemove.get('points').butLast() : toRemove))
+    }
+  })
+
+  /*
   state = state.updateIn(['segments', action.segmentId, 'points'], (points) => {
     if (details.destiny !== 'START') {
       toRemove.get('points').forEach((p) => {
@@ -141,6 +162,7 @@ const joinSegment = (state, action) => {
     }
     return points
   })
+  */
 
   state = toggleSegProp(state, action.segmentId, 'joining')
   state = segments(state, removeSegmentAction(toRemove.get('id')))
@@ -198,6 +220,9 @@ const toggleSegmentJoining = (state, action) => {
     let candidates = track.get('segments').toJS()
     candidates.splice(candidates.indexOf(id), 1)
 
+    const thisStartp = segment.get('points').get(0)
+    const thisEndp = segment.get('points').get(-1)
+
     let sStart = segment.get('start')
     let sEnd = segment.get('end')
 
@@ -215,23 +240,25 @@ const toggleSegmentJoining = (state, action) => {
 
       if (startDiff >= 0 && startDiff < t_closerToStart) {
         t_closerToStart = startDiff
-        closerToStart = _c.get('id')
+        closerToStart = _c
       } else if (endDiff <= 0 && endDiff < t_closerToEnd) {
         t_closerToEnd = endDiff
-        closerToEnd = _c.get('id')
+        closerToEnd = _c
       }
     })
 
     if (closerToStart !== undefined) {
       possibilities.push({
-        segment: closerToStart,
+        segment: closerToStart.get('id'),
+        union: [[thisEndp, closerToStart.get('points').get(0)]],
         destiny: 'END',
         show: 'END'
       })
     }
     if (closerToEnd !== undefined) {
       possibilities.push({
-        segment: closerToEnd,
+        segment: closerToEnd.get('id'),
+        union: [[thisStartp, closerToEnd.get('points').get(-1)]],
         destiny: 'START',
         show: 'START'
       })
@@ -240,7 +267,8 @@ const toggleSegmentJoining = (state, action) => {
     state = state.setIn(['segments', id, 'joinPossible'], possibilities)
     return toggleSegProp(state, action.segmentId, 'joining')
   } else {
-    alert('Can not join with any segment of the same track')
+    // show alert, set joining to false
+    // return toggleSegProp(state, action.segmentId, 'joining')
   }
   return state
 }

@@ -65,7 +65,7 @@ export const createSegmentObj = (trackId, points, location, transModes, nSegs) =
     display: true,
     start: points[0].time,
     end: points[points.length - 1].time,
-    color: colors(nSegs),
+    color: colors(max(nSegs, sId)),
     name: '',
     editing: false,
     spliting: false,

@@ -12,7 +12,11 @@ import {
   joinSegment
 } from 'actions/segments'
 import { undo, redo } from 'actions/progress'
-import { PolylineEditor } from 'leaflet-editable-polyline'
+
+const POINT_ICON = new DivIcon({
+  className: 'fa editable-point',
+  iconAnchor: [12, 12]
+})
 
 // TODO, update editable polyline when undo
 
@@ -273,39 +277,29 @@ export default class PerfMap extends Component {
     const id = current.get('id')
     const possibilities = current.get('joinPossible')
 
-    let handlers = {}
     let reset = () => {}
-    possibilities.forEach((pp) => {
-      if (pp.show === 'END') {
-        handlers.showEnd = (point, i) => {
+    const groups = possibilities.map((pp) => {
+      const { union } = pp
+      return new FeatureGroup(union.map((hy, i) => {
+        hy = hy.map((x) => ({ lat: x.get('lat'), lng: x.get('lon') }))
+        return new FeatureGroup([
+          new Polyline(hy, { color: '#69707a', weight: 8 }),
+          new Marker(hy[0], { icon: POINT_ICON }),
+          new Marker(hy[hy.length - 1], { icon: POINT_ICON })
+        ]).on('click', () => {
           reset()
           dispatch(joinSegment(id, i, pp))
-        }
-      }
-      if (pp.show === 'START') {
-        handlers.showStart = (point, i) => {
-          reset()
-          dispatch(joinSegment(id, i, pp))
-        }
-      }
+        })
+      })).addTo(lseg.layergroup)
     })
 
-    const ls = lseg.points.getLayers()
-    let arr = []
-    if (handlers.showStart) {
-      arr.push(new CircleMarker(ls[0].getLatLng(), { radius: 10 }).on('click', handlers.showStart))
-    }
-    if (handlers.showEnd) {
-      arr.push(new CircleMarker(ls[ls.length - 1].getLatLng(), { radius: 10 }).on('click', handlers.showEnd))
-    }
-    const group = new FeatureGroup(arr)
     reset = () => {
-      lseg.layergroup.removeLayer(group)
+      groups.forEach((group) => {
+        lseg.layergroup.removeLayer(group)
+      })
       lseg.tearDown = null
     }
     lseg.tearDown = reset
-
-    group.addTo(lseg.layergroup)
   }
 
   splitMode (lseg, current, previous) {
@@ -326,7 +320,6 @@ export default class PerfMap extends Component {
   }
 
   detailMode (lseg, current, previous) {
-
     lseg.points.on('click', (target) => {
       const index = target.layer.index
 
