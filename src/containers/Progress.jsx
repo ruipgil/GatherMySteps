@@ -61,7 +61,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     )
   } else {
     toShow = (
-      <div className='is-flexgrow' style={{ overflowY: 'auto' }} >
+      <div className='is-flexgrow is-flex' style={{ overflowY: 'auto' }} >
         <Pane className='is-flexgrow' />
       </div>
     )

@@ -3,16 +3,24 @@ import { connect } from 'react-redux'
 import TrackRepresentation from '../components/TrackRepresentation.jsx'
 
 let TrackList = ({ dispatch, tracks, segments, className }) => {
-  return (
-    <ul className={className}>
-    {
-      tracks.map((track, i) => {
-        const trackSegments = track.get('segments').map((id) => segments.get(id))
-        return <TrackRepresentation dispatch={dispatch} track={track} segments={trackSegments} key={i} />
-      })
-    }
-    </ul>
-  )
+  if (tracks.count() !== 0) {
+    return (
+      <ul className={className}>
+      {
+        tracks.map((track, i) => {
+          const trackSegments = track.get('segments').map((id) => segments.get(id))
+          return <TrackRepresentation dispatch={dispatch} track={track} segments={trackSegments} key={i} />
+        })
+      }
+      </ul>
+    )
+  } else {
+    return (
+      <div className='dropInfo'>
+        Drop .gpx files here
+      </div>
+    )
+  }
 }
 
 const mapStateToProps = (state) => {

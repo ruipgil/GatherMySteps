@@ -289,3 +289,13 @@ html, body {
 .border-color-b15928 {
   border-color: #b15928;
 }
+
+.dropInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem;
+  color: gray;
+  border: 2px dashed gray;
+  flex-grow: 1;
+}
