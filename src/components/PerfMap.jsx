@@ -2,6 +2,7 @@ import Leaflet, { Marker, FeatureGroup, Polyline, DivIcon, Control } from 'leafl
 // import { Google } from 'leaflet-plugins/layer/tile/Google.js'
 import React, { Component } from 'react'
 import { Set } from 'immutable'
+import SegmentToolbox from 'components/SegmentToolbox'
 import { findDOMNode, render } from 'react-dom'
 import {
   extendSegment,
@@ -18,8 +19,6 @@ const createPointIcon = (color) =>
     className: 'fa editable-point' + (color ? ' border-color-' + color.substr(1) : ''),
     iconAnchor: [12, 12]
   })
-
-// TODO, update editable polyline when undo
 
 const CIRCLE_OPTIONS = {
   opacity: 1,
@@ -194,12 +193,12 @@ export default class PerfMap extends Component {
       return
     }
 
-    const { center, bounds, zoom, segments } = this.props
+    const { center, bounds, zoom, segments, dispatch } = this.props
 
     this.shouldUpdateZoom(zoom, prev.zoom)
     this.shouldUpdateCenter(center, prev.center)
     this.shouldUpdateBounds(bounds, prev.bounds)
-    this.shouldUpdateSegments(segments, prev.segments)
+    this.shouldUpdateSegments(segments, prev.segments, dispatch)
   }
 
   shouldUpdateZoom (current, previous) {
@@ -218,17 +217,17 @@ export default class PerfMap extends Component {
     }
   }
 
-  shouldUpdateSegments (segments, previous) {
+  shouldUpdateSegments (segments, previous, dispatch) {
     if (segments !== previous) {
       segments.forEach((segment) => {
-        this.shouldUpdateSegment(segment, previous.get(segment.get('id')))
+        this.shouldUpdateSegment(segment, previous.get(segment.get('id')), dispatch)
       })
 
       this.shouldRemoveSegments(segments, previous)
     }
   }
 
-  shouldUpdateSegment (current, previous) {
+  shouldUpdateSegment (current, previous, dispatch) {
     if (current !== previous) {
       const points = current.get('points')
       const color = current.get('color')
@@ -243,7 +242,7 @@ export default class PerfMap extends Component {
         this.shouldUpdateDisplay(lseg, display, previous.get('display'))
         this.shouldUpdateMode(lseg, current, previous)
       } else {
-        this.addSegment(id, points, color, display, filter)
+        this.addSegment(id, points, color, display, filter, current, dispatch)
       }
     }
   }
@@ -558,7 +557,7 @@ export default class PerfMap extends Component {
     }
   }
 
-  addSegment (id, points, color, display, filter) {
+  addSegment (id, points, color, display, filter, segment, dispatch) {
     const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
     const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
     const timeFilter = (point) => {
@@ -571,6 +570,10 @@ export default class PerfMap extends Component {
       color,
       weight: 8,
       opacity: display ? 1 : 0
+    }).on('click', (e) => {
+      const div = document.createElement('div')
+      render(<SegmentToolbox segment={segment} dispatch={dispatch} />, div)
+      e.target.bindPopup(div).openPopup()
     })
 
     const pointsEventMap = {}
