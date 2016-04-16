@@ -1,4 +1,4 @@
-import Leaflet, { Marker, FeatureGroup, Polyline, CircleMarker, DivIcon, Control } from 'leaflet'
+import Leaflet, { Marker, FeatureGroup, Polyline, DivIcon, Control } from 'leaflet'
 // import { Google } from 'leaflet-plugins/layer/tile/Google.js'
 import React, { Component } from 'react'
 import { Set } from 'immutable'
@@ -13,10 +13,11 @@ import {
 } from 'actions/segments'
 import { undo, redo } from 'actions/progress'
 
-const POINT_ICON = new DivIcon({
-  className: 'fa editable-point',
-  iconAnchor: [12, 12]
-})
+const createPointIcon = (color) =>
+  new DivIcon({
+    className: 'fa editable-point' + (color ? ' border-color-' + color.substr(1) : ''),
+    iconAnchor: [12, 12]
+  })
 
 // TODO, update editable polyline when undo
 
@@ -29,8 +30,9 @@ const CIRCLE_OPTIONS = {
 
 const createCircleOptions = (color) => Object.assign({}, CIRCLE_OPTIONS, { color })
 const createPointsFeatureGroup = (pts, color, pointsEventMap = {}) => {
+  const icon = createPointIcon(color)
   const cpts = pts.map((point, i) => {
-    const p = new CircleMarker(point)
+    const p = new Marker(point, { icon })
     p.index = i
     return p
   })
@@ -277,6 +279,8 @@ export default class PerfMap extends Component {
     const id = current.get('id')
     const possibilities = current.get('joinPossible')
 
+    const icon = createPointIcon()
+
     let reset = () => {}
     const groups = possibilities.map((pp) => {
       const { union } = pp
@@ -284,8 +288,8 @@ export default class PerfMap extends Component {
         hy = hy.map((x) => ({ lat: x.get('lat'), lng: x.get('lon') }))
         return new FeatureGroup([
           new Polyline(hy, { color: '#69707a', weight: 8 }),
-          new Marker(hy[0], { icon: POINT_ICON }),
-          new Marker(hy[hy.length - 1], { icon: POINT_ICON })
+          new Marker(hy[0], { icon }),
+          new Marker(hy[hy.length - 1], { icon })
         ]).on('click', () => {
           reset()
           dispatch(joinSegment(id, i, pp))
@@ -361,12 +365,7 @@ export default class PerfMap extends Component {
   editMode (lseg, current, previous) {
     const { dispatch } = this.props
     const id = current.get('id')
-    const color = current.get('color')
     const points = current.get('points')
-    const pointIcon = new DivIcon({
-      className: 'fa editable-point border-color-' + color.substr(1),
-      iconAnchor: [12, 12]
-    })
     const newPointIcon = new DivIcon({
       className: 'fa fa-plus editable-point new-editable-point',
       iconAnchor: [12, 12]
@@ -428,102 +427,93 @@ export default class PerfMap extends Component {
       }
     }
 
+    const setupMarker = (marker, type, index, previous, next) => {
+      marker.type = type
+      marker.index = index
+      marker.previous = previous
+      marker.next = next
+      return marker
+    }
+
+    const setupNewMarker = (point, i) => {
+      return setupMarker(createMarker(point, newPointIcon), 'NEW', i, i - 1, i)
+      .on('moveend click', handler)
+      .on('move movestart moveend', visualHelper)
+    }
+
+    const setupExistingMarker = (marker, i) => {
+      marker.options.draggable = true
+      marker.type = 'MOVE'
+      marker.previous = i - 1
+      marker.next = i + 1
+      marker.on('moveend', handler)
+      marker.on('contextmenu', removePoint)
+      marker.on('move movestart moveend', visualHelper)
+      return marker
+    }
+
+    const tearDownMarker = (marker) => {
+      marker.type = null
+      marker.previous = null
+      marker.next = null
+      if (marker.dragging) {
+        marker.dragging.disable()
+      }
+      marker.off()
+    }
+
     let overlay = []
     let prevPoint
+    const markers = lseg.points.getLayers()
     points.forEach((point, i) => {
       if (prevPoint) {
-        const nm = createMarker(pointInBetween(prevPoint, point), newPointIcon)
-        nm.on('moveend click', handler)
-        nm.on('move movestart moveend', visualHelper)
-        nm.type = 'NEW'
-        nm.index = i
-        nm.previous = i - 1
-        nm.next = i
-        overlay.push(nm)
+        overlay.push(setupNewMarker(pointInBetween(prevPoint, point), i))
       }
-      const existingPoint = createMarker([point.get('lat'), point.get('lon')], pointIcon)
-      existingPoint.type = 'MOVE'
-      existingPoint.index = i
-      existingPoint.previous = i - 1
-      existingPoint.next = i + 1
-      existingPoint.on('moveend', handler)
-      existingPoint.on('contextmenu', removePoint)
-      existingPoint.on('move movestart moveend', visualHelper)
-      overlay.push(existingPoint)
+      setupExistingMarker(markers[i], i)
       prevPoint = point
     })
 
     // extend polyline at start
-    const interpolated = [points.get(0).get('lat') - (points.get(1).get('lat') - points.get(0).get('lat')), points.get(0).get('lon') - (points.get(1).get('lon') - points.get(0).get('lon'))]
-    const interpolated2 = [points.get(-1).get('lat') - (points.get(-2).get('lat') - points.get(-1).get('lat')), points.get(-1).get('lon') - (points.get(-2).get('lon') - points.get(-1).get('lon'))]
-    const extendStart = createMarker(interpolated, newPointIcon)
-    extendStart.on('moveend click', handler)
-    extendStart.on('move movestart moveend', visualHelper)
-    extendStart.type = 'EXTEND'
-    extendStart.index = 0
-    extendStart.previous = -1
-    extendStart.next = 0
+    const first = points.get(0), firstLat = first.get('lat'), firstLon = first.get('lon')
+    const second = points.get(1), secondLat = second.get('lat'), secondLon = second.get('lon')
+    const last = points.get(-1), lastLat = last.get('lat'), lastLon = last.get('lon')
+    const seclast = points.get(-2), seclastLat = seclast.get('lat'), seclastLon = seclast.get('lon')
+    const fInterpolated = [firstLat - (secondLat - firstLat), firstLon - (secondLon - firstLon)]
+    const lInterpolated = [lastLat - (seclastLat - lastLat), lastLon - (seclastLon - lastLon)]
+
+    const extendStart = setupMarker(createMarker(fInterpolated, newPointIcon), 'EXTEND', 0, -1, 0)
+      .on('moveend click', handler)
+      .on('move movestart moveend', visualHelper)
     overlay.push(extendStart)
-    const extendStartGuide = new Polyline([ lseg.points.getLayers()[0].getLatLng(), interpolated ], { color: current.get('color'), dashArray: '5, 5' })
+
+    const guideOptions = {
+      color: current.get('color'),
+      dashArray: '5, 5'
+    }
+    const extendStartGuide = new Polyline([ lseg.points.getLayers()[0].getLatLng(), fInterpolated ], guideOptions)
     overlay.push(extendStartGuide)
     extendStart.helperLine = extendStartGuide
 
-    const extendEnd = createMarker(interpolated2, newPointIcon)
-    extendEnd.on('moveend click', handler)
-    extendEnd.on('move movestart moveend', visualHelper)
-    extendEnd.type = 'EXTEND'
-    extendEnd.index = points.count()
-    extendEnd.previous = points.count() - 1
-    extendEnd.next = points.count() - 1
+    const extendEnd = setupMarker(createMarker(lInterpolated, newPointIcon), 'EXTEND', points.count(), points.count() - 1, points.count() - 1)
+      .on('moveend click', handler)
+      .on('move movestart moveend', visualHelper)
     overlay.push(extendEnd)
-    const extendEndGuide = new Polyline([ lseg.points.getLayers()[lseg.points.getLayers().length - 1].getLatLng(), interpolated2 ], { color: current.get('color'), dashArray: '5, 5' })
+    const extendEndGuide = new Polyline([ lseg.points.getLayers()[lseg.points.getLayers().length - 1].getLatLng(), lInterpolated ], guideOptions)
     overlay.push(extendEndGuide)
     extendEnd.helperLine = extendEndGuide
 
     group = new FeatureGroup(overlay)
     group.addTo(lseg.layergroup)
+    lseg.points.addTo(lseg.layergroup)
 
     lseg.tearDown = (current, previous) => {
       if (!current.get('editing') || (current.get('editing') && current.get('points') !== previous.get('points'))) {
+        lseg.layergroup.removeLayer(lseg.points)
         lseg.layergroup.removeLayer(group)
+        lseg.points.getLayers().forEach((m) => tearDownMarker(m))
         lseg.tearDown = null
       }
     }
-
-    /*
-     * let options = {
-      onChange: (n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(changeSegmentPoint(id, n, lat, lng))
-      },
-      onRemove: (n, points) => {
-        dispatch(removeSegmentPoint(id, n))
-      },
-      onPointAdd: (n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(addSegmentPoint(id, n, lat, lng))
-      },
-      onExtend: (n, points) => {
-        let {lat, lng} = points[n]._latlng
-        dispatch(extendSegment(id, n, lat, lng))
-      },
-      pointIcon,
-      newPointIcon
-    }
-    options.maxMarkers = 500
-    options.weight = 0
-    const opts = createCircleOptions(color)
-    Object.keys(opts).forEach((option) => (options[option] = opts[option]))
-
-    const editable = PolylineEditor(current.get('points').toJS(), options)
-    editable.addTo(lseg.layergroup)
-
-    lseg.tearDown = (current, prev) => {
-      if (!current.get('editing')) {
-        lseg.layergroup.removeLayer(editable)
-        lseg.tearDown = null
-      }
-      }*/
   }
 
   shouldUpdateBounds (bounds, prev) {
@@ -538,12 +528,12 @@ export default class PerfMap extends Component {
 
   shouldUpdatePoints (segment, points, filter, prev, color) {
     if (points !== prev.get('points') || filter.get(0) !== prev.get('timeFilter').get(0) || filter.get(-1) !== prev.get('timeFilter').get(-1)) {
-      const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
+      /* const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
       const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
       const timeFilter = (point) => {
         const t = point.get('time').valueOf()
         return tfLower <= t && t <= tfUpper
-      }
+        }*/
       const pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
       segment.polyline.setLatLngs(pts)
       segment.layergroup.removeLayer(segment.points.length, segment.points)
