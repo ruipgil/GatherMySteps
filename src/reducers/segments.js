@@ -182,7 +182,7 @@ const toggleTimeFilter = (state, action) => {
   })
 }
 
-const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails']
+const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails', 'showTimeFilter']
 const toggleSegProp = (state, id, prop, propSet = defaultPropSet) => {
   const data = state.get('segments').get(id)
   propSet.forEach((p) => {
