@@ -16,8 +16,10 @@ export const renderToDiv = (component) => {
 export const createPointsFeatureGroup = (pts, color, pointsEventMap = {}) => {
   const icon = createPointIcon(color)
   const cpts = pts.map((point, i) => {
-    const p = new Marker(point, { icon })
+    const p = new Marker(point, { icon, draggable: false })
     p.index = i
+    p.previous = i - 1
+    p.next = i + 1
     return p
   })
   const pointsLayer = new FeatureGroup(cpts)

@@ -126,6 +126,7 @@ export default class PerfMap extends Component {
   shouldUpdateMode (lseg, current, previous) {
     if (lseg.updated) {
       lseg.updated = false
+      console.log('is updated')
       return
     }
 
@@ -164,8 +165,8 @@ export default class PerfMap extends Component {
   }
 
   shouldUpdatePoints (segment, points, filter, prev, color) {
-    if (points !== prev.get('points') || filter.get(0) !== prev.get('timeFilter').get(0) || filter.get(-1) !== prev.get('timeFilter').get(-1)) {
-      updatePoints(segment, points, color)
+    if (!segment.updated && (points !== prev.get('points') || filter.get(0) !== prev.get('timeFilter').get(0) || filter.get(-1) !== prev.get('timeFilter').get(-1))) {
+      updatePoints(segment, points, prev.get('points'), color)
     }
   }
 
