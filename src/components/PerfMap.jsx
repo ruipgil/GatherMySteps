@@ -124,6 +124,11 @@ export default class PerfMap extends Component {
   }
 
   shouldUpdateMode (lseg, current, previous) {
+    if (lseg.updated) {
+      lseg.updated = false
+      return
+    }
+
     if (lseg.tearDown) {
       lseg.tearDown(current, previous)
     }

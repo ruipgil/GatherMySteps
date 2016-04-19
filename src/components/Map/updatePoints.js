@@ -7,9 +7,12 @@ export default (segment, points, color) => {
      const t = point.get('time').valueOf()
      return tfLower <= t && t <= tfUpper
      }*/
-  const pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
-  segment.polyline.setLatLngs(pts)
-  segment.layergroup.removeLayer(segment.points.length, segment.points)
-  segment.points = createPointsFeatureGroup(pts, color, segment.pointsEventMap)
+  if (!segment.updated) {
+    const pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
+    segment.polyline.setLatLngs(pts)
+    // segment.layergroup.removeLayer(segment.points.length, segment.points)
+    segment.layergroup.removeLayer(segment.points)
+    segment.points = createPointsFeatureGroup(pts, color, segment.pointsEventMap)
     // segment.points.addTo(segment.layergroup)
+  }
 }
