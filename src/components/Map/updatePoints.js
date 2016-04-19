@@ -32,8 +32,8 @@ export default (segment, current, previous, color) => {
       const len = previous.count() - current.count()
       const markersLayers = markers.getLayers()
       const markersLen = markersLayers.length - 1
+      polylinePoints.splice(-len)
       for (let i = 0; i < len; i++) {
-        polylinePoints.unshift()
         markers.removeLayer(markersLayers[markersLen - i])
       }
     } else if (current.count() > previous.count()) {

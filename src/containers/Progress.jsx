@@ -2,42 +2,12 @@ import React from 'react'
 import { ADJUST_STAGE, PREVIEW_STAGE, ANNOTATE_STAGE } from '../constants'
 import { connect } from 'react-redux'
 import TrackList from './TrackList.jsx'
+import AsyncButton from 'components/AsyncButton'
 import SemanticEditor from '../components/SemanticEditor.jsx'
 import { nextStep, previousStep } from '../actions/progress'
 import { toggleRemainingTracks } from 'actions/ui'
 
 import { addAlert } from 'actions/ui'
-
-class AsyncButton extends React.Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      className: '',
-      content: this.props.children
-    }
-  }
-
-  onClick (e) {
-    if (this.props.onClick) {
-      this.props.onClick(e, (className, content) => {
-        console.log('a with', className)
-        this.state.className = className || ''
-        this.state.content = content || this.props.children
-        this.setState(this.state)
-      })
-    }
-  }
-
-  render () {
-    const classes = ['button', this.props.disabled ? 'is-disabled' : null, this.props.className, this.state.className].filter((x) => x)
-    console.log(classes, this.state.content)
-    return (
-      <a className={classes.join(' ')} onClick={this.onClick.bind(this)}>
-        { this.state.content }
-      </a>
-    )
-  }
-}
 
 let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let Pane
@@ -51,24 +21,13 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       break
   }
 
-  const buttonAction = (promise) => {
-    return (e, modifier) => {
-      modifier('is-loading')
-      promise()
-      .then(() => modifier())
-      .catch(() => {
-        modifier('is-error')
-        setTimeout(() => modifier())
-      })
-    }
-  }
-
   const onPrevious = (e, modifier) => {
     modifier('is-loading')
     dispatch(previousStep())
     .then(() => modifier())
     .catch((err) => {
       dispatch(addAlert('There was an error'))
+      console.error(err)
       modifier('is-danger')
       setTimeout(() => modifier(), 2000)
     })
@@ -77,7 +36,9 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     modifier('is-loading')
     dispatch(nextStep())
     .then(() => modifier())
-    .catch(() => {
+    .catch((err) => {
+      dispatch(addAlert('There was an error'))
+      console.error(err)
       modifier('is-danger')
       setTimeout(() => modifier(), 2000)
     })

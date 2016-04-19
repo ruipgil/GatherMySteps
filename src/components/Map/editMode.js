@@ -1,28 +1,21 @@
-import { DivIcon, Marker, Polyline, FeatureGroup } from 'leaflet'
+import { DivIcon, Polyline, FeatureGroup } from 'leaflet'
+import { createMarker, setupMarker } from './utils'
 
 const newPointIcon = new DivIcon({
   className: 'fa fa-plus editable-point new-editable-point',
   iconAnchor: [12, 12]
 })
 
-const createMarker = (point) => new Marker(point, { icon: newPointIcon, draggable: true })
-
-const setupMarker = (marker, type, index, previous, next) => {
-  marker.type = type
-  marker.index = index
-  marker.previous = previous
-  marker.next = next
-  return marker
-}
-
 const tearDownMarker = (marker) => {
-  marker.type = null
-  marker.previous = null
-  marker.next = null
-  if (marker.dragging) {
-    marker.dragging.disable()
-  }
   marker.off()
+  if (marker.dragging) {
+    try {
+      marker.dragging.disable()
+    } catch (e) {
+      // debugger
+    }
+  }
+  marker.options.draggable = false
 }
 
 const interpolatePoint = (first, second) => {
@@ -88,6 +81,40 @@ const updateMove = (lseg, index, lat, lng, target, glayers) => {
   }
 }
 
+const updateRemove = (lseg, index, group, amarkers) => {
+  // remove point from polyline
+  const latlngs = lseg.polyline.getLatLngs()
+  latlngs.splice(index, 1)
+  lseg.polyline.setLatLngs(latlngs)
+
+  // remove point from points and update them
+  const points = lseg.points.getLayers()
+  lseg.points.removeLayer(points[index])
+
+  // remove add point marker, keep one for the new connection
+  group.removeLayer(amarkers[index])
+  amarkers.splice(index, 1)
+
+  // update add points marker
+  amarkers[index - 1].setLatLng(pointInBetweenLeaflet(latlngs[index - 1], latlngs[index]))
+
+  // update points indexes
+  for (let i = index; i < latlngs.length; i++) {
+    const marker = amarkers[i]
+    marker.index = i
+    marker.previous = i - 1
+    marker.next = i + 1
+  }
+}
+
+const setupExistingMarker = (marker, i, handler, removePoint, visualHelper) => {
+  marker.options.draggable = true
+  marker.on('dragend', handler)
+  marker.on('contextmenu', removePoint)
+  marker.on('drag dragstart dragend', visualHelper)
+  return marker
+}
+
 export default (lseg, current, previous, actions) => {
   const id = current.get('id')
   const color = current.get('color')
@@ -98,8 +125,10 @@ export default (lseg, current, previous, actions) => {
 
   const removePoint = (e) => {
     const {lat, lng} = e.target.getLatLng()
+    // lseg.updated = true
     actions.onRemove(id, e.target.index, lat, lng)
-    lseg.layergroup.removeLayer(group)
+    // updateRemove(lseg, e.target.index, group, overlay)
+    lseg.details.removeLayer(group)
   }
   const handler = (e) => {
     const { target } = e
@@ -107,14 +136,14 @@ export default (lseg, current, previous, actions) => {
     const {lat, lng} = target.getLatLng()
     if (type === 'NEW') {
       actions.onAdd(id, index, lat, lng)
-      lseg.layergroup.removeLayer(group)
-    } else if (type === 'MOVE') {
+      lseg.details.removeLayer(group)
+    } else if (type === 'NORMAL') {
       lseg.updated = true
       actions.onMove(id, index, lat, lng)
       updateMove(lseg, index, lat, lng, target, overlay)
     } else if (type === 'EXTEND') {
       actions.onExtend(id, index, lat, lng)
-      lseg.layergroup.removeLayer(group)
+      lseg.details.removeLayer(group)
     }
   }
   let helperLine
@@ -129,39 +158,26 @@ export default (lseg, current, previous, actions) => {
     ]
 
     if (e.target.helperLine) {
-      if (e.type === 'move') {
+      if (e.type === 'drag') {
         e.target.helperLine.setLatLngs(latlngs.filter((x) => x))
       }
     } else {
-      if (e.type === 'movestart') {
+      if (e.type === 'dragstart') {
         helperLine = new Polyline(latlngs.filter((x) => x), { color, opacity: 0.8 })
         helperLine.addTo(group)
-      } else if (e.type === 'move') {
+      } else if (e.type === 'drag' && helperLine) {
         helperLine.setLatLngs(latlngs.filter((x) => x))
-      } else if (e.type === 'moveend') {
+      } else if (e.type === 'dragend' && helperLine) {
         group.removeLayer(helperLine)
+        helperLine = undefined
       }
     }
   }
 
   const setupNewMarker = (point, i) => {
-    return setupMarker(createMarker(point), 'NEW', i, i - 1, i)
-    .on('moveend click', handler)
-    .on('move movestart moveend', visualHelper)
-  }
-
-  const setupExistingMarker = (marker, i) => {
-    marker.options.draggable = true
-    if (marker.dragging) {
-      marker.dragging.enable()
-    }
-    marker.type = 'MOVE'
-    marker.previous = i - 1
-    marker.next = i + 1
-    marker.on('moveend', handler)
-    marker.on('contextmenu', removePoint)
-    marker.on('move movestart moveend', visualHelper)
-    return marker
+    return setupMarker(createMarker(point, newPointIcon, true), i, i - 1, i, 'NEW')
+    .on('dragend click', handler)
+    .on('drag dragstart dragend', visualHelper)
   }
 
   let prevPoint
@@ -170,7 +186,7 @@ export default (lseg, current, previous, actions) => {
     if (prevPoint) {
       overlay.push(setupNewMarker(pointInBetween(prevPoint, point), i))
     }
-    setupExistingMarker(markers[i], i)
+    setupExistingMarker(markers[i], i, handler, removePoint, visualHelper)
     prevPoint = point
   })
 
@@ -180,9 +196,9 @@ export default (lseg, current, previous, actions) => {
   }
 
   const newAndGuide = (point, guideEnd, a, b, c) => {
-    const marker = setupMarker(createMarker(point), 'EXTEND', a, b, c)
-    .on('moveend click', handler)
-    .on('move movestart moveend', visualHelper)
+    const marker = setupMarker(createMarker(point, newPointIcon, true), a, b, c, 'EXTEND')
+    .on('dragend click', handler)
+    .on('drag dragstart dragend', visualHelper)
 
     const guide = new Polyline([ point, guideEnd ], guideOptions)
     marker.helperLine = guide
@@ -199,13 +215,14 @@ export default (lseg, current, previous, actions) => {
   overlay.push(endGuide)
 
   group = new FeatureGroup(overlay)
-  group.addTo(lseg.layergroup)
-  lseg.points.addTo(lseg.layergroup)
+  group.addTo(lseg.details)
+  lseg.points.addTo(lseg.details)
+  markers.forEach((m) => !m.dragging || m.dragging.enable())
 
   lseg.tearDown = (current, previous) => {
     if (!current.get('editing') || (current.get('editing') && current.get('points') !== previous.get('points'))) {
-      lseg.layergroup.removeLayer(lseg.points)
-      lseg.layergroup.removeLayer(group)
+      lseg.details.removeLayer(lseg.points)
+      lseg.details.removeLayer(group)
       lseg.points.getLayers().forEach((m) => tearDownMarker(m))
       lseg.tearDown = null
     }

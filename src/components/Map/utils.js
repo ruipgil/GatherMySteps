@@ -1,29 +1,35 @@
 import { render } from 'react-dom'
 import { DivIcon, Marker, FeatureGroup } from 'leaflet'
 
-export const createPointIcon = (color) =>
-  new DivIcon({
-    className: 'fa editable-point' + (color ? ' border-color-' + color.substr(1) : ''),
-    iconAnchor: [12, 12]
-  })
-
 export const renderToDiv = (component) => {
   const div = document.createElement('div')
   render(component, div)
   return div
 }
 
+export const createPointIcon = (color) =>
+  new DivIcon({
+    className: 'fa editable-point' + (color ? ' border-color-' + color.substr(1) : ''),
+    iconAnchor: [12, 12]
+  })
+
+export const setupMarker = (marker, index, previous, next, type = 'NORMAL') => {
+  marker.index = index
+  marker.previous = previous
+  marker.next = next
+  marker.type = type
+
+  return marker
+}
+
+export const createMarker = (point, icon, draggable = false) => new Marker(point, { icon, draggable })
+
 export const createPointsFeatureGroup = (pts, color, pointsEventMap = {}) => {
   const icon = createPointIcon(color)
   const cpts = pts.map((point, i) => {
-    const p = new Marker(point, { icon, draggable: false })
-    p.index = i
-    p.previous = i - 1
-    p.next = i + 1
-    return p
+    return setupMarker(createMarker(point, icon), i, i - 1, i + 1)
   })
   const pointsLayer = new FeatureGroup(cpts)
 
-  pointsLayer.on(pointsEventMap)
   return pointsLayer
 }

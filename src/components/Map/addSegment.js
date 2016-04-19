@@ -1,7 +1,7 @@
 import { Polyline, FeatureGroup } from 'leaflet'
 import { createPointsFeatureGroup, renderToDiv } from './utils'
 
-export default (id, points, color, display, filter, segment, dispatch) => {
+export default (id, points, color, display, filter, segment, dispatch, previousPoints) => {
   const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
   const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
   const timeFilter = (point) => {
@@ -21,14 +21,14 @@ export default (id, points, color, display, filter, segment, dispatch) => {
 
   const pointsEventMap = {}
   const pointsLayer = createPointsFeatureGroup(pts, color, pointsEventMap)
-  const layerGroup = new FeatureGroup([pline])
+  const layergroup = new FeatureGroup([pline])
 
   // add segment
   const obj = {
-    layergroup: layerGroup,
+    layergroup,
     polyline: pline,
     points: pointsLayer,
-    pointsEventMap
+    details: new FeatureGroup()
   }
 
   return obj

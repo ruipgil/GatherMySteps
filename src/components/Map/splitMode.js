@@ -3,13 +3,13 @@ export default (lseg, current, previous, onSplit) => {
   lseg.points.on('click', (target) => {
     const index = target.layer.index
 
-    lseg.layergroup.removeLayer(lseg.points)
+    lseg.details.removeLayer(lseg.points)
     onSplit(id, index)
   })
   lseg.tearDown = () => {
-    lseg.layergroup.removeLayer(lseg.points)
+    lseg.details.removeLayer(lseg.points)
     lseg.points.off('click')
     lseg.tearDown = null
   }
-  lseg.points.addTo(lseg.layergroup)
+  lseg.points.addTo(lseg.details)
 }

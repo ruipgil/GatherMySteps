@@ -1,5 +1,6 @@
 import React from 'react'
 import TimeSlider from 'components/TimeSlider'
+import AsyncButton from 'components/AsyncButton'
 // import { connect } from 'react-redux'
 import {
   toggleSegmentEditing,
@@ -61,9 +62,16 @@ let SegmentToolbox = ({ dispatch, segment }) => {
           <i className='fa fa-arrows-alt' />
         </span>
 
-        <span className={'button icon-button' + (editing ? btnHighlight : '')} onClick={toggleEdit(id)}>
+        <AsyncButton
+          className={'icon-button' + (editing ? btnHighlight : '')}
+          onClick={
+            (e, modifier) => {
+              modifier('is-loading')
+              toggleEdit(id)(e)
+            }
+          }>
           <i className='fa fa-pencil' />
-        </span>
+        </AsyncButton>
 
         <span className={'button icon-button' + (spliting ? btnHighlight : '')} onClick={toggleSplit(id)}>
           <i className='fa fa-expand' />

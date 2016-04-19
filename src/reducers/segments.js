@@ -75,7 +75,7 @@ const addSegmentPoint = (state, action) => {
   const id = action.segmentId
   const extrapolateTimeA = (points, n) => {
     let prev = points.get(n - 1).get('time')
-    let next = points.get(n + 1).get('time')
+    let next = points.get(n).get('time')
     let diff = prev.diff(next) / 2
     return prev.clone().add(diff)
   }

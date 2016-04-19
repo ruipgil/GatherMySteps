@@ -20,12 +20,12 @@ export default (lseg, current, previous, onJoin) => {
         reset()
         onJoin(id, i, pp)
       })
-    })).addTo(lseg.layergroup)
+    })).addTo(lseg.details)
   })
 
   reset = () => {
     groups.forEach((group) => {
-      lseg.layergroup.removeLayer(group)
+      lseg.details.removeLayer(group)
     })
     lseg.tearDown = null
   }
