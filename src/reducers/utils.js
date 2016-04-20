@@ -1,7 +1,8 @@
 import moment from 'moment'
 import { genTrackId, genSegId } from './idState'
 import colors from './colors'
-import haversine from 'haversine'
+import haversine from '../haversine'
+import { Map, List, fromJS } from 'immutable'
 
 export const max = (a, b) => a >= b ? a : b
 export const min = (a, b) => a <= b ? a : b
@@ -30,17 +31,15 @@ export const calculateBoundsImmutable = (points) => {
   return bounds
 }
 
-export const calculateBounds = (points) => {
+export const calculateBounds = (state) => {
   let bounds = [{lat: Infinity, lon: Infinity}, {lat: -Infinity, lon: -Infinity}]
-  points
-  .map((t) => { return {lat: t.lat, lon: t.lon} })
-  .forEach((elm) => {
-    bounds[0].lat = min(bounds[0].lat, elm.lat)
-    bounds[0].lon = min(bounds[0].lon, elm.lon)
-    bounds[1].lat = max(bounds[1].lat, elm.lat)
-    bounds[1].lon = max(bounds[1].lon, elm.lon)
+  state.get('points').forEach((elm) => {
+    bounds[0].lat = min(bounds[0].lat, elm.get('lat'))
+    bounds[0].lon = min(bounds[0].lon, elm.get('lon'))
+    bounds[1].lat = max(bounds[1].lat, elm.get('lat'))
+    bounds[1].lon = max(bounds[1].lon, elm.get('lon'))
   })
-  return bounds
+  return state.set('bounds', fromJS(bounds))
 }
 
 export const getSegmentById = (id, state) =>
@@ -55,81 +54,90 @@ export const getTrackBySegmentId = (id, state) =>
 
 export const createSegmentObj = (trackId, points, location, transModes, nSegs) => {
   let sId = genSegId()
-  return {
+  const pointsImmutable = List(points.map((point) => {
+    return Map({
+      time: moment(point.time),
+      lat: point.lat,
+      lon: point.lon
+    })
+  }))
+  let state = Map({
     trackId,
     id: sId,
-    points: points.map((point) => {
-      point.time = moment(point.time)
-      return point
-    }),
+    points: pointsImmutable,
     display: true,
-    start: points[0].time,
-    end: points[points.length - 1].time,
+    start: pointsImmutable.get(0).get('time'),
+    end: pointsImmutable.get(-1).get('time'),
     color: colors(max(nSegs, sId)),
     name: '',
     editing: false,
     spliting: false,
     joining: false,
     pointDetails: false,
-    timeFilter: [],
+    timeFilter: List([]),
     showTimeFilter: false,
-    bounds: calculateBounds(points),
-    metrics: calculateMetrics(points),
+    bounds: List([]),
+    metrics: Map({}),
 
     locations: location,
     transportationModes: transModes
-  }
+  })
+  state = calculateMetrics(state)
+  state = calculateBounds(state)
+  return state
 }
 
 export const createTrackObj = (name, segments, locations = [], transModes = [], n = 0) => {
   let id = genTrackId()
   let segs = segments.map((segment, i) => createSegmentObj(id, segment, locations[i], transModes[i], n + i))
   return {
-    track: {
+    track: Map({
       id,
-      segments: segs.map((s) => s.id),
+      segments: List(segs.map((s) => s.get('id'))),
       name: name,
       renaming: false
-    },
+    }),
     segments: segs
   }
 }
 
-export const calculateMetrics = (points) => {
+export const calculateMetrics = (state) => {
   const convert = 1 / 3600000
-  points = points.map((p) => {
-    return { latitude: p.lat, longitude: p.lon, time: p.time }
-  }).map((curr, i, arr) => {
+  const pointMetrics = state.get('points').map((curr, i, arr) => {
+    const lat = curr.get('lat')
+    const lon = curr.get('lon')
+    const time = curr.get('time')
     if (i !== 0) {
-      let prev = arr[i - 1]
-      let distance = haversine(prev, curr, {unit: 'km'})
-      let timeDiff = curr.time.diff(prev.time) * convert
+      let prev = arr.get(i - 1)
+
+      let distance = haversine(prev.get('lat'), prev.get('lon'), lat, lon, {unit: 'km'})
+      let timeDiff = curr.get('time').diff(prev.get('time')) * convert
       let velocity = timeDiff === 0 ? 0 : distance / timeDiff
-      return {
+      return Map({
         distance,
         velocity,
-        lat: curr.latitude,
-        lon: curr.longitude,
-        time: curr.time
-      }
+        lat,
+        lon,
+        time
+      })
     } else {
-      return {
+      return Map({
         distance: 0,
         velocity: 0,
-        lat: curr.latitude,
-        lon: curr.longitude,
-        time: curr.time
-      }
+        lat,
+        lon,
+        time
+      })
     }
   })
 
-  const totalDistance = points.reduce((total, point) => total + point.distance, 0)
-  const averageVelocity = points.reduce((total, point) => total + point.velocity, 0) / points.length
+  const totalDistance = pointMetrics.reduce((total, point) => total + point.get('distance'), 0)
+  const averageVelocity = pointMetrics.reduce((total, point) => total + point.get('velocity'), 0) / pointMetrics.count()
 
-  return {
+  return state.set('metrics', Map({
     totalDistance,
     averageVelocity,
-    points
-  }
+    points: pointMetrics
+  }))
 }
 

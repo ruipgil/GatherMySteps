@@ -5,9 +5,10 @@ const addTrack = (state, action) => {
   let track = createTrackObj(name, segments, locations, transModes, state.get('segments').count())
   const ctrack = track.track
   const csegments = track.segments
-  state = state.setIn(['tracks', ctrack.id], fromJS(ctrack))
+  console.log(track)
+  state = state.setIn(['tracks', ctrack.get('id')], ctrack)
   csegments.forEach((cs) => {
-    state = state.setIn(['segments', cs.id], fromJS(cs))
+    state = state.setIn(['segments', cs.get('id')], cs)
   })
   return state
 }
@@ -96,7 +97,8 @@ const tracks = (state = initalState, action) => {
   } else {
     result = segments(state, action)
   }
-  if (result !== state && BLACK_LISTED_ACTIONS.indexOf(action.type) === -1) {
+  // TODO: false is temporary
+  if (false && result !== state && BLACK_LISTED_ACTIONS.indexOf(action.type) === -1) {
     return result.updateIn(['history', 'past'], (past) => {
       return past.push(state)
     })
