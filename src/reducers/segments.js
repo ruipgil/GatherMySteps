@@ -27,13 +27,29 @@ const updateSegment = (state, id) => {
 
 const changeSegmentPoint = (state, action) => {
   const id = action.segmentId
+  const pp = state.get('segments').get(id).get('points').get(action.index)
+  const oLon = pp.get('lon')
+  const oLat = pp.get('lat')
   state = state.setIn(['segments', id, 'points', action.index, 'lat'], action.lat)
   state = state.setIn(['segments', id, 'points', action.index, 'lon'], action.lon)
+
+  action.undo = (self, state) => {
+    const id = self.segmentId
+    state = state.setIn(['segments', id, 'points', self.index, 'lat'], oLat)
+    state = state.setIn(['segments', id, 'points', self.index, 'lon'], oLon)
+    return state
+  }
   return state
 }
 
 const removeSegmentPoint = (state, action) => {
   const id = action.segmentId
+
+  const point = state.get('segments').get(id).get('points').get(action.index)
+  action.undo = (self, state) => {
+    return state.updateIn(['segments', self.segmentId, 'points'], (points) => points.insert(self.index, point))
+  }
+
   return state
     .deleteIn(['segments', id, 'points', action.index])
 }
@@ -62,8 +78,14 @@ const extendSegmentPoint = (state, action) => {
   })
   return state.updateIn(['segments', id, 'points'], (points) => {
     if (action.index === 0) {
+      action.undo = (self, state) => {
+        state.updateIn(['segments', id, 'points'], (points) => points.remove(0))
+      }
       return points.unshift(point)
     } else {
+      action.undo = (self, state) => {
+        state.updateIn(['segments', id, 'points'], (points) => points.pop())
+      }
       return points.push(point)
     }
   })
@@ -84,10 +106,15 @@ const addSegmentPoint = (state, action) => {
     time: extrapolateTimeA(state.get('segments').get(id).get('points'), action.index)
   }
 
+  action.undo = (self, state) => {
+    return state.updateIn(['segments', id, 'points'], (points) => points.remove(action.index))
+  }
+
   return state.updateIn(['segments', id, 'points'], (points) => {
     return points.insert(action.index, fromJS(pointA))
   })
 }
+
 const removeSegment = (state, action) => {
   const id = action.segmentId
   const trackId = state.get('segments').get(id).get('trackId')
@@ -102,6 +129,7 @@ const removeSegment = (state, action) => {
   }
   return state
 }
+
 const splitSegment = (state, action) => {
   const id = action.segmentId
   const segment = state.get('segments').get(id)

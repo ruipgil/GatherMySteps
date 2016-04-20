@@ -88,8 +88,18 @@ export const removeTracksFor = (segments, name, locations = [], transModes = [])
 }
 
 export const redo = () => {
-  return {
-    type: 'REDO'
+  return (dispatch, getState) => {
+    const state = getState().get('tracks')
+    let toPut = state.get('history').get('future').get(-1)
+    if (toPut) {
+      toPut.undo = null
+      dispatch({
+        type: 'REDO'
+      })
+      return dispatch(toPut)
+    } else {
+      return state
+    }
   }
 }
 

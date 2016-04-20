@@ -38,32 +38,17 @@ const removeTracksFor = (state, action) => {
 const undo = (state, action) => {
   let toPut = state.get('history').get('past').get(-1)
   if (toPut) {
-    return state
-      .set('tracks', toPut.get('tracks'))
-      .set('segments', toPut.get('segments'))
-      .updateIn(['history', 'past'], (past) => {
-        return past.pop()
-      })
-      .updateIn(['history', 'future'], (future) => {
-        return future.push(state)
-      })
+    return toPut.undo(toPut, state)
+    .updateIn(['history', 'past'], (past) => past.pop())
+    .updateIn(['history', 'future'], (future) => future.push(toPut))
   } else {
     return state
   }
 }
 
 const redo = (state, action) => {
-  let toPut = state.get('history').get('future').get(-1)
-  if (toPut) {
-    return state
-      .set('tracks', toPut.get('tracks'))
-      .set('segments', toPut.get('segments'))
-      .updateIn(['history', 'future'], (future) => {
-        return future.pop()
-      })
-  } else {
-    return state
-  }
+  return state
+  .updateIn(['history', 'future'], (future) => future.pop())
 }
 
 const ACTION_REACTION = {
@@ -87,9 +72,6 @@ const initalState = fromJS({
   }
 })
 
-import { TOGGLE_TRACK_RENAMING, TOGGLE_SEGMENT_DISPLAY, TOGGLE_SEGMENT_SPLITING, TOGGLE_SEGMENT_POINT_DETAILS, TOGGLE_SEGMENT_JOINING, TOGGLE_SEGMENT_EDITING } from 'actions'
-
-const BLACK_LISTED_ACTIONS = [TOGGLE_TRACK_RENAMING, TOGGLE_SEGMENT_DISPLAY, TOGGLE_SEGMENT_SPLITING, TOGGLE_SEGMENT_POINT_DETAILS, TOGGLE_SEGMENT_JOINING, TOGGLE_SEGMENT_EDITING, 'UNDO', 'REDO']
 const tracks = (state = initalState, action) => {
   let result
   if (ACTION_REACTION[action.type]) {
@@ -98,9 +80,9 @@ const tracks = (state = initalState, action) => {
     result = segments(state, action)
   }
   // TODO: false is temporary
-  if (false && result !== state && BLACK_LISTED_ACTIONS.indexOf(action.type) === -1) {
+  if (result !== state && action.undo) {
     return result.updateIn(['history', 'past'], (past) => {
-      return past.push(state)
+      return past.push(action)
     })
   } else {
     return result
