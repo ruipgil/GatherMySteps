@@ -1,3 +1,5 @@
+import React from 'react'
+import SegmentToolbox from 'components/SegmentToolbox'
 import { Polyline, FeatureGroup } from 'leaflet'
 import { createPointsFeatureGroup, renderToDiv } from './utils'
 

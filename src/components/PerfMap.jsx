@@ -129,17 +129,21 @@ export default class PerfMap extends Component {
     if (this.map.getZoom() >= defaultDetail) {
       // add layers
       Object.keys(this.segments).forEach((s) => {
-        const { details, layergroup } = this.segments[s]
-        if (layergroup.hasLayer(details) === false) {
-          layergroup.addLayer(details)
+        if (this.segments[s]) {
+          const { details, layergroup } = this.segments[s]
+          if (layergroup.hasLayer(details) === false) {
+            layergroup.addLayer(details)
+          }
         }
       })
     } else {
       // remove layers
       Object.keys(this.segments).forEach((s) => {
-        const { details, layergroup } = this.segments[s]
-        if (layergroup.hasLayer(details) === true) {
-          layergroup.removeLayer(details)
+        if (this.segments[s]) {
+          const { details, layergroup } = this.segments[s]
+          if (layergroup.hasLayer(details) === true) {
+            layergroup.removeLayer(details)
+          }
         }
       })
     }
@@ -211,6 +215,11 @@ export default class PerfMap extends Component {
     const obj = addSegment(id, points, color, display, filter, segment, dispatch)
     this.segments[id] = obj
     obj.layergroup.addTo(this.map)
+
+    const defaultDetail = 16
+    if (this.map.getZoom() >= defaultDetail) {
+      obj.details.addTo(obj.layergroup)
+    }
   }
 
   shouldRemoveSegments (segments, prev) {

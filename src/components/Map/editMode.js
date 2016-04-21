@@ -107,9 +107,9 @@ const updateRemove = (lseg, index, group, amarkers) => {
   }
 }
 
-const setupExistingMarker = (marker, i, handler, removePoint, visualHelper) => {
+const setupExistingMarker = (marker, i, editModeHandler, removePoint, visualHelper) => {
   marker.options.draggable = true
-  marker.on('dragend', handler)
+  marker.on('dragend', editModeHandler)
   marker.on('contextmenu', removePoint)
   marker.on('drag dragstart dragend', visualHelper)
   return marker
@@ -130,7 +130,7 @@ export default (lseg, current, previous, actions) => {
     // updateRemove(lseg, e.target.index, group, overlay)
     lseg.details.removeLayer(group)
   }
-  const handler = (e) => {
+  const editModeHandler = (e) => {
     const { target } = e
     const { type, index } = target
     const {lat, lng} = target.getLatLng()
@@ -152,9 +152,9 @@ export default (lseg, current, previous, actions) => {
     const points = lseg.points.getLayers()
 
     const latlngs = [
-      previous < 0 ? null : points[previous].getLatLng(),
+      points[previous] ? points[previous].getLatLng() : null,
       e.target.getLatLng(),
-      next >= points.length ? null : points[next].getLatLng()
+      points[next] ? points[next].getLatLng() : null
     ]
 
     if (e.target.helperLine) {
@@ -176,9 +176,21 @@ export default (lseg, current, previous, actions) => {
 
   const setupNewMarker = (point, i) => {
     return setupMarker(createMarker(point, newPointIcon, true), i, i - 1, i, 'NEW')
-    .on('dragend click', handler)
+    .on('dragend click', editModeHandler)
     .on('drag dragstart dragend', visualHelper)
   }
+
+  /* const nmr = createMarker([0, 0], newPointIcon)
+  lseg.polyline.on('mouseover', (e) => {
+    nmr.setLatLng(e.latlng)
+    lseg.details.addLayer(nmr)
+  })
+  lseg.polyline.on('mousemove', (e) => {
+    nmr.setLatLng(e.latlng)
+  })
+  lseg.polyline.on('mouseout', (e) => {
+    lseg.details.removeLayer(nmr)
+  })*/
 
   let prevPoint
   const markers = lseg.points.getLayers()
@@ -186,7 +198,7 @@ export default (lseg, current, previous, actions) => {
     if (prevPoint) {
       overlay.push(setupNewMarker(pointInBetween(prevPoint, point), i))
     }
-    setupExistingMarker(markers[i], i, handler, removePoint, visualHelper)
+    setupExistingMarker(markers[i], i, editModeHandler, removePoint, visualHelper)
     prevPoint = point
   })
 
@@ -197,7 +209,7 @@ export default (lseg, current, previous, actions) => {
 
   const newAndGuide = (point, guideEnd, a, b, c) => {
     const marker = setupMarker(createMarker(point, newPointIcon, true), a, b, c, 'EXTEND')
-    .on('dragend click', handler)
+    .on('dragend click', editModeHandler)
     .on('drag dragstart dragend', visualHelper)
 
     const guide = new Polyline([ point, guideEnd ], guideOptions)
