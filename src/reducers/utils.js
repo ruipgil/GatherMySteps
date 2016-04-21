@@ -52,8 +52,8 @@ export const getTrackBySegmentId = (id, state) =>
     track.segments.find((s) => s.id === id) ? track : null
   ).find((x) => !!x)
 
-export const createSegmentObj = (trackId, points, location, transModes, nSegs) => {
-  let sId = genSegId()
+export const createSegmentObj = (trackId, points, location, transModes, nSegs, customId) => {
+  let sId = customId === undefined ? genSegId() : customId
   const pointsImmutable = List(points.map((point) => {
     return Map({
       time: moment(point.time),
@@ -68,7 +68,7 @@ export const createSegmentObj = (trackId, points, location, transModes, nSegs) =
     display: true,
     start: pointsImmutable.get(0).get('time'),
     end: pointsImmutable.get(-1).get('time'),
-    color: colors(max(nSegs, sId)),
+    color: colors(customId === undefined ? max(nSegs, sId) : customId),
     name: '',
     editing: false,
     spliting: false,
