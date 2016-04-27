@@ -4,9 +4,12 @@
   "description": "Process personal tracks",
   "main": "index.js",
   "scripts": {
-    "dev": "node server.js",
+    "dev": "env NODE_ENV=development node server.js",
     "test": "mocha --compilers js:babel-register --recursive",
     "test:watch": "npm test -- --watch",
+    "clean": "rm -r build",
+    "build:gpxplorer": "npm run clean && env NODE_ENV=production BUILD_GPX=true webpack webpack.config.js build/ && cp src/html/*.html build",
+    "build:gathermysteps": "webpack webpack.config.js build/ --progress",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "repository": {

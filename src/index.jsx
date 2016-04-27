@@ -20,11 +20,13 @@ const loggerMiddleware = createLogger({
 let store = createStore(
   reducers,
   Map({}),
-  applyMiddleware(thunkMiddleware, loggerMiddleware)
+  process.env.NODE_ENV === 'development' ? applyMiddleware(thunkMiddleware, loggerMiddleware) : applyMiddleware(thunkMiddleware)
 )
 
 import { requestServerState } from 'actions/progress'
-store.dispatch(requestServerState())
+if (!process.env.BUILD_GPX) {
+  store.dispatch(requestServerState())
+}
 
 render((
   <Provider store={store}>

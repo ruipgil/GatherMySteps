@@ -12,6 +12,7 @@ app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output
 app.use(webpackHotMiddleware(compiler))
 
 app.use(express.static('build'))
+app.use(express.static('src/html'))
 
 app.listen(port, function (error) {
   if (error) {

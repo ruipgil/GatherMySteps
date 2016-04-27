@@ -12,6 +12,8 @@ import loadFiles from '../loadFiles'
 
 import { nextStep, undo, redo } from '../actions/progress'
 
+const GMS = !process.env.BUILD_GPX
+
 let App = ({ ui, tracks, dispatch }) => {
   const onDrop = (e) => {
     let dt = e.dataTransfer
@@ -64,12 +66,13 @@ let App = ({ ui, tracks, dispatch }) => {
     <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
       <AlertBox />
       <div id='float-container'>
-        <div id='title'>GatherMySteps</div>
+        <div id='title'>{ GMS ? 'GatherMySteps' : 'GPXplorer' }</div>
+        { GMS ? '' : <div id='title' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>by GatherMySteps</div> }
         <div id='details'>
           <Progress onNext={ onNext } onPrevious={ onPrevious } />
         </div>
       </div>
-      <ProgressBar />
+      { GMS ? <ProgressBar /> : null }
       <LeafletMap />
     </Dropzone>
   )

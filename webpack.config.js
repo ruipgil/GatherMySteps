@@ -3,6 +3,8 @@ var path = require('path')
 var webpack = require('webpack')
 var nodeModulesDir = path.resolve(__dirname, 'node_modules')
 
+var NODE_ENV = process.env.NODE_ENV
+
 var deps = [
   /*
   'babel-polyfill/dist/polyfill.js',
@@ -18,20 +20,14 @@ var deps = [
 ]
 
 var config = {
-  devtool: 'cheap-module-eval-source-map',
   entry: [
-    /*
-    'webpack-dev-server/client?http://0.0.0.0:3000',
-    'webpack/hot/only-dev-server',
-    */
-    'webpack-hot-middleware/client',
     'babel-polyfill',
     './src/index.jsx'
   ],
   output: {
     path: path.join(__dirname, 'build'),
-    filename: 'bundle.js',
-    publicPath: '/static/'
+    filename: 'bundle.js'
+    // publicPath: '/static/'
   },
   resolve: {
     alias: {},
@@ -68,14 +64,25 @@ var config = {
     ]
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
+    new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
-      __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'true')),
-      __PRERELEASE__: JSON.stringify(JSON.parse(process.env.BUILD_PRERELEASE || 'false'))
+      'process.env.NODE_ENV': NODE_ENV === 'development' ? '"development"' : '"production"',
+      'process.env.BUILD_GPX': JSON.stringify(JSON.parse(process.env.BUILD_GPX || 'false'))
     })
   ]
+}
+
+if (NODE_ENV === 'development') {
+  config.devtool = 'cheap-module-eval-source-map'
+  config.entry.unshift('webpack-hot-middleware/client')
+  config.plugins.unshift(new webpack.HotModuleReplacementPlugin())
+} else {
+  config.plugins.unshift(new webpack.optimize.DedupePlugin())
+  config.plugins.unshift(new webpack.optimize.UglifyJsPlugin({
+    compress: {
+      warnings: false
+    }
+  }))
 }
 
 deps.forEach(function (dep) {
