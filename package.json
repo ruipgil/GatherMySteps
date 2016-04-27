@@ -7,10 +7,10 @@
     "dev": "env NODE_ENV=development node server.js",
     "test": "mocha --compilers js:babel-register --recursive",
     "test:watch": "npm test -- --watch",
-    "clean": "rm -r build",
+    "clean": "rm -r build || true",
     "build:gpxplorer": "npm run clean && env NODE_ENV=production BUILD_GPX=true webpack webpack.config.js build/ && cp src/html/*.html build",
     "build:gathermysteps": "webpack webpack.config.js build/ --progress",
-    "deploy:gpxplorer": "git chekout gh-pages && npm i --save-dev && git subtree push --prefix buildorigin gh-pages && git add -f build",
+    "deploy:gpxplorer": "npm i --save-dev && npm run build:gpxplorer && git subtree push --prefix build origin gh-pages",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "repository": {
