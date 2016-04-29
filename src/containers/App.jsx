@@ -66,8 +66,8 @@ let App = ({ ui, tracks, dispatch }) => {
     <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
       <AlertBox />
       <div id='float-container'>
-        <div id='title'>{ GMS ? 'GatherMySteps' : 'GPXplorer' }</div>
-        { GMS ? '' : <div id='title' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>by GatherMySteps</div> }
+        <div id='title'>{ GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a> }</div>
+        { GMS ? '' : <a id='title' href='//github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>by GatherMySteps</a> }
         <div id='details'>
           <Progress onNext={ onNext } onPrevious={ onPrevious } />
         </div>
