@@ -5,11 +5,11 @@ const addTrack = (state, action) => {
   let track = createTrackObj(name, segments, locations, transModes, state.get('segments').count())
   const ctrack = track.track
   const csegments = track.segments
-  console.log(track)
   state = state.setIn(['tracks', ctrack.get('id')], ctrack)
   csegments.forEach((cs) => {
     state = state.setIn(['segments', cs.get('id')], cs)
   })
+
   return state
 }
 
@@ -32,7 +32,7 @@ const removeTracksFor = (state, action) => {
     .updateIn(['segments'], (segments) => {
       return segments.clear()
     })
-  return addTrack(state, addTrackAction(action.segments, action.name, action.locations, action.transModes))
+  return addTrack(state, addTrackAction(action.segments.map((s) => s.points), action.name, action.locations, action.segments.map((s) => s.transportationModes)))
 }
 
 const undo = (state, action) => {

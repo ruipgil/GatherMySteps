@@ -26,6 +26,9 @@ import updatePoints from './Map/updatePoints'
 export default class PerfMap extends Component {
   constructor (props) {
     super(props)
+
+    this.detailLevel = props.detailLevel || 16
+    this.transportationModeLevel = props.transportationModeLevel || 14
     this.map = undefined
     /**
      * Holds the segments currently displayed in their leaflet form
@@ -119,20 +122,25 @@ export default class PerfMap extends Component {
         this.shouldUpdateDisplay(lseg, display, previous.get('display'))
         this.shouldUpdateMode(lseg, current, previous)
       } else {
-        this.addSegment(id, points, color, display, filter, current, dispatch, previous)
+        this.addSegment(id, points, color, display, filter, current, dispatch, previous, current)
       }
     }
   }
 
   onZoomEnd (e) {
-    const defaultDetail = 16
-    if (this.map.getZoom() >= defaultDetail) {
+    const { detailLevel, transportationModeLevel } = this
+    const currentZoom = this.map.getZoom()
+    if (currentZoom >= detailLevel || currentZoom >= transportationModeLevel) {
       // add layers
       Object.keys(this.segments).forEach((s) => {
         if (this.segments[s]) {
-          const { details, layergroup } = this.segments[s]
-          if (layergroup.hasLayer(details) === false) {
+          const { details, transportation, layergroup } = this.segments[s]
+          if (layergroup.hasLayer(details) === false && currentZoom >= detailLevel) {
             layergroup.addLayer(details)
+          }
+
+          if (layergroup.hasLayer(transportation) === false && transportationModeLevel) {
+            layergroup.addLayer(transportation)
           }
         }
       })
@@ -140,9 +148,13 @@ export default class PerfMap extends Component {
       // remove layers
       Object.keys(this.segments).forEach((s) => {
         if (this.segments[s]) {
-          const { details, layergroup } = this.segments[s]
+          const { details, transportation, layergroup } = this.segments[s]
           if (layergroup.hasLayer(details) === true) {
             layergroup.removeLayer(details)
+          }
+
+          if (layergroup.hasLayer(transportation) === true) {
+            layergroup.removeLayer(transportation)
           }
         }
       })
@@ -211,14 +223,18 @@ export default class PerfMap extends Component {
     }
   }
 
-  addSegment (id, points, color, display, filter, segment, dispatch, previous) {
-    const obj = addSegment(id, points, color, display, filter, segment, dispatch)
+  addSegment (id, points, color, display, filter, segment, dispatch, previous, current) {
+    const obj = addSegment(id, points, color, display, filter, segment, dispatch, null, current, previous)
     this.segments[id] = obj
     obj.layergroup.addTo(this.map)
 
-    const defaultDetail = 16
-    if (this.map.getZoom() >= defaultDetail) {
+    const currentZoom = this.map.getZoom()
+    const { detailLevel, transportationModeLevel } = this
+    if (currentZoom >= detailLevel) {
       obj.details.addTo(obj.layergroup)
+    }
+    if (currentZoom >= transportationModeLevel) {
+      obj.transportation.addTo(obj.layergroup)
     }
   }
 

@@ -27,7 +27,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     .then(() => modifier())
     .catch((err) => {
       dispatch(addAlert('There was an error'))
-      console.error(err)
+      console.error(err.stack)
       modifier('is-danger')
       setTimeout(() => modifier(), 2000)
     })
@@ -38,7 +38,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     .then(() => modifier())
     .catch((err) => {
       dispatch(addAlert('There was an error'))
-      console.error(err)
+      console.error(err.stack)
       modifier('is-danger')
       setTimeout(() => modifier(), 2000)
     })

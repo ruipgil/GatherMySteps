@@ -27,11 +27,20 @@ const generateTabFromSeparator = (endSeparator, RE, next, captureGroup = 1) => {
           return editorState
         }
       } else {
-        if (endSeparator.length === 0 || (e && e[0].slice(-endSeparator.length).trim() === endSeparator)) {
+        let c = false
+        if (e) {
+          const i = e[0].slice(-endSeparator.length).trim()
+          c = i === endSeparator
+        }
+        if (c) {
           if (next) {
             // Start next section
             return addTextAt(editorState, next, index)
           }
+        } else if (right.length > 0) {
+          // Skip this section
+          console.log(index, right.length)
+          return cursorAt(editorState, index + right.lenght)
         } else if (left.trim().slice(-endSeparator.length) !== endSeparator) {
           // End current section
           return addTextAt(editorState, endSeparator, index)

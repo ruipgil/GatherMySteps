@@ -14,6 +14,7 @@ class SemanticEditor extends Component {
 
     const { initial } = props
     console.log(props)
+    console.log('initial state', initial)
     this.state = {
       editorState: EditorState.createWithContent(ContentState.createFromText(initial || ''), decorator),
       suggestions: {
@@ -39,10 +40,13 @@ class SemanticEditor extends Component {
     this.state.editorState = editorState
     this.setState(this.state)
 
+    console.log(text, this.props.strategies)
     findSuggestions(text, this.props.strategies, (result) => {
+      console.log('found')
       if (this.state.editorState === editorState) {
         const { strategy, suggestions, begin, end } = result
         const tabCompletion = strategy ? strategy.tabCompletion : null
+        console.log(result)
         this.setState({
           editorState,
           suggestions: {
