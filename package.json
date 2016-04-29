@@ -10,7 +10,7 @@
     "clean": "rm -r build || true",
     "build:gpxplorer": "npm run clean && env NODE_ENV=production BUILD_GPX=true webpack webpack.config.js build/ && cp src/html/*.html build",
     "build:gathermysteps": "webpack webpack.config.js build/ --progress",
-    "deploy:gpxplorer": "npm i --save-dev && npm run build:gpxplorer && git subtree push --prefix build origin gh-pages",
+    "deploy:gpxplorer": "npm run clean && git checkout gh-pages && git rebase master && npm i --save-dev && npm run build:gpxplorer && git add build && git commit -m 'Build $(git log -n 1 origin/master --pretty=format:%H)' && git subtree push --prefix build origin gh-pages && git checkout master",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "repository": {
