@@ -55,6 +55,8 @@ export default class PerfMap extends Component {
 
     const { dispatch } = this.props
     setupControls(this.map, {
+      canUndo: this.props.canUndo,
+      canRedo: this.props.canRedo,
       undo: () => dispatch(undo()),
       redo: () => dispatch(redo())
     })
@@ -73,7 +75,15 @@ export default class PerfMap extends Component {
     if (!this.map) {
       return
     }
-    const { center, bounds, zoom, segments, dispatch } = this.props
+    const { center, bounds, zoom, segments, dispatch, canUndo, canRedo } = this.props
+
+    if (canUndo !== prev.canUndo) {
+      this.map.buttons.setEnabled(0, canUndo)
+    }
+
+    if (canRedo !== prev.canRedo) {
+      this.map.buttons.setEnabled(1, canRedo)
+    }
 
     this.shouldUpdateZoom(zoom, prev.zoom)
     this.shouldUpdateCenter(center, prev.center)

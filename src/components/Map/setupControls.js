@@ -7,7 +7,7 @@ export default (map, actions) => {
     position: 'topright'
   }).addTo(map)
 
-  new ControlButton([
+  const btns = new ControlButton([
     {
       button: (<i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-undo' />),
       title: 'Undo',
@@ -18,7 +18,18 @@ export default (map, actions) => {
       title: 'Redo',
       onClick: actions.redo
     }
-  ]).addTo(map)
+  ])
+
+  btns.addTo(map)
+
+  if (actions.canUndo === false) {
+    btns.setEnabled(0, false)
+  }
+  if (actions.canRedo === false) {
+    btns.setEnabled(1, false)
+  }
+
+  map.buttons = btns
 
   new ControlButton({
     button: (<i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-map-marker' />),

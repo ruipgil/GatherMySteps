@@ -18,8 +18,12 @@ const ControlButton = Control.extend({
       opts = [options]
     }
 
+    this.buttons = []
+
     opts.map((button) => {
-      return this._createButton(button, zoomName + '-in', container)
+      const b = this._createButton(button, zoomName + '-in', container)
+      this.buttons.push(b)
+      return b
     })
 
     return container
@@ -42,7 +46,26 @@ const ControlButton = Control.extend({
     .on(link, 'click', this._refocusOnMap, this)
 
     return link
+  },
+
+  setEnabled: function (i, is) {
+    const c = this.buttons[i]
+    if (c) {
+      let className = c.className.split(' ')
+      if (is) {
+        let index = className.indexOf('leaflet-disabled')
+        if (index !== -1) {
+          className.splice(index, 1)
+        }
+      } else {
+        if (className.indexOf('leaflet-disabled') === -1) {
+          className.push('leaflet-disabled')
+        }
+      }
+      c.className = className.join(' ')
+    }
   }
+
 })
 
 export default ControlButton
