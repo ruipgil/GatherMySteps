@@ -98,7 +98,8 @@ html, body {
   position: relative;
   text-align: center;
   font-weight: bold;
-  text-shadow: #D4D4D4 0px 0px 10px;
+  color: white;
+  text-shadow: #444 0px 0px 10px;
 }
 .progressbar li:before {
   content: '';
@@ -111,31 +112,34 @@ html, body {
   text-align: center;
   margin: 0 auto 0 auto;
   border-radius: 50%;
-  background-color: #69707A;
-  box-shadow: #D4D4D4 0px 0px 10px;
+  background-color: white;
+  /*box-shadow: #D4D4D4 0px 0px 10px;*/
 }
 .progressbar li:after {
   content: '';
   position: absolute;
   width: 100%;
   height: 4px;
-  background-color: #69707A;
+  background-color: white;
   top: 6px;
   left: -50%;
   z-index: -1;
-  box-shadow: #D4D4D4 0px 0px 10px;
+  box-shadow: #888 0px 0px 10px;
 }
 .progressbar li:first-child:after {
   content: none;
 }
 .progressbar li.active {
-  color: #7bbf51;
+  color: #97cd76;
+  /*text-shadow: #fff 0px 0px 10px;*/
 }
 .progressbar li.active:before {
-  background-color: #7bbf51;
+  background-color: #97cd76;
+  /*box-shadow: #fff 0px 0px 10px;*/
 }
 .progressbar li.active + li:after {
-  background-color: #7bbf51;
+  background-color: #97cd76;
+  box-shadow: #fff 0px 0px 10px;
 }
 
 .is-flexgrow {

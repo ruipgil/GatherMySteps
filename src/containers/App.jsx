@@ -62,17 +62,29 @@ let App = ({ ui, tracks, dispatch }) => {
     }
   }
 
+  let belowTitle
+  if (GMS) {
+    belowTitle = <ProgressBar />
+  } else {
+    belowTitle = (
+      <a id='title' href='//github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>
+        by GatherMySteps
+      </a>
+    )
+  }
+
+  const title = GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a>
+
   return (
     <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
       <AlertBox />
       <div id='float-container'>
-        <div id='title'>{ GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a> }</div>
-        { GMS ? '' : <a id='title' href='//github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>by GatherMySteps</a> }
+        <div id='title'>{ title }</div>
+        { belowTitle }
         <div id='details'>
           <Progress onNext={ onNext } onPrevious={ onPrevious } />
         </div>
       </div>
-      { GMS ? <ProgressBar /> : null }
       <LeafletMap />
     </Dropzone>
   )

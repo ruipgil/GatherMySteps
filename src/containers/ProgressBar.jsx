@@ -6,7 +6,7 @@ let ProgressBar = ({ state, children }) => {
   const active = { className: 'active' }
   const width = '25%'
   return (
-    <div className='status-container'>
+    <div className=''>
       <ul className='progressbar'>
         <li { ...(state >= 0 ? active : none) } style={{width}}>Preview</li>
         <li { ...(state >= 1 ? active : none) } style={{width}}>Adjust</li>
