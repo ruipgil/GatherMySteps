@@ -155,7 +155,7 @@ const splitSegment = (state, action) => {
   state = updateSegment(state, id)
 
   // TODO avoid converting to JS
-  const segData = createSegmentObj(segment.get('trackId'), rest.toJS(), [], [], state.get('segments').count())
+  const segData = createSegmentObj(segment.get('trackId'), rest.toJS(), [], [], state.get('segments').count(), action.forceId)
   state = state.setIn(['segments', segData.get('id')], segData)
 
   let newSegmentId
@@ -172,9 +172,19 @@ const splitSegment = (state, action) => {
     .deleteIn(['segments', newSegmentId])
     .deleteIn(['tracks', state.get('segments').get(id).get('trackId'), 'segments', newSegmentId])
     state = updateSegment(state, id)
+
+    debugger
+    action.forceId = newSegmentId
+    action.hasDoneUndo = true
+    return state
   }
 
-  return toggleSegProp(state, id, 'spliting')
+  if (action.hasDoneUndo) {
+    action.hasDoneUndo = false
+    return state
+  } else {
+    return toggleSegProp(state, id, 'spliting')
+  }
 }
 
 const joinSegment = (state, action) => {
