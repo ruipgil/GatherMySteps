@@ -40,7 +40,14 @@ const undo = (state, action) => {
   if (toPut) {
     return toPut.undo(toPut, state)
     .updateIn(['history', 'past'], (past) => past.pop())
-    .updateIn(['history', 'future'], (future) => future.push(toPut))
+    .updateIn(['history', 'future'], (future) => {
+      future = future.push(toPut)
+      if (UNDO_LIMIT !== Infinity) {
+        return future.slice(future.count() - UNDO_LIMIT)
+      } else {
+        return future
+      }
+    })
   } else {
     return state
   }
@@ -72,6 +79,9 @@ const initalState = fromJS({
   }
 })
 
+// Number or Infinity
+const UNDO_LIMIT = 50
+
 const tracks = (state = initalState, action) => {
   let result
   if (ACTION_REACTION[action.type]) {
@@ -82,7 +92,12 @@ const tracks = (state = initalState, action) => {
   // TODO: false is temporary
   if (result !== state && action.undo) {
     return result.updateIn(['history', 'past'], (past) => {
-      return past.push(action)
+      past = past.push(action)
+      if (UNDO_LIMIT !== Infinity) {
+        return past.slice(past.count() - UNDO_LIMIT)
+      } else {
+        return past
+      }
     })
   } else {
     return result
