@@ -91,26 +91,28 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   }
 
   const nav = (
-    <div style={{ marginTop: '0.5rem' }}>
-      <span className='column is-half is-gapless is-text-centered'>
-        <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
-          <i className='fa fa-chevron-left' />
-          Previous
-        </AsyncButton>
-      </span>
-      <span className='column is-half is-text-centered'>
-        <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
-          Continue
-          <i className='fa fa-chevron-right' />
-        </AsyncButton>
-      </span>
+    <div style={{ marginTop: '1.1rem' }}>
+      <div className='columns is-gapless' style={{ marginBottom: 0 }}>
+        <span className='column is-half is-gapless is-text-centered'>
+          <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
+            <i className='fa fa-chevron-left' />
+            Previous
+          </AsyncButton>
+        </span>
+        <span className='column is-half is-gapless is-text-centered'>
+          <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
+            Continue
+            <i className='fa fa-chevron-right' />
+          </AsyncButton>
+        </span>
+      </div>
       <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
         { remainingMessage(remaining.count()) }
       </div>
     </div>
   )
   return (
-    <div className='container' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div id='details' className='container' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       { toShow }
       { process.env.BUILD_GPX ? null : nav }
     </div>

@@ -4,16 +4,37 @@ import { connect } from 'react-redux'
 let ProgressBar = ({ state, children }) => {
   const none = {}
   const active = { className: 'active' }
-  const width = '25%'
+  const highlight = { className: 'hl' }
+  const TIP_SIZE = 0
+  const width = ((100 - TIP_SIZE) / 5) + '%'
+
+  const selector = (current, index) => {
+    if (current === index) {
+      return highlight
+    } else if (current > index) {
+      return active
+    } else {
+      return none
+    }
+  }
   return (
-    <div className=''>
+    <div>
+    <div>
       <ul className='progressbar'>
-        <li { ...(state >= 0 ? active : none) } style={{width}}>Preview</li>
-        <li { ...(state >= 1 ? active : none) } style={{width}}>Adjust</li>
-        <li { ...(state >= 2 ? active : none) } style={{width}}>Annotate</li>
-        <li { ...(state >= 3 ? active : none) } style={{width}}>Done</li>
+        <li { ...active } style={{ width }}></li>
+        <li { ...selector(state, 0) } style={{width}}></li>
+        <li { ...selector(state, 1) } style={{width}}></li>
+        <li { ...selector(state, 2) } style={{width}}></li>
+        <li { ...none } style={{width}}></li>
       </ul>
     </div>
+    <div className='pg-text'>
+      <span { ...selector(state, 0) }>Preview</span>
+      <span { ...selector(state, 1) }>Adjust</span>
+      <span { ...selector(state, 2) }>Annotate</span>
+    </div>
+  </div>
+
   )
 }
 

@@ -81,9 +81,7 @@ let App = ({ ui, tracks, dispatch }) => {
       <div id='float-container'>
         <div id='title'>{ title }</div>
         { belowTitle }
-        <div id='details'>
-          <Progress onNext={ onNext } onPrevious={ onPrevious } />
-        </div>
+        <Progress onNext={ onNext } onPrevious={ onPrevious } />
       </div>
       <LeafletMap />
     </Dropzone>
