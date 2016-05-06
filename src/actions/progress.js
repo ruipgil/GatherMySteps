@@ -17,6 +17,11 @@ export const setServerState = (step, tracksRemaining) => {
   }
 }
 
+const updateState = (dispatch, json) => {
+  dispatch(setServerState(json.step, json.queue))
+  dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
+}
+
 export const requestServerState = () => {
   return (dispatch, getState) => {
     const options = {
@@ -28,11 +33,7 @@ export const requestServerState = () => {
       .catch((err) => {
         console.log(err)
       })
-      .then((json) => {
-        console.log(json)
-        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
-        dispatch(setServerState(json.step, json.files))
-      })
+      .then((json) => updateState(dispatch, json))
   }
 }
 
@@ -45,11 +46,7 @@ export const previousStep = () => {
     return fetch(getState().get('progress').get('server') + '/previous', options)
       .then((response) => response.json())
       .catch((err) => console.log(err))
-      .then((json) => {
-        console.log(json)
-        dispatch(setServerState(json.step, json.files))
-        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
-      })
+      .then((json) => updateState(dispatch, json))
   }
 }
 
@@ -69,11 +66,7 @@ export const nextStep = () => {
     return fetch(getState().get('progress').get('server') + '/next', options)
       .then((response) => response.json())
       .catch((err) => console.log(err))
-      .then((json) => {
-        console.log(json)
-        dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
-        dispatch(setServerState(json.step, json.files))
-      })
+      .then((json) => updateState(dispatch, json))
   }
 }
 

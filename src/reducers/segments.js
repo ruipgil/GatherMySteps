@@ -119,14 +119,27 @@ const addSegmentPoint = (state, action) => {
 const removeSegment = (state, action) => {
   const id = action.segmentId
   const trackId = state.get('segments').get(id).get('trackId')
+
+  const segment = state.get('segments').get(id)
+  const track = state.get('tracks').get(trackId)
+
   state = state
     .deleteIn(['segments', action.segmentId])
   if (state.get('tracks').get(trackId).get('segments').count() === 1) {
     state = state.deleteIn(['tracks', trackId])
+    action.undo = (self, state) => {
+      return state
+      .setIn(['segments', id], segment)
+      .setIn(['tracks', trackId], track)
+    }
   } else {
     state = state.updateIn(['tracks', trackId, 'segments'], (segments) => {
       return segments.delete(segments.indexOf(id))
     })
+    action.undo = (self, state) => {
+      return state
+      .setIn(['segments', id], segment)
+    }
   }
   return state
 }
