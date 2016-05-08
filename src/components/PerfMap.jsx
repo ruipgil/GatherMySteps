@@ -127,7 +127,7 @@ export default class PerfMap extends Component {
       const lseg = this.segments[id]
 
       if (lseg) {
-        this.shouldUpdatePoints(lseg, points, filter, previous, color)
+        this.shouldUpdatePoints(lseg, points, filter, previous, color, current)
         this.shouldUpdateColor(lseg, color, previous.get('color'))
         this.shouldUpdateDisplay(lseg, display, previous.get('display'))
         this.shouldUpdateMode(lseg, current, previous)
@@ -211,9 +211,19 @@ export default class PerfMap extends Component {
     }
   }
 
-  shouldUpdatePoints (segment, points, filter, prev, color) {
-    if (!segment.updated && (points !== prev.get('points') || filter.get(0) !== prev.get('timeFilter').get(0) || filter.get(-1) !== prev.get('timeFilter').get(-1))) {
-      updatePoints(segment, points, prev.get('points'), color)
+  shouldUpdatePoints (segment, points, filter, prev, color, current) {
+    const buildTimeFilter = (filter, points) => {
+      const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
+      const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
+      return (point) => {
+        const t = point.get('time').valueOf()
+        return tfLower <= t && t <= tfUpper
+      }
+    }
+    if (!segment.updated && (points !== prev.get('points') || filter.get(0) !== prev.get('timeFilter').get(0) || filter.get(-1) !== prev.get('timeFilter').get(-1) || current.get('showTimeFilter') !== prev.get('showTimeFilter'))) {
+      const c = current.get('showTimeFilter') ? points.filter(buildTimeFilter(filter, points)) : points
+      const p = prev.get('showTimeFilter') ? prev.get('points').filter(buildTimeFilter(prev.get('timeFilter'), prev.get('points'))) : prev.get('points')
+      updatePoints(segment, c, p, color)
     }
   }
 

@@ -5,9 +5,23 @@ import React, { Component } from 'react'
 export default class TimeSlider extends Component {
   constructor (props) {
     super(props)
+
+    const start = this.props.start.valueOf()
+    const diff = this.props.end.diff(this.props.start)
+
+    let left = 0
+    if (this.props.initialStart) {
+      left = ((this.props.initialStart.valueOf() - start) / diff) * 100
+    }
+
+    let right = 100
+    if (this.props.initialEnd) {
+      right = ((this.props.initialEnd.valueOf() - start) / diff) * 100
+    }
+
     this.state = {
-      left: 0,
-      right: 100
+      left,
+      right
     }
     this.timer = null
   }

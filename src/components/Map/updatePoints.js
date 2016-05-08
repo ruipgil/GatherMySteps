@@ -1,15 +1,7 @@
 import { createPointsFeatureGroup, createPointIcon } from './utils'
 import { LatLng, Marker } from 'leaflet'
 
-export default function updatePoint (segment, current, previous, color) {
-  /*
-   const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
-   const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
-   const timeFilter = (point) => {
-   const t = point.get('time').valueOf()
-   return tfLower <= t && t <= tfUpper
-   }
-  */
+export default function updatePoints (segment, current, previous, color, filter) {
   if (segment.polyline && segment.points) {
     const update = (polylinePoints, markers) => {
       current.forEach((point, i) => {

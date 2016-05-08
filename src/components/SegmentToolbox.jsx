@@ -25,6 +25,8 @@ let SegmentToolbox = ({ dispatch, segment }) => {
   const pointDetails = segment.get('pointDetails')
   const bounds = segment.get('bounds').toJS()
   const showTimeFilter = segment.get('showTimeFilter')
+  const filterStart = segment.get('timeFilter').get(0)
+  const filterEnd = segment.get('timeFilter').get(1)
   const toggleEdit = (segmentIndex) => {
     return () => dispatch(toggleSegmentEditing(segmentIndex))
   }
@@ -91,7 +93,7 @@ let SegmentToolbox = ({ dispatch, segment }) => {
       </div>
       {
         showTimeFilter
-          ? <TimeSlider start={start} end={end} onChange={updateFilter(id)}/>
+          ? <TimeSlider start={start} initialStart={filterStart} end={end} initialEnd={filterEnd} onChange={updateFilter(id)}/>
           : null
       }
     </div>
