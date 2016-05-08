@@ -11,7 +11,7 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
   const totalPoints = segments.reduce((prev, segment) => {
     return prev + segment.get('points').count()
   }, 0)
-  const onDownload = () => downloadTrack(track)
+  const onDownload = () => dispatch(downloadTrack(id))
   const updateName = (e) => {
     if (e.type) {
       const val = e.target.value

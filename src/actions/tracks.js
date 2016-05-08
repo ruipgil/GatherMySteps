@@ -46,19 +46,23 @@ export const updateTrackName = (trackId, newName) => {
   }
 }
 
-const exportGPX = (track) => {
-  return track.segments.reduce((prev, s) => {
-    return prev + s.points.reduce((prev, p) => {
-      return prev + '<trkpt lat="' + p.lat + '" lon="' + p.lon + '">' +
-      '<time>' + p.time.toISOString() + '</time>' +
+const exportGPX = (trackId, state) => {
+  state = state.get('tracks')
+  return state.get('tracks').get(trackId).get('segments').reduce((prev, s) => {
+    s = state.get('segments').get(s)
+    return prev + s.get('points').reduce((prev, p) => {
+      return prev + '<trkpt lat="' + p.get('lat') + '" lon="' + p.get('lon') + '">' +
+      '<time>' + p.get('time').toISOString() + '</time>' +
       '</trkpt>'
     }, '<trkseg>') + '</trkseg>'
   }, '<?xml version="1.0" encoding="UTF-8"?><gpx xmlns="http://www.topografix.com/GPX/1/1"><trk>') + '</trk></gpx>'
 }
 
 import saveData from './saveData'
-export const downloadTrack = (track) => {
-  let str = exportGPX(track)
-  saveData(str, track.name)
-  return str
+
+export const downloadTrack = (trackId) => {
+  return (_, getState) => {
+    let str = exportGPX(trackId, getState())
+    saveData(str, getState().get('tracks').get('tracks').get(trackId).get('name'))
+  }
 }
