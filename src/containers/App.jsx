@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { addTrack } from '../actions/tracks'
+import { addMultipleTracks } from 'actions/tracks'
 import Dropzone from '../components/Dropzone.jsx'
 import LeafletMap from './LeafletMap.jsx'
 import Progress from './Progress.jsx'
@@ -19,11 +19,15 @@ let App = ({ ui, tracks, dispatch }) => {
     let dt = e.dataTransfer
     let files = dt.files
 
-    loadFiles(files, (gpx, file) => {
-      gpx.trk.forEach((trk) => {
-        const trackPoints = trk.trkseg.map((seg) => seg.trkpt)
-        dispatch(addTrack(trackPoints, file.name))
+    loadFiles(files, (tracks) => {
+      const r = tracks.map((track) => {
+        const { gpx, name } = track
+        return {
+          segments: gpx.trk.map((trk) => trk.trkseg.map((seg) => seg.trkpt)),
+          name
+        }
       })
+      dispatch(addMultipleTracks(r))
     })
   }
 

@@ -1,4 +1,5 @@
 import { createTrackObj } from './utils'
+import { addTrack as addTrackAction } from '../actions/tracks'
 
 const addTrack = (state, action) => {
   let { name, segments, locations, transModes } = action
@@ -13,6 +14,14 @@ const addTrack = (state, action) => {
   return state
 }
 
+const addMultipleTracks = (state, action) => {
+  return action.tracks.reduce((state, track) => {
+    const { segments, name } = track
+    const action = addTrackAction(segments[0], name)
+    return tracks(state, action)
+  }, state)
+}
+
 const updateTrackName = (state, action) => {
   return state.setIn(['tracks', action.trackId, 'name'], action.name)
 }
@@ -21,8 +30,6 @@ const toggleTrackRenaming = (state, action) => {
   let id = action.trackId
   return state.setIn(['tracks', action.trackId, 'renaming'], !state.get('tracks').get(id).get('renaming'))
 }
-
-import { addTrack as addTrackAction } from '../actions/tracks'
 
 const removeTracksFor = (state, action) => {
   state = state
@@ -60,6 +67,7 @@ const redo = (state, action) => {
 
 const ACTION_REACTION = {
   'ADD_TRACK': addTrack,
+  'ADD_MULTIPLE_TRACKS': addMultipleTracks,
   'TOGGLE_TRACK_RENAMING': toggleTrackRenaming,
   'UPDATE_TRACK_NAME': updateTrackName,
   'REMOVE_TRACKS_FOR': removeTracksFor,
@@ -89,7 +97,6 @@ const tracks = (state = initalState, action) => {
   } else {
     result = segments(state, action)
   }
-  // TODO: false is temporary
   if (result !== state && action.undo) {
     return result.updateIn(['history', 'past'], (past) => {
       past = past.push(action)

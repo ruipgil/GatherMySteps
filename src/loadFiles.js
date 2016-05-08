@@ -1,9 +1,9 @@
 import moment from 'moment'
+import { map } from 'async'
 import { GXParser } from 'gxparser'
 
 function loadFiles (files, cb) {
-  for (let i = 0; i < files.length; i++) {
-    let file = files[i]
+  map(files, (file, done) => {
     /*global FileReader*/
     let reader = new FileReader()
     reader.readAsText(file)
@@ -24,9 +24,9 @@ function loadFiles (files, cb) {
           })
         }
       })
-      cb(gpx, file)
+      done(null, { gpx, name: file.name })
     }
-  }
+  }, (_, result) => cb(result))
 }
 
 export default loadFiles

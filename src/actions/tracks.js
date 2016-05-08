@@ -1,8 +1,11 @@
 import {
   ADD_TRACK,
+  ADD_MULTIPLE_TRACKS,
   TOGGLE_TRACK_RENAMING,
   UPDATE_TRACK_NAME
 } from './'
+import { Set } from 'immutable'
+import { fitSegments } from 'actions/ui'
 
 export const addTrack = (segments, name, locations = [], transModes = []) => {
   return {
@@ -11,6 +14,20 @@ export const addTrack = (segments, name, locations = [], transModes = []) => {
     locations,
     transModes,
     type: ADD_TRACK
+  }
+}
+
+export const addMultipleTracks = (tracks, options) => {
+  return (dispatch, getState) => {
+    const getSegKeys = () => Set(getState().get('tracks').get('segments').keySeq())
+    const previous = getSegKeys()
+    dispatch({
+      tracks,
+      type: ADD_MULTIPLE_TRACKS
+    })
+
+    const diff = getSegKeys().subtract(previous)
+    dispatch(fitSegments(...diff.toJS()))
   }
 }
 

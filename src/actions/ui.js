@@ -35,6 +35,26 @@ export const changeMap = (newType) => {
   }
 }
 
+const min = (a, b) => a > b ? b : a
+const max = (a, b) => a < b ? b : a
+
+export const fitSegments = (...segmentIds) => {
+  return (dispatch, getState) => {
+    const ss = getState().get('tracks').get('segments')
+    const bounds = segmentIds
+    .map((s) => ss.get(s).get('bounds'))
+    .reduce((prev, b) => {
+      prev[0][0] = min(prev[0][0], b.get(0).get('lat'))
+      prev[0][1] = min(prev[0][1], b.get(0).get('lon'))
+      prev[1][0] = max(prev[1][0], b.get(1).get('lat'))
+      prev[1][1] = max(prev[1][1], b.get(1).get('lon'))
+      return prev
+    }, [[Infinity, Infinity], [-Infinity, -Infinity]])
+
+    dispatch(updateBounds(bounds))
+  }
+}
+
 export const updateBounds = (bounds) => {
   return {
     bounds,
