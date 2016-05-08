@@ -28,7 +28,7 @@ let AlertBox = ({ dispatch, alerts }) => {
     <div style={style}>
       {
         alerts.map((alert) => {
-          setTimeout(() => deleteAlert(alert), ALERT_TIME)
+          setTimeout(() => deleteAlert(alert), alert.duration * 1000 || ALERT_TIME)
           return (
             <div className={'notification ' + mapType[alert.type]}>
               <button className='delete' onClick={() => deleteAlert(alert)}></button>

@@ -173,7 +173,6 @@ const splitSegment = (state, action) => {
     .deleteIn(['tracks', state.get('segments').get(id).get('trackId'), 'segments', newSegmentId])
     state = updateSegment(state, id)
 
-    debugger
     action.forceId = newSegmentId
     action.hasDoneUndo = true
     return state
@@ -363,6 +362,7 @@ const toggleSegmentJoining = function (state, action) {
     state = state.setIn(['segments', id, 'joinPossible'], possibilities)
     state = toggleSegProp(state, action.segmentId, 'joining')
   } else {
+    throw new Error('There is no segments that can be joined')
     // show alert, set joining to false
     // return toggleSegProp(state, action.segmentId, 'joining')
   }

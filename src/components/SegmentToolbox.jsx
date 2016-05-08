@@ -11,7 +11,7 @@ import {
   toggleTimeFilter,
   updateTimeFilterSegment
 } from '../actions/segments'
-import { updateBounds } from '../actions/ui'
+import { updateBounds, addAlert, removeAlert } from '../actions/ui'
 
 const btnHighlight = ' is-success is-outlined'
 
@@ -27,17 +27,71 @@ let SegmentToolbox = ({ dispatch, segment }) => {
   const showTimeFilter = segment.get('showTimeFilter')
   const filterStart = segment.get('timeFilter').get(0)
   const filterEnd = segment.get('timeFilter').get(1)
+
+  const INFO_TIME = 100
+
   const toggleEdit = (segmentIndex) => {
-    return () => dispatch(toggleSegmentEditing(segmentIndex))
+    return () => {
+      dispatch(toggleSegmentEditing(segmentIndex))
+
+      const ref = 'EDIT_INFO'
+      if (!editing) {
+        const action = addAlert((
+          <div>
+            <div>Editing is only possible at certain zoom levels. Zoom in if you can't see any markers.</div>
+            <div>Drag existing points to move their position. Right-click to remove them.</div>
+            <div>Drag or click in the (+) marker to add a point.</div>
+          </div>
+        ), 'success', INFO_TIME, ref)
+        dispatch(action)
+      } else {
+        dispatch(removeAlert(null, ref))
+      }
+    }
   }
+
   const remove = (segmentIndex) => {
     return () => dispatch(removeSegment(segmentIndex))
   }
   const toggleJoin = (segmentIndex) => {
-    return () => dispatch(toggleSegmentJoining(segmentIndex))
+    return () => {
+      try {
+        dispatch(toggleSegmentJoining(segmentIndex))
+
+        const ref = 'JOIN_INFO'
+        if (!joining) {
+          const action = addAlert((
+            <div>
+              <div>Joining is only possible at certain zoom levels. Zoom in if you can't see any markers.</div>
+              <div>The possible joins are highlighted, click them to join.</div>
+            </div>
+          ), 'success', INFO_TIME, ref)
+          dispatch(action)
+        } else {
+          dispatch(removeAlert(null, ref))
+        }
+      } catch (e) {
+        dispatch(addAlert(e.message))
+      }
+    }
   }
   const toggleSplit = (segmentIndex) => {
-    return () => dispatch(toggleSegmentSpliting(segmentIndex))
+    return () => {
+      dispatch(toggleSegmentSpliting(segmentIndex))
+
+      const ref = 'SPLIT_INFO'
+      if (!spliting) {
+        const action = addAlert((
+          <div>
+            <div>Spliting is only possible at certain zoom levels. Zoom in if you can't see any markers.</div>
+            <div>Click on a marker to split the segment</div>
+          </div>
+        ), 'success', INFO_TIME, ref)
+        dispatch(action)
+      } else {
+        dispatch(removeAlert(null, ref))
+      }
+    }
   }
   const fit = (segmentIndex) => {
     return () => dispatch(updateBounds(bounds))

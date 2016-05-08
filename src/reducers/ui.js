@@ -27,7 +27,12 @@ const ui = (state = initialState, action) => {
       return state.set('showRemainingTracks', !state.get('showRemainingTracks'))
     case 'REMOVE_ALERT':
       return state.update('alerts', (alerts) => {
-        const index = alerts.findIndex((a) => a === action.alert)
+        let index
+        if (action.alert) {
+          index = alerts.findIndex((a) => a === action.alert)
+        } else if (action.ref) {
+          index = alerts.findIndex((a) => a.ref === action.ref)
+        }
         if (index !== undefined) {
           return alerts.delete(index)
         } else {
@@ -35,7 +40,7 @@ const ui = (state = initialState, action) => {
         }
       })
     case 'ADD_ALERT':
-      return state.update('alerts', (alerts) => alerts.push({ type: action.alertType, message: action.message }))
+      return state.update('alerts', (alerts) => alerts.push({ type: action.alertType, message: action.message, duration: action.duration, ref: action.duration }))
     default:
       return state
   }
