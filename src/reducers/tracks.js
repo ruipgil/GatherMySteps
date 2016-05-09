@@ -39,7 +39,13 @@ const removeTracksFor = (state, action) => {
     .updateIn(['segments'], (segments) => {
       return segments.clear()
     })
-  return addTrack(state, addTrackAction(action.segments.map((s) => s.points), action.name, action.locations, action.segments.map((s) => s.transportationModes)))
+
+  const { segments, name } = action
+  const points = segments.map((s) => s.points)
+  const transportationModes = segments.map((s) => s.transportationModes)
+  const locations = segments.map((s) => [s.locationFrom, s.locationTo])
+  const act = addTrackAction(points, name, locations, transportationModes)
+  return addTrack(state, act)
 }
 
 const undo = (state, action) => {

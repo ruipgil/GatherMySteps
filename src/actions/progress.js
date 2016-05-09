@@ -19,8 +19,11 @@ export const setServerState = (step, tracksRemaining) => {
 }
 
 const updateState = (dispatch, json, getState) => {
+  console.log('Payload')
+  console.log(json)
+
   dispatch(setServerState(json.step, json.queue))
-  dispatch(removeTracksFor(json.track.segments, json.track.name, json.track.locations))
+  dispatch(removeTracksFor(json.track.segments, json.track.name))
 
   const segments = getState().get('tracks').get('segments').keySeq().toJS()
   dispatch(fitSegments(...segments))
@@ -74,12 +77,10 @@ export const nextStep = () => {
   }
 }
 
-export const removeTracksFor = (segments, name, locations = [], transModes = []) => {
+export const removeTracksFor = (segments, name) => {
   return {
     segments,
     name,
-    locations,
-    transModes,
     type: 'REMOVE_TRACKS_FOR'
   }
 }
