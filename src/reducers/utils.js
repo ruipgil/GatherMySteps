@@ -89,7 +89,7 @@ export const createSegmentObj = (trackId, points, location, transModes, nSegs, c
 
 export const createTrackObj = (name, segments, locations = [], transModes = [], n = 0) => {
   let id = genTrackId()
-  let segs = segments.map((segment, i) => createSegmentObj(id, segment, locations[i], transModes[i], n + i))
+  let segs = segments.filter((s) => s.length !== 0).map((segment, i) => createSegmentObj(id, segment, locations[i], transModes[i], n + i))
   return {
     track: Map({
       id,

@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch'
+import { reset as resetId } from 'reducers/idState'
 import { fitSegments } from 'actions/ui'
 
 const segmentsToJson = (state) => {
@@ -18,12 +19,17 @@ export const setServerState = (step, tracksRemaining) => {
   }
 }
 
-const updateState = (dispatch, json, getState) => {
+const updateState = (dispatch, json, getState, reverse = false) => {
+  resetId()
   console.log('Payload')
   console.log(json)
-
+  if (json.step === 2) {
+    dispatch(removeTracksFor(json.track.segments, json.track.name))
+  }
   dispatch(setServerState(json.step, json.queue))
-  dispatch(removeTracksFor(json.track.segments, json.track.name))
+  if (json.step !== 2) {
+    dispatch(removeTracksFor(json.track.segments, json.track.name))
+  }
 
   const segments = getState().get('tracks').get('segments').keySeq().toJS()
   dispatch(fitSegments(...segments))
@@ -53,7 +59,7 @@ export const previousStep = () => {
     return fetch(getState().get('progress').get('server') + '/previous', options)
       .then((response) => response.json())
       .catch((err) => console.log(err))
-      .then((json) => updateState(dispatch, json, getState))
+      .then((json) => updateState(dispatch, json, getState, true))
   }
 }
 

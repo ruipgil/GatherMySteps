@@ -14,7 +14,6 @@ class SemanticEditor extends Component {
 
     const { initial } = props
     console.log(props)
-    console.log('initial state', initial)
     this.state = {
       editorState: EditorState.createWithContent(ContentState.createFromText(initial || ''), decorator),
       suggestions: {
@@ -116,7 +115,7 @@ class SemanticEditor extends Component {
     const { selected, list, show, details: { left, top } } = suggestions
 
     return (
-      <div style={{ fontFamily: 'monospace' }} className={className}>
+      <div style={{ fontFamily: 'monospace', width: '100%' }} className={className}>
         <Editor
           editorState={editorState}
           onChange={this.onChange.bind(this)}

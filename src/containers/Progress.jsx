@@ -21,27 +21,29 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       break
   }
 
+  const errorHandler = (err, modifier) => {
+    dispatch(addAlert(
+      <div>
+        <div>There was an error</div>
+        <div>{ process.env.NODE_ENV === 'development' ? err.stack.split('\n').map((e) => <div>{e}</div>) : '' }</div>
+      </div>
+    ), 'error', 20)
+    console.error(err.stack)
+    modifier('is-danger')
+    setTimeout(() => modifier(), 2000)
+  }
+
   const onPrevious = (e, modifier) => {
     modifier('is-loading')
     dispatch(previousStep())
     .then(() => modifier())
-    .catch((err) => {
-      dispatch(addAlert('There was an error'))
-      console.error(err.stack)
-      modifier('is-danger')
-      setTimeout(() => modifier(), 2000)
-    })
+    .catch((e) => errorHandler(e, modifier))
   }
   const onNext = (e, modifier) => {
     modifier('is-loading')
     dispatch(nextStep())
     .then(() => modifier())
-    .catch((err) => {
-      dispatch(addAlert('There was an error'))
-      console.error(err.stack)
-      modifier('is-danger')
-      setTimeout(() => modifier(), 2000)
-    })
+    .catch((e) => errorHandler(e, modifier))
   }
 
   const remainingMessage = (n) => {
@@ -83,9 +85,24 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       </ul>
     )
   } else {
+    let style = { overflowY: 'auto' }
+    if (stage === ANNOTATE_STAGE) {
+      style = {
+        ...style,
+        overflowX: 'visible',
+        resize: 'horizontal',
+        paddingTop: '2px',
+        maxWidth: '500px',
+        minWidth: '110%',
+        // width: '400px',
+        borderRadius: '0px 3px 3px 0px',
+        backgroundColor: 'white'
+      }
+    }
+
     toShow = (
-      <div className='is-flexgrow is-flex' style={{ overflowY: 'auto' }} >
-        <Pane className='is-flexgrow' />
+      <div className='is-flexgrow is-flex' style={style} >
+        <Pane className='is-flexgrow' width='100%' />
       </div>
     )
   }
