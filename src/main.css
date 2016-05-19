@@ -24,6 +24,12 @@ html, body {
   text-shadow: #000 0px 0px 10px;
   height: 3rem;
 }
+#title a{
+  color: white;
+}
+#title a:hover{
+  color:white;
+}
 #float-container {
   padding: 1% 0 1% 1%;
   position: absolute;
