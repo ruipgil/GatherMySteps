@@ -98,12 +98,8 @@ export default class PerfMap extends Component {
   }
 
   shouldUpdateCenter (current, previous) {
-    let tCenter
-    if (current) {
-      tCenter = LatLng(current.lat, current.lon || current.lng)
-    }
-    if (current !== previous || (tCenter && !this.map.getCenter().equals(tCenter))) {
-      this.map.setView(tCenter)
+    if (current !== previous) {
+      this.map.setView({ lat: current.lat, lng: current.lon })
     }
   }
 

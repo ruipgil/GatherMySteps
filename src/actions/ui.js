@@ -102,3 +102,11 @@ export const removeAlert = (alert, ref) => {
     type: 'REMOVE_ALERT'
   }
 }
+
+export const centerMap = (lat, lon) => {
+  return {
+    lat,
+    lon,
+    type: 'CENTER_MAP'
+  }
+}

@@ -2,6 +2,7 @@ import React from 'react'
 import {
   toggleSegmentDisplay
 } from '../actions/segments'
+import { centerMap } from '../actions/ui'
 
 import SegmentToolbox from 'components/SegmentToolbox'
 
@@ -27,13 +28,30 @@ const SegmentRepresentation = ({ dispatch, segment }) => {
   let distance = metrics.totalDistance
   let avrgSpeed = metrics.averageVelocity
 
+  const centerOnPoint = (index) => {
+    return (e) => {
+      e.stopPropagation()
+      dispatch(centerMap(points.get(index).get('lat'), points.get(index).get('lon')))
+    }
+  }
+
   return (
     <div className='slide-from-top-fade-in'>
     <div>
       <li style={{borderLeft: '10px solid ' + color, paddingLeft: '2%', opacity: display ? 1 : 0.5, cursor: 'pointer'}} >
         <div onClick={toggleTrack(id)}>
-          <div style={style}>{start.format('L')} - {end.format('L')}</div>
-          <div style={style}>{start.format('LT')} - {end.format('LT')}</div>
+          <div className='' style={{ display: 'flex' }}>
+            <div className='column is-half' onClick={centerOnPoint(0)}>
+              <div style={{ fontSize: '0.7rem', color: '#aaa' }}>start</div>
+              <div>{start.format('L')}</div>
+              <div>{start.format('LT')}</div>
+            </div>
+            <div className='column is-half' onClick={centerOnPoint(-1)} style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.7rem', color: '#aaa' }}>end</div>
+              <div>{end.format('L')}</div>
+              <div>{end.format('LT')}</div>
+            </div>
+          </div>
           <div style={style}>{end.fromNow()} during {start.to(end, true)}</div>
           <div style={style}>{points.count()} points, { distance.toFixed(2) } km at { avrgSpeed.toFixed(2) } km/h</div>
         </div>

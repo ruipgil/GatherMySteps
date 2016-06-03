@@ -48,6 +48,9 @@ const ui = (state = initialState, action) => {
       }
 
       return state.update('alerts', (alerts) => alerts.push({ type: action.alertType, message: action.message, duration: action.duration, ref: action.ref }))
+
+    case 'CENTER_MAP':
+      return state.set('center', { lat: action.lat, lon: action.lon })
     default:
       return state
   }
