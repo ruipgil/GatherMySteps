@@ -1,6 +1,6 @@
 import { reduce } from 'async'
 
-export default function findSuggestions (text, strategies, callback) {
+export default function findSuggestions (text, cursor, strategies, callback) {
   let begin = 0
   let end = 0
   let strateg = null
@@ -10,7 +10,7 @@ export default function findSuggestions (text, strategies, callback) {
     if (!strategy) {
       return done(null, prev)
     }
-    const found = strategy(text)
+    const found = strategy(text, cursor)
     if (found) {
       strateg = e
       suggester(found, (result) => {

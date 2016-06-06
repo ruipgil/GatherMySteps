@@ -1,5 +1,3 @@
-import { findDOMNode } from 'react-dom'
-
 const getValidParent = (elm) => {
   if (elm.getBoundingClientRect) {
     return elm
@@ -12,18 +10,14 @@ const getValidParent = (elm) => {
 
 export default function findSuggestionBoxPosition (editorRef, last) {
   const _sel = window.getSelection()
-  let sbLeft = 0
-  let sbTop = 0
   if (_sel.rangeCount) {
-    const parent = getValidParent(_sel.baseNode)
+    const parent = getValidParent(_sel.baseNode).parentElement.parentElement
     const rect = parent.getBoundingClientRect()
-    const edp = findDOMNode(editorRef).getBoundingClientRect()
-    sbLeft = rect.left - edp.left
-    sbTop = rect.bottom - edp.top + 4
-  }
-  if (sbTop === 0) {
-    return last
+    return {
+      left: rect.left,
+      top: rect.top + rect.height
+    }
   } else {
-    return { left: sbLeft, top: sbTop }
+    return last
   }
 }

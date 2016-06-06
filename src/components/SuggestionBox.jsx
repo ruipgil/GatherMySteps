@@ -4,10 +4,10 @@ const SuggestionBox = ({ left, top, selected, onSelect, suggestions, show }) => 
   const style = {
     border: '1px solid #ddd',
     minWidth: '180px',
-    position: 'absolute',
+    position: 'fixed',
     background: '#fff',
     borderRadius: '4px',
-    boxShadow: '0px 4px 30px 0px rgba(220,220,220,1)',
+    boxShadow: '0px 7px 25px -4px rgba(220,220,220,1)',
     cursor: 'pointer',
     paddingTop: '2px',
     paddingBottom: '2px',
