@@ -192,7 +192,7 @@ export default class PerfMap extends Component {
         onExtend: (id, index, lat, lng) => dispatch(extendSegment(id, index, lat, lng))
       })
     }
-    if (current.get('joining') === true && current.get('joining') !== previous.get('joining')) {
+    if (current.get('joining') === true && (current.get('joining') !== previous.get('joining') || current.get('joinPossible') !== previous.get('joinPossible'))) {
       joinMode(lseg, current, previous, (id, i, pp) => dispatch(joinSegment(id, i, pp)))
     }
   }

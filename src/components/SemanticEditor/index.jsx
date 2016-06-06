@@ -13,7 +13,6 @@ class SemanticEditor extends Component {
     const decorator = new CompositeDecorator(props.strategies)
 
     const { initial } = props
-    console.log(props)
     this.state = {
       editorState: EditorState.createWithContent(ContentState.createFromText(initial || ''), decorator),
       suggestions: {
@@ -25,7 +24,6 @@ class SemanticEditor extends Component {
         tab: () => {}
       }
     }
-    console.log('dd', decorator._decorators)
   }
 
   focus () {
@@ -37,41 +35,38 @@ class SemanticEditor extends Component {
     const startKey = sel.getStartKey()
     const index = sel.get('focusOffset')
     const text = editorState.getCurrentContent().getBlockForKey(startKey).getText()
-
-    console.log('starting text', text)
+    const shouldShow = sel.getHasFocus()
 
     this.state.editorState = editorState
     this.setState(this.state)
 
-    console.log(text, this.props.strategies)
     findSuggestions(text, index, this.props.strategies, (result) => {
-      console.log('found')
       if (this.state.editorState === editorState) {
         const { strategy, suggestions, begin, end } = result
         const tabCompletion = strategy ? strategy.tabCompletion : null
-        console.log(result)
-        console.log(suggestions.length)
+        const show = hide ? false : (suggestions.length > 0)
+
         this.setState({
           editorState,
           suggestions: {
-            show: hide ? false : (suggestions.length > 0),
+            show,
             list: suggestions,
             selected: -1,
-            box: findSuggestionBoxPosition(this.refs.editor, this.state.sugBox),
+            box: findSuggestionBoxPosition(this.refs.editor, this.state.suggestions.box),
             details: { begin, end },
             tab: tabCompletion
           }
         })
-
-        this.props.onChange()
       } else {
+        this.state.suggestions.show = false
+        this.setState(this.state)
       }
     })
+    this.props.onChange()
   }
 
   onUpArrow (e) {
     let { list, selected, show } = this.state.suggestions
-    console.log('up')
 
     if (show) {
       e.preventDefault()

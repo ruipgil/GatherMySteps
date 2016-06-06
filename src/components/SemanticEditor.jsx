@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { EditorState, Modifier } from 'draft-js'
+import colors from 'reducers/colors'
 
 import SemanticEditor from './SemanticEditor/index.jsx'
 
@@ -18,6 +19,29 @@ const SemanticPill = (props) => {
   // <i className='fa fa-angle-down' style={{ fontSize: '1.2rem' }}/>
   return (
     <span className='tag is-info clickable' {...props}>{props.children}</span>
+  )
+}
+
+let timeN = 0
+const TimePill = (props) => {
+  const n = timeN++
+  const style = {
+    borderLeft: colors(n) + ' 4px solid'
+  }
+
+  return (
+    <span style={style} {...props}><span style={{ marginLeft: '5px' }} className='tag is-info clickable'>{props.children}</span></span>
+  )
+}
+
+const TModeTimePill = (props) => {
+  const n = timeN - 1
+  const style = {
+    borderLeft: colors(n) + ' 4px solid'
+  }
+
+  return (
+    <span style={style} {...props}><span style={{ marginLeft: '5px' }} className='tag is-info clickable'>{props.children}</span></span>
   )
 }
 
@@ -100,10 +124,11 @@ const suggestionRegExStrat = (re, captureGroup = 0) => {
 }
 
 const staticSuggestionGetter = (suggestions, offset = 1) => {
-  return (matched, callback) => {
+  return (matched, callback, type, n) => {
     let filtered = suggestions.filter((s) => s.match(matched.text))
     filtered = filtered.length === 0 ? suggestions : filtered
     filtered = filtered.filter((s) => s.toLowerCase() !== matched.text.toLowerCase())
+    console.log(type, n)
     callback({
       suggestions: filtered,
       begin: matched.from,
@@ -117,34 +142,21 @@ const SuggestionsStrategies = [
     id: 'hours',
     strategy: RegExStrategy(/^(\d{4}-\d{4})/g, 1),
     tabCompletion: generateTabFromSeparator(':'),
-    component: SemanticPill
+    component: TimePill
+  },
+  {
+    id: 'tmodeHours',
+    strategy: RegExStrategy(/^(\s+)(\d{4}-\d{4})/g, 2),
+    tabCompletion: generateTabFromSeparator(':'),
+    component: TModeTimePill
   },
   {
     id: 'placeFrom',
-    suggestionStrategy: suggestionRegExStrat(/(\:\s*)([^\[\{\-\>]*)/g, 1),
+    suggestionStrategy: suggestionRegExStrat(/(^\d{4}-\d{4}\:\s*)([^\[\{\-\>]*)/g, 1),
     suggester: staticSuggestionGetter(PLACES),
     tabCompletion: generateTabFromSeparator('->'),
     strategy: RegExStrategy(/(\:\s*)([^\[\{\-\>]*)/g, 2),
     component: PlaceFromPill
-    /*
-    tabCompletion: (editorState) => {
-      const sel = editorState.getSelection()
-      const index = sel.get('focusOffset')
-
-      const text = editorState.getCurrentContent().getLastBlock().getText()
-      const right = text.slice(index)
-
-      let closeMatch = right.match(/->/)
-      if (closeMatch) {
-        // Position cursor at the end
-        const toIndex = closeMatch.index + index + 2
-        return cursorAt(editorState, toIndex)
-      } else {
-        // Add ->
-        return addTextAt(editorState, '->', index)
-      }
-    }
-    */
   },
   {
     suggestionStrategy: suggestionRegExStrat(/(\-\>\s*)([^\[\{\-\>]*)$/g, 1),
@@ -153,40 +165,6 @@ const SuggestionsStrategies = [
     strategy: RegExStrategy(/(\-\>\s*)([^\[\{\-\>]*)/g, 2),
     component: SemanticPill,
     tabCompletion: generateTabFromSeparator('', /(\-\>\s*)([^\[\{\-\>]*)/g, '[', 2)
-    /*tabCompletion: (editorState) => {
-      const sel = editorState.getSelection()
-
-      const text = editorState.getCurrentContent().getLastBlock().getText()
-
-      const RE = /\-\>\s*([^\[\{\-\>]*)/g
-      let match = RE.exec(text)
-      if (match && match[1].trim() === '') {
-        // Remove '->' & start tag
-
-        const range = sel.merge({
-          anchorOffset: match.index,
-          focusOffset: match.index + match[0].length
-        })
-
-        let newContent = Modifier.replaceText(
-          editorState.getCurrentContent(),
-          range,
-          ' [',
-          null
-        )
-
-        const newEditorState = EditorState.push(
-          editorState,
-          newContent,
-          'remove-span-arrow'
-        )
-        const newState = EditorState.forceSelection(newEditorState, newContent.getSelectionAfter())
-
-        return newState
-      } else if (match) {
-        return addTextAt(editorState, ' [', match.index + match[0].length)
-      }
-      }*/
   },
   {
     id: 'tags',
@@ -249,7 +227,7 @@ const createStateTextRepresentation = (segments) => {
 let SE = ({ segments }) => {
   const state = createStateTextRepresentation(segments)
   return (
-    <SemanticEditor strategies={SuggestionsStrategies} initial={ state } segments={ segments } onChange={() => { tagN = 0 } }>
+    <SemanticEditor strategies={SuggestionsStrategies} initial={ state } segments={ segments } onChange={() => { timeN = 0; tagN = 0 } }>
     </SemanticEditor>
   )
 }

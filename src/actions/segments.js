@@ -113,10 +113,29 @@ export const toggleSegmentEditing = (segmentId, value) => {
   }
 }
 
+import { completeTrip } from 'actions/progress'
 export const toggleSegmentJoining = (segmentId) => {
+  return (dispatch, getState) => {
+    dispatch({
+      segmentId,
+      type: TOGGLE_SEGMENT_JOINING
+    })
+
+    const jp = getState().get('tracks').get('segments').get(segmentId).get('joinPossible')
+    jp.forEach((p, i) => {
+      const [start, end] = p.union[0]
+      dispatch(completeTrip(segmentId, start.toJS(), end.toJS(), i))
+    })
+  }
+}
+
+export const addPossibilities = (segmentId, points, index, weight = 0.5) => {
   return {
     segmentId,
-    type: TOGGLE_SEGMENT_JOINING
+    points,
+    index,
+    weight,
+    type: 'ADD_POSSIBILITIES'
   }
 }
 

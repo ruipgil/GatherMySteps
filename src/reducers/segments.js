@@ -11,7 +11,7 @@ import {
 import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
-import { fromJS } from 'immutable'
+import { Map, fromJS } from 'immutable'
 
 const updateSegment = (state, id) => {
   return state.updateIn(['segments', id], (segment) => {
@@ -194,6 +194,7 @@ const joinSegment = (state, action) => {
 
   // Providential undo
   const isEqual = (pa, pb) => pa.get('lat') === pb.get('lat') && pa.get('lon') === pb.get('lon') && pa.get('time').isSame(pb.get('time'))
+
   state = state.updateIn(['segments', action.segmentId, 'points'], (points) => {
     const removeEnd = union.length === 2 && isEqual(union[0], union[1])
     const betweeners = union.slice(1, -1)
@@ -218,8 +219,16 @@ const joinSegment = (state, action) => {
         return state
       }
 
+      const startTime = union[0].get('time')
+      const endTime = union[union.length - 1].get('time')
+      const timeDiff = endTime.diff(startTime)
+      const n = betweeners.length + 1
+      const dtPP = timeDiff / n
+
       return points
-      .push(...betweeners)
+      .push(...betweeners.map((point, i) => {
+        return point.set('time', startTime.clone().add(dtPP * (i + 1)))
+      }))
       .push(...toRemove)
     } else {
       // Join start of this with the end of the other segment
@@ -242,8 +251,19 @@ const joinSegment = (state, action) => {
         return state
       }
 
+      const startTime = union[union.length - 1].get('time')
+      const endTime = union[0].get('time')
+      const timeDiff = endTime.diff(startTime)
+      const n = betweeners.length + 1
+      const dtPP = timeDiff / n
+
+      let revBetweeners = []
+      betweeners.forEach((p) => revBetweeners.unshift(p))
+
       return points
-      .unshift(...betweeners)
+      .unshift(...revBetweeners.map((point, i) => {
+        return point.set('time', startTime.clone().add(dtPP * (i + 1)))
+      }))
       .unshift(...toRemove)
     }
   })
@@ -318,35 +338,26 @@ const toggleSegmentJoining = function (state, action) {
     var thisStartp = segment.get('points').get(0)
     var thisEndp = segment.get('points').get(-1)
 
-    var sStart = segment.get('start')
-    var sEnd = segment.get('end')
+    const segs = track.get('segments')
+      .map((ts) => state.get('segments').get(ts))
+      .sort((a, b) => a.get('start').diff(b.get('start')))
 
-    var closerToStart
-    var closerToEnd
-    var t_closerToStart = Infinity
-    var t_closerToEnd = Infinity
-    candidates.forEach((c, i) => {
-      var _c = state.get('segments').get(c)
-      var start = _c.get('start')
-      var end = _c.get('end')
-
-      var startDiff = start.diff(sEnd)
-      var endDiff = end.diff(sStart)
-
-      if (startDiff >= 0 && startDiff < t_closerToStart) {
-        t_closerToStart = startDiff
-        closerToStart = _c
-      } else if (endDiff <= 0 && endDiff < t_closerToEnd) {
-        t_closerToEnd = endDiff
-        closerToEnd = _c
-      }
+    const idIndex = segs.findIndex((elm) => {
+      return elm.get('id') === id
     })
+    const cs = segs.slice(0, idIndex)
+    const ce = segs.slice(idIndex + 1, segs.count())
+
+    const closerToStart = cs.get(-1)
+    const closerToEnd = ce.get(0)
 
     var possibilities = []
+    const DEFAULT_WEIGHT = 0.5
     if (closerToStart !== undefined) {
       possibilities.push({
         segment: closerToStart.get('id'),
-        union: [[thisEndp, closerToStart.get('points').get(0)]],
+        union: [[thisStartp, closerToStart.get('points').get(-1)]],
+        weights: [DEFAULT_WEIGHT],
         destiny: 'END',
         show: 'END'
       })
@@ -354,7 +365,8 @@ const toggleSegmentJoining = function (state, action) {
     if (closerToEnd !== undefined) {
       possibilities.push({
         segment: closerToEnd.get('id'),
-        union: [[thisStartp, closerToEnd.get('points').get(-1)]],
+        union: [[thisEndp, closerToEnd.get('points').get(0)]],
+        weights: [DEFAULT_WEIGHT],
         destiny: 'START',
         show: 'START'
       })
@@ -370,11 +382,28 @@ const toggleSegmentJoining = function (state, action) {
   return state
 }
 
+const addPossibilities = (state, action) => {
+  return state.updateIn(['segments', action.segmentId, 'joinPossible'], (arr) => {
+    const points = action.points.map((point) => {
+      return Map({ lat: point[0], lon: point[1] })
+    })
+
+    const ends = arr[action.index].union[0]
+    points[0] = ends[0]
+    points[points.length - 1] = ends[1]
+
+    arr[action.index].union.push(points)
+    arr[action.index].weights.push(action.weight)
+    return [...arr]
+  })
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
   'TOGGLE_SEGMENT_SPLITING': toggleSegmentSpliting,
   'TOGGLE_SEGMENT_JOINING': toggleSegmentJoining,
+  'ADD_POSSIBILITIES': addPossibilities,
   'TOGGLE_SEGMENT_POINT_DETAILS': toggleSegmentPointDetails,
 
   'CHANGE_SEGMENT_POINT': changeSegmentPoint,

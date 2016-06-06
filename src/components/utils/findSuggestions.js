@@ -1,6 +1,6 @@
 import { reduce } from 'async'
 
-export default function findSuggestions (text, cursor, strategies, callback) {
+export default function findSuggestions (text, cursor, strategies, callback, n) {
   let begin = 0
   let end = 0
   let strateg = null
@@ -18,7 +18,7 @@ export default function findSuggestions (text, cursor, strategies, callback) {
         end = result.end
         result.suggestions.forEach((r) => prev.push(r))
         done(null, prev)
-      })
+      }, e.id, n)
     } else {
       done(null, prev)
     }

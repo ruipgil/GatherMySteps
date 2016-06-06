@@ -9,14 +9,22 @@ export default (lseg, current, previous, onJoin) => {
 
   let reset = () => {}
   const groups = possibilities.map((pp) => {
-    const { union } = pp
+    const { weights, union } = pp
     return new FeatureGroup(union.map((hy, i) => {
+      if (union.length > 1 && i === 0) {
+        return new FeatureGroup()
+      }
+
       hy = hy.map((x) => ({ lat: x.get('lat'), lng: x.get('lon') }))
-      return new FeatureGroup([
-        new Polyline(hy, { color: '#69707a', weight: 8 }),
-        new Marker(hy[0], { icon }),
-        new Marker(hy[hy.length - 1], { icon })
-      ]).on('click', () => {
+
+      let grp = [
+        new Polyline(hy, { color: '#69707a', weight: 10 * weights[i] })
+      ]
+      if (union.length <= 2) {
+        grp.push(new Marker(hy[0], { icon }))
+        grp.push(new Marker(hy[hy.length - 1], { icon }))
+      }
+      return new FeatureGroup(grp).on('click', () => {
         reset()
         onJoin(id, i, pp)
       })

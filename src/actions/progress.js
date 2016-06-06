@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
 import { fitSegments } from 'actions/ui'
+import { addPossibilities } from 'actions/segments'
 
 const segmentsToJson = (state) => {
   return state.get('tracks').get('segments').valueSeq().map((segment) => {
@@ -16,6 +17,30 @@ export const setServerState = (step, tracksRemaining) => {
     step,
     tracksRemaining,
     type: 'SET_SERVER_STATE'
+  }
+}
+
+export const completeTrip = (segmentId, from, to, index) => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify({
+        from,
+        to
+      })
+    }
+    console.log('going to the server')
+    fetch(getState().get('progress').get('server') + '/completeTrip', options)
+      .then((response) => response.json())
+      .catch((err) => {
+        console.log(err)
+      })
+      .then((json) => {
+        json.possibilities.forEach((p, i) => {
+          dispatch(addPossibilities(segmentId, p, index, json.weights[i]))
+        })
+      })
   }
 }
 
