@@ -1,8 +1,10 @@
 import React from 'react'
+import store from 'store'
 import SegmentToolbox from 'components/SegmentToolbox'
 import { Polyline, FeatureGroup, DivIcon, Marker } from 'leaflet'
 import { createPointsFeatureGroup, renderToDiv } from './utils'
 import { renderToString } from 'react-dom/server'
+import { Provider } from 'react-redux'
 
 const LABEL_TO_ICON = {
   'Stop': 'fa-hand-grab-o',
@@ -46,8 +48,12 @@ export default (id, points, color, display, filter, segment, dispatch, previousP
     weight: 8,
     opacity: display ? 1 : 0
   }).on('click', (e) => {
-    const popup = renderToDiv(<SegmentToolbox segment={segment} dispatch={dispatch} />)
-    e.target.bindPopup(popup).openPopup()
+    const popup = renderToDiv(
+      <Provider store={store}>
+        <SegmentToolbox segment={segment} dispatch={dispatch} />
+      </Provider>
+    )
+    e.target.bindPopup(popup, { autoPan: false }).openPopup()
   })
 
   const transModes = currentSegment.get('transportationModes')
