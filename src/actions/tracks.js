@@ -66,3 +66,31 @@ export const downloadTrack = (trackId) => {
     saveData(str, getState().get('tracks').get('tracks').get(trackId).get('name'))
   }
 }
+
+export const downloadAll = () => {
+  return (dispatch, getState) => {
+    getState().get('tracks').get('tracks').keySeq().forEach((t) => {
+      console.log(t)
+      dispatch(downloadTrack(t))
+    })
+  }
+}
+
+import { toggleSegmentDisplay } from 'actions/segments'
+
+export const showHideAll = () => {
+  return (dispatch, getState) => {
+    getState().get('tracks').get('segments').keySeq().forEach((seg) => {
+      dispatch(toggleSegmentDisplay(seg))
+    })
+  }
+}
+
+export const clearAll = () => {
+  return (dispatch, getState) => {
+    getState().get('tracks').get('tracks').keySeq().forEach((t) => {
+      //dispatch(removeTrack(t))
+      alert('Not yet implemented')
+    })
+  }
+}

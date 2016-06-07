@@ -64,10 +64,10 @@ export default class TimeSlider extends Component {
         <ReactSlider defaultValue={[this.state.left, this.state.right]} withBars onChange={this.onChange.bind(this)} />
         <div className='navbar'>
           <div className='navbar-left'>
-            { lower.format('lll') }
+            { lower.format('LTS') }
           </div>
           <div className='navbar-right'>
-            { upper.format('lll') }
+            { upper.format('LTS') }
           </div>
         </div>
       </div>

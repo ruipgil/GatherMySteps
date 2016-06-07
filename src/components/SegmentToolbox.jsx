@@ -110,16 +110,17 @@ let SegmentToolbox = ({ dispatch, segment }) => {
   return (
     <div>
       <div style={{ marginTop: '2px', display: 'flex', justifyContent: 'space-around' }}>
-        <span className='button icon-button' onClick={remove(id)}>
+        <span title='Delete track' className='button icon-button' onClick={remove(id)}>
           <i className='fa fa-trash' />
         </span>
 
-        <span className='button icon-button' onClick={fit(id)}>
+        <span title='Center on map' className='button icon-button' onClick={fit(id)}>
           <i className='fa fa-arrows-alt' />
         </span>
 
         <AsyncButton
           className={'icon-button' + (editing ? btnHighlight : '')}
+          title='Edit points'
           onClick={
             (e, modifier) => {
               modifier('is-loading')
@@ -129,19 +130,19 @@ let SegmentToolbox = ({ dispatch, segment }) => {
           <i className='fa fa-pencil' />
         </AsyncButton>
 
-        <span className={'button icon-button' + (spliting ? btnHighlight : '')} onClick={toggleSplit(id)}>
+        <span title='Split' className={'button icon-button' + (spliting ? btnHighlight : '')} onClick={toggleSplit(id)}>
           <i className='fa fa-expand' />
         </span>
 
-        <span className={'button icon-button' + (joining ? btnHighlight : '')} onClick={toggleJoin(id)}>
+        <span title='Join' className={'button icon-button' + (joining ? btnHighlight : '')} onClick={toggleJoin(id)}>
           <i className='fa fa-compress' />
         </span>
 
-        <span className={'button icon-button' + (pointDetails ? btnHighlight : '')} onClick={toggleDetails(id)}>
+        <span title='Inspect points' className={'button icon-button' + (pointDetails ? btnHighlight : '')} onClick={toggleDetails(id)}>
           <i className='fa fa-map-pin' />
         </span>
 
-        <span className={'button icon-button' + (showTimeFilter ? btnHighlight : '')} onClick={toggleTF(id)}>
+        <span title='Filter points by time' className={'button icon-button' + (showTimeFilter ? btnHighlight : '')} onClick={toggleTF(id)}>
           <i className='fa fa-calendar' />
         </span>
       </div>

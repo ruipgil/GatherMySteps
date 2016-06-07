@@ -348,3 +348,19 @@ html, body {
   border: 2px dashed gray;
   flex-grow: 1;
 }
+
+.date-from, .date-to{
+  margin: 0 0.4rem 0rem 0.4rem;
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+}
+
+.date-to {
+  text-align: right;
+}
+
+.date-from:hover, .date-to:hover {
+  border-color: #aaa;
+}

@@ -29,7 +29,7 @@ export default class AsyncButton extends Component {
   render () {
     const classes = this.createClassName()
     return (
-      <a className={classes} onClick={this.onClick.bind(this)} ref='btn'>
+      <a {...this.props} className={classes} onClick={this.onClick.bind(this)} ref='btn'>
         { this.state.content }
       </a>
     )
