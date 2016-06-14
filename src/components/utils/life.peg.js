@@ -74,39 +74,49 @@ const d = (type, obj) => {
   const {start, end} = location()
   const offset = start.column-1
   const length = end.column - start.column
-  const line = start.line
-  return Object.assign({}, obj, {type, offset, length, line})
+  const line = start.line - 1
+  return Object.assign({}, {type, offset, length, line}, obj)
 }
 }
 
 Start
+  = h:OneOf nl? r:Start { return [h, ...r] }
+  / nl r:Start { return r }
+  / h:OneOf { return [h] }
+  / nl { return [] }
+
+nl
+  = '\n'
+
+
+OneOf
   = Trip
   / Span
-  / TMode
   / Comment
 
 Timespan
   = start:Time "-" finish:Time ":" {
-  return d('Timespan', { start, finish })
+  return d('Timespan', { start, finish, length: start.length + finish.length + 1 })
   }
 
 Time
   = [0-9]+ { return d('Time', { value: text() }) }
 
 Trip
-  = timestamp:Timespan _ locationFrom:LocationFrom _ locationTo:Location details:Details* comment:_ {
-  return d('Trip', { timestamp, locationFrom, locationTo, details, comment })
+  = timespan:Timespan _ locationFrom:LocationFrom _ locationTo:Location details:Details* comment:_ tmodes:TModes {
+  return d('Trip', { timespan, locationFrom, locationTo, details, comment, tmodes })
   }
 
 Location
   = [^\n\[\{;]* {
-  return d('Location', { value: text() })
+  const value = text().trim()
+  return d('Location', { value, length: value.length })
   }
 
 LocationFrom
-  = _ '->' { return { value: '' } }
+  = _ '->' { return { value: '', length: 0 } }
   / h:[^\n\[\{;] r:LocationFrom {
-  return d('LocationFrom', { value: h + r.value })
+  return d('LocationFrom', { value: h + r.value, length: 1 + r.length })
   }
 
 Span
@@ -115,9 +125,12 @@ Span
   }
 
 TMode
-  = __ timespan:Timespan details:Details* {
+  = __ timespan:Timespan details:Details*  _ {
   return d('TMode', { timespan, details })
   }
+
+TModes
+  = m:(nl TMode)* { return m.map((e) => e[1]) }
 
 Tag
   = '[' label:[^\]\n]* closed:']'? {
@@ -144,4 +157,4 @@ Comment
   = ';' r:[^\n]* { return r.join('') }
 `
 
-export default PEG.buildParser(simpleParserString)
+export default PEG.buildParser(simpleParserString, { cache: true })

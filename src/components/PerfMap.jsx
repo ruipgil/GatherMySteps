@@ -23,6 +23,8 @@ import detailMode from './Map/detailMode'
 import addSegment from './Map/addSegment'
 import updatePoints from './Map/updatePoints'
 
+import buildTransportationModeRepresentation from './Map/buildTransportationModeRepresentation'
+
 export default class PerfMap extends Component {
   constructor (props) {
     super(props)
@@ -128,9 +130,18 @@ export default class PerfMap extends Component {
         this.shouldUpdateColor(lseg, color, previous.get('color'))
         this.shouldUpdateDisplay(lseg, display, previous.get('display'))
         this.shouldUpdateMode(lseg, current, previous)
+        this.shouldUpdateTransportationModes(lseg, current, previous)
       } else {
         this.addSegment(id, points, color, display, filter, current, dispatch, previous, current)
       }
+    }
+  }
+
+  shouldUpdateTransportationModes (lseg, current, previous) {
+    if (current.get('transportationModes') !== previous.get('transportationModes')) {
+      lseg.layergroup.removeLayer(lseg.transportation)
+      lseg.transportation = buildTransportationModeRepresentation(lseg, current)
+      this.onZoomEnd()
     }
   }
 

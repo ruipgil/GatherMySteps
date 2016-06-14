@@ -310,8 +310,6 @@ const createRepresentation = (segments, dispatch) => {
       addToBlock(block, to.get('label'), 'PLACE_TO', { segment, dispatch })
     }
 
-    addToBlock(block, ' ')
-
     if (transp) {
       if (transp.count() === 1) {
         addToBlock(block, ' [')
@@ -404,38 +402,42 @@ const getEntityStrategy = (type) => {
 const TimeSpan = (props) => {
 
   const onMouseEnter = () => {
-    //const { dispatch, segment } = Entity.get(props.entityKey).getData()
-    //dispatch(highlightSegment(segment.get('id')))
+    const { dispatch, segment } = Entity.get(props.entityKey).getData()
+    dispatch(highlightSegment(segment.get('id')))
   }
   const onMouseLeave = () => {
-    //const { dispatch, segment } = Entity.get(props.entityKey).getData()
-    //dispatch(dehighlightSegment(segment.get('id')))
+    const { dispatch, segment } = Entity.get(props.entityKey).getData()
+    dispatch(dehighlightSegment(segment.get('id')))
   }
 
   return (
-    <span onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} onClick={() => (console.log(Entity.get(props.entityKey).getData()))} className='tag is-info clickable' {...props}>{props.children}</span>
+    <span onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} onClick={() => (console.log(Entity.get(props.entityKey).getData()))} className='clickable' style={{ backgroundColor: '#42afe3', color: 'white', padding: '3px 5px 3px 5px', borderRadius: '3px' }} {...props}>{props.children}</span>
   )
 }
 
 const decorator = [
   {
-    strategy: getEntityStrategy('TSPAN'),
+    strategy: getEntityStrategy('Timespan'),
     component: TimeSpan
   },
   {
-    strategy: getEntityStrategy('PLACE_FROM'),
+    strategy: getEntityStrategy('LocationFrom'),
     component: TimeSpan
   },
   {
-    strategy: getEntityStrategy('PLACE_TO'),
+    strategy: getEntityStrategy('LocationTo'),
     component: TimeSpan
   },
   {
-    strategy: getEntityStrategy('TAG'),
+    strategy: getEntityStrategy('Location'),
     component: TimeSpan
   },
   {
-    strategy: getEntityStrategy('SEM'),
+    strategy: getEntityStrategy('Tag'),
+    component: TimeSpan
+  },
+  {
+    strategy: getEntityStrategy('Semantic'),
     component: TimeSpan
   }
 ]
@@ -458,8 +460,30 @@ const createPlaceSuggestions = (index) => (
 )
 
 const suggestionGetters = {
-  'PLACE_FROM': createPlaceSuggestions(0),
-  'PLACE_TO': createPlaceSuggestions(1)
+  'Location': createPlaceSuggestions(1),
+  'LocationTo': createPlaceSuggestions(1),
+  'LocationFrom': createPlaceSuggestions(0),
+  'Tag': {
+    getter: (text, data, callback) => {
+      const tmode = data.segment.get('transportationModes').get(data.modeId)
+      const MODES = {
+        '0': 'Stop',
+        '1': 'Foot',
+        '2': 'Vehicle'
+      }
+      if (tmode) {
+        const list = tmode.get('classification').entrySeq().sort((a, b) => (a[1] < b[1])).map((v) => MODES[v[0]]).toJS()
+        //console.log(list.toJS(), tmode.get('classification').entrySeq().toJS())
+        return callback(list)
+      } else {
+        return []
+      }
+    },
+    setter: (text, data) => {
+      const { dispatch, segment } = data
+      dispatch(updateTransportationMode(segment.get('id'), text, data.modeId))
+    }
+  }
 }
 
 let lastState
@@ -471,7 +495,7 @@ let SE = ({ dispatch, segments }) => {
 
   lastState = segments
   return (
-    <SemanticEditor strategies={decorator} suggestionGetters={suggestionGetters} initial={ stateA } segments={ segments } onChange={(textState) => {
+    <SemanticEditor strategies={decorator} suggestionGetters={suggestionGetters} initial={ stateA } segments={ segments } dispatch={dispatch} onChange={(textState) => {
       timeN = 0
       tagN = 0
 

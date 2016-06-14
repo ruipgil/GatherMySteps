@@ -36,7 +36,7 @@ class SemanticEditor extends Component {
     //console.log('now', this.props.initial.getPlainText())
     //console.log('prev', prev.initial.getPlainText())
     if (prev.initial !== this.props.initial) {
-      console.log('updated!')
+      //console.log('updated!')
       const state = EditorState.push(this.state.editorState, this.props.initial, 'insert-characters')
       this.onChange(state)
     }
@@ -45,74 +45,101 @@ class SemanticEditor extends Component {
   onChange (editorState, hide = false) {
     const sel = editorState.getSelection()
     const startKey = sel.getStartKey()
-    const index = sel.get('focusOffset')
+    const index = sel.getStartOffset()
     let content = editorState.getCurrentContent()
     const lineKey = content.getBlockMap().keySeq()
+    const line = lineKey.findIndex((lk) => lk === startKey)
     const block = content.getBlockForKey(startKey)
 
     const blockText = block.getText()
-    const line = lineKey.findIndex((lk) => lk === startKey)
+
+    //if (content.getPlainText() !== this.state.editorState.getCurrentContent().getPlainText()) {
+
+    const segs = this.props.segments.toList()
 
     try {
-      const parts = LIFEParser.parse(blockText)
-      console.log(parts)
-      const processPart = (part) => {
+      const parts = LIFEParser.parse(content.getPlainText())
+      const processPart = (part, n, modeId) => {
+        if (!part) {
+          return
+        }
+
         if (part.values) {
-          part.forEach((p) => processPart(p))
+          part.forEach((p, i) => processPart(p, i))
         } else {
           switch (part.type) {
             case 'Trip':
-              processPart(part.timestamp)
-              processPart(part.locationFrom)
-              processPart(part.locationTo)
-              part.details.forEach((d) => processPart(d))
+              processPart(part.timespan, n)
+              processPart(part.locationFrom, n)
+              processPart(part.locationTo, n)
+              part.tmodes.forEach((d, i) => processPart(d, n, i))
+              part.details.forEach((d) => processPart(d, n))
+              break
+            case 'TMode':
+              processPart(part.timespan, n)
+              part.details.forEach((d, i) => processPart(d, n, modeId))
               break
             case 'Tag':
             case 'Timespan':
             case 'LocationFrom':
             case 'Location':
-              const sel = new SelectionState({
-                focusKey: startKey,
-                focusOffset: part.offset + part.length,
-                anchorKey: startKey,
-                anchorOffset: part.offset
+              const start = part.offset
+              const end = part.offset + part.length
+
+              const _sel = new SelectionState({
+                anchorOffset: start,
+                anchorKey: lineKey.get(part.line),
+                focusKey: lineKey.get(part.line),
+                focusOffset: end,
+                isBackward: false,
+                hasFocus: false
               })
-              const ekey = Entity.create('TSPAN', 'MUTABLE', {})
-              console.log('applying', sel.serialize(), ekey, part)
-              content = Modifier.applyEntity(content, sel, ekey)
+              const ekey = Entity.create(part.type, 'MUTABLE', { value: part.value, segment: segs.get(n), dispatch: this.props.dispatch, modeId })
+              //console.log('applying', _sel.serialize(), ekey, part, start, end, blockText.slice(start, end), blockText.length)
+              content = Modifier.applyEntity(content, _sel, ekey)
               break
           }
         }
       }
 
-      const ts = new SelectionState({
-        focusKey: startKey,
+      const ts = sel.merge({
         focusOffset: blockText.length,
-        anchorKey: startKey,
         anchorOffset: 0
       })
       content = Modifier.applyEntity(content, ts, null)
 
+      //console.log(startKey)
       processPart(parts)
       editorState = EditorState.push(editorState, content, 'apply-entity')
-      console.log(sel.serialize())
-      editorState = EditorState.acceptSelection(editorState, sel)
+      //console.log(sel.serialize())
 
-      console.log(editorState.getCurrentContent().getBlockMap().valueSeq().toJS())
+      //const nlineKey = content.getBlockMap().keySeq()
+      //const nline = nlineKey.find((lk) => lk === startKey)
+      //const upSel = new SelectionState({
+        //focusKey: nline,
+        //focusOffset: index,
+        //anchorKey: nline,
+        //anchorOffset: index
+      //})
+      //console.log(sel.serialize(), upSel.serialize())
+      editorState = EditorState.forceSelection(editorState, sel)
+
+      //console.log(editorState.getCurrentContent().getBlockMap().valueSeq().toJS())
     } catch (e) {
       console.log(blockText)
-      console.log(e)
+      console.error(e)
     }
 
     const entityKey = block.getEntityAt(index)
     const shouldShow = sel.getHasFocus()
 
     const contentText = content.getPlainText('\n')
+    //console.log(contentText)
 
     this.state.editorState = editorState
+    this.state.suggestions.show = false
     this.setState(this.state)
 
-      /*
     if (entityKey !== null && Entity.get(entityKey)) {
       const entity = Entity.get(entityKey)
       const type = entity.getType()
@@ -121,8 +148,6 @@ class SemanticEditor extends Component {
       const suggestionGetter = this.props.suggestionGetters[type]
       if (suggestionGetter) {
         const { getter, setter } = suggestionGetter
-        this.state.editorState = editorState
-        this.setState(this.state)
 
         getter(text, entity.getData(), (suggestions) => {
           if (this.state.editorState === editorState) {
@@ -145,22 +170,12 @@ class SemanticEditor extends Component {
               }
             })
           } else {
-            this.state.editorState = editorState
-            this.state.suggestions.show = false
-            this.setState(this.state)
           }
         })
       } else {
-        this.state.editorState = editorState
-        this.state.suggestions.show = false
-        this.setState(this.state)
       }
     } else {
-      this.state.editorState = editorState
-      this.state.suggestions.show = false
-      this.setState(this.state)
     }
-    */
 
     /*
     const blockMap = content.getBlockMap()
@@ -265,7 +280,7 @@ class SemanticEditor extends Component {
     const { selected, list, show, box: { left, top } } = suggestions
 
     return (
-      <div style={{ fontFamily: 'monospace', width: '100%' }} className={className}>
+      <div style={{ fontFamily: 'monospace', width: '100%', lineHeight: '170%' }} className={className}>
         <Editor
           editorState={editorState}
           onChange={this.onChange.bind(this)}
