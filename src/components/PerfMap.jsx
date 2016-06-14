@@ -75,7 +75,7 @@ export default class PerfMap extends Component {
     if (!this.map) {
       return
     }
-    const { center, bounds, zoom, segments, dispatch, canUndo, canRedo } = this.props
+    const { center, bounds, zoom, highlighted, segments, dispatch, canUndo, canRedo } = this.props
 
     if (canUndo !== prev.canUndo) {
       this.map.buttons.setEnabled(0, canUndo)
@@ -88,6 +88,7 @@ export default class PerfMap extends Component {
     this.shouldUpdateZoom(zoom, prev.zoom)
     this.shouldUpdateCenter(center, prev.center)
     this.shouldUpdateBounds(bounds, prev.bounds)
+    this.shouldUpdateHighlighted(highlighted, prev.highlighted, segments)
     this.shouldUpdateSegments(segments, prev.segments, dispatch)
   }
 
@@ -130,6 +131,29 @@ export default class PerfMap extends Component {
       } else {
         this.addSegment(id, points, color, display, filter, current, dispatch, previous, current)
       }
+    }
+  }
+
+  shouldUpdateHighlighted (highlighted, previous, allSegments) {
+    if (highlighted === previous) {
+      return
+    }
+
+    const setOpacity = (ids, opacity) => {
+      ids.forEach((id) => {
+        this.segments[id].layergroup.setStyle({
+          opacity
+        })
+      })
+    }
+
+    const hidden = allSegments.filterNot((s) => highlighted.has(s.get('id'))).map((s) => s.get('id'))
+
+    if (highlighted.count() > 0) {
+      setOpacity(highlighted, 1)
+      setOpacity(hidden, 0.5)
+    } else {
+      setOpacity(hidden, 1)
     }
   }
 

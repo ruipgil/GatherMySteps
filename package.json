@@ -36,6 +36,7 @@
     "leaflet": "^1.0.0-beta.2",
     "leaflet-plugins": "github:ruipgil/leaflet-plugins",
     "moment": "^2.11.2",
+    "pegjs": "^0.9.0",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-redux": "^4.3.0",

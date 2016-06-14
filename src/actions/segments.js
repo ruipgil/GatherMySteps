@@ -152,3 +152,17 @@ export const toggleSegmentSpliting = (segmentId) => {
     type: TOGGLE_SEGMENT_SPLITING
   }
 }
+
+export const updateLocationName = (segmentId, name, start) => ({
+  name,
+  start: start,
+  segmentId,
+  type: 'UPDATE_LOCATION_NAME'
+})
+
+export const updateTransportationMode = (segmentId, name, index) => ({
+  name,
+  index,
+  segmentId,
+  type: 'UPDATE_TRANSPORTATION_MODE'
+})

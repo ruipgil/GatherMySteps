@@ -398,6 +398,23 @@ const addPossibilities = (state, action) => {
   })
 }
 
+const updateLocationName = (state, action) => {
+  const { segmentId, start, name } = action
+  const locationIndex = start ? 0 : 1
+  return state.setIn(['segments', segmentId, 'locations', locationIndex, 'label'], name)
+}
+
+const updateTransportationMode = (state, action) => {
+  const { segmentId, name, index } = action
+  return state.updateIn(['segments', segmentId, 'transportationModes', index], (tmode) => {
+    if (tmode) {
+      return tmode.set('label', name)
+    } else {
+      return tmode
+    }
+  })
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -415,7 +432,10 @@ const ACTION_REACTION = {
   'SPLIT_SEGMENT': splitSegment,
   'JOIN_SEGMENT': joinSegment,
   'TOGGLE_TIME_FILTER': toggleTimeFilter,
-  'UPDATE_TIME_FILTER_SEGMENT': updateTimeFilterSegment
+  'UPDATE_TIME_FILTER_SEGMENT': updateTimeFilterSegment,
+
+  'UPDATE_LOCATION_NAME': updateLocationName,
+  'UPDATE_TRANSPORTATION_MODE': updateTransportationMode
 }
 
 const segments = (state = [], action) => {

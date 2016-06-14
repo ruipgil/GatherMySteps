@@ -14,7 +14,7 @@ import { nextStep, undo, redo } from '../actions/progress'
 
 const GMS = !process.env.BUILD_GPX
 
-let App = ({ ui, tracks, dispatch }) => {
+let App = ({ ui, tracks, dispatch, ...props }) => {
   const onDrop = (e) => {
     let dt = e.dataTransfer
     let files = dt.files

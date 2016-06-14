@@ -1,6 +1,6 @@
-import { fromJS } from 'immutable'
+import { Set, fromJS } from 'immutable'
 
-const initialState = fromJS({ alerts: [] })
+const initialState = fromJS({ highlighted: Set([]), alerts: [] })
 const ui = (state = initialState, action) => {
   switch (action.type) {
     case 'CHANGE_MAP':
@@ -51,6 +51,10 @@ const ui = (state = initialState, action) => {
 
     case 'CENTER_MAP':
       return state.set('center', { lat: action.lat, lon: action.lon })
+    case 'HIGHLIGHT_SEGMENT':
+      return state.update('highlighted', (h) => h.add(action.segmentId))
+    case 'DEHIGHLIGHT_SEGMENT':
+      return state.update('highlighted', (h) => h.delete(action.segmentId))
     default:
       return state
   }

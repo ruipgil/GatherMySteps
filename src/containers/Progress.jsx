@@ -95,10 +95,10 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       style = {
         ...style,
         overflowX: 'visible',
-        resize: 'horizontal',
+        // resize: 'horizontal',
         paddingTop: '2px',
-        maxWidth: '500px',
-        minWidth: '110%',
+        // maxWidth: '500px',
+        minWidth: '100%',
         // width: '400px',
         borderRadius: '0px 3px 3px 0px',
         backgroundColor: 'white'

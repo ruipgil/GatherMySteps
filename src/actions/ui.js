@@ -110,3 +110,13 @@ export const centerMap = (lat, lon) => {
     type: 'CENTER_MAP'
   }
 }
+
+export const highlightSegment = (segmentId) => ({
+  segmentId,
+  type: 'HIGHLIGHT_SEGMENT'
+})
+
+export const dehighlightSegment = (segmentId) => ({
+  segmentId,
+  type: 'DEHIGHLIGHT_SEGMENT'
+})
