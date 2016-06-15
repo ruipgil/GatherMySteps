@@ -53,105 +53,116 @@ class SemanticEditor extends Component {
 
     const blockText = block.getText()
 
-    //if (content.getPlainText() !== this.state.editorState.getCurrentContent().getPlainText()) {
+    if (content.getPlainText() !== this.state.editorState.getCurrentContent().getPlainText()) {
 
-    const segs = this.props.segments.toList()
+      const segs = this.props.segments.toList()
 
-    try {
-      const parts = LIFEParser.parse(content.getPlainText())
-      const processPart = (part, n, modeId) => {
-        if (!part) {
-          return
-        }
+      try {
+        const parts = LIFEParser.parse(content.getPlainText())
+        const processPart = (part, n, modeId) => {
+          if (!part) {
+            return
+          }
 
-        if (part.values) {
-          part.forEach((p, i) => processPart(p, i))
-        } else {
-          switch (part.type) {
-            case 'Trip':
-              processPart(part.timespan, n)
-              processPart(part.locationFrom, n)
-              processPart(part.locationTo, n)
-              part.tmodes.forEach((d, i) => processPart(d, n, i))
-              part.details.forEach((d) => processPart(d, n))
-              break
-            case 'TMode':
-              processPart(part.timespan, n)
-              part.details.forEach((d, i) => processPart(d, n, modeId))
-              break
-            case 'Tag':
-            case 'Timespan':
-            case 'LocationFrom':
-            case 'Location':
-              const start = part.offset
-              const end = part.offset + part.length
+          if (part.values) {
+            part.forEach((p, i) => processPart(p, i))
+          } else {
+            switch (part.type) {
+              case 'Trip':
+                processPart(part.timespan, n)
+                processPart(part.locationFrom, n)
+                processPart(part.locationTo, n)
+                part.tmodes.forEach((d, i) => processPart(d, n, i))
+                part.details.forEach((d) => processPart(d, n))
+                break
+              case 'TMode':
+                processPart(part.timespan, n)
+                part.details.forEach((d, i) => processPart(d, n, modeId))
+                break
+              case 'Tag':
+              case 'Timespan':
+              case 'LocationFrom':
+              case 'Location':
+                const start = part.offset
+                const end = part.offset + part.length
 
-              const _sel = new SelectionState({
-                anchorOffset: start,
-                anchorKey: lineKey.get(part.line),
-                focusKey: lineKey.get(part.line),
-                focusOffset: end,
-                isBackward: false,
-                hasFocus: false
-              })
-              const ekey = Entity.create(part.type, 'MUTABLE', { value: part.value, segment: segs.get(n), dispatch: this.props.dispatch, modeId })
-              //console.log('applying', _sel.serialize(), ekey, part, start, end, blockText.slice(start, end), blockText.length)
-              content = Modifier.applyEntity(content, _sel, ekey)
-              break
+                const _sel = new SelectionState({
+                  anchorOffset: start,
+                  anchorKey: lineKey.get(part.line),
+                  focusKey: lineKey.get(part.line),
+                  focusOffset: end,
+                  isBackward: false,
+                  hasFocus: false
+                })
+                const ekey = Entity.create(part.type, 'MUTABLE', { value: part.value, segment: segs.get(n), dispatch: this.props.dispatch, modeId })
+                //console.log('applying', _sel.serialize(), ekey, part, start, end, blockText.slice(start, end), blockText.length)
+                content = Modifier.applyEntity(content, _sel, ekey)
+                break
+            }
           }
         }
+
+        const ts = sel.merge({
+          focusOffset: blockText.length,
+          anchorOffset: 0
+        })
+        content = Modifier.applyEntity(content, ts, null)
+
+        //console.log(startKey)
+        processPart(parts)
+        editorState = EditorState.push(editorState, content, 'apply-entity')
+        //console.log(sel.serialize())
+
+        //const nlineKey = content.getBlockMap().keySeq()
+        //const nline = nlineKey.find((lk) => lk === startKey)
+        //const upSel = new SelectionState({
+          //focusKey: nline,
+          //focusOffset: index,
+          //anchorKey: nline,
+          //anchorOffset: index
+        //})
+        //console.log(sel.serialize(), upSel.serialize())
+        editorState = EditorState.forceSelection(editorState, sel)
+
+        //console.log(editorState.getCurrentContent().getBlockMap().valueSeq().toJS())
+      } catch (e) {
+        console.log(blockText)
+        console.error(e)
       }
-
-      const ts = sel.merge({
-        focusOffset: blockText.length,
-        anchorOffset: 0
-      })
-      content = Modifier.applyEntity(content, ts, null)
-
-      //console.log(startKey)
-      processPart(parts)
-      editorState = EditorState.push(editorState, content, 'apply-entity')
-      //console.log(sel.serialize())
-
-      //const nlineKey = content.getBlockMap().keySeq()
-      //const nline = nlineKey.find((lk) => lk === startKey)
-      //const upSel = new SelectionState({
-        //focusKey: nline,
-        //focusOffset: index,
-        //anchorKey: nline,
-        //anchorOffset: index
-      //})
-      //console.log(sel.serialize(), upSel.serialize())
-      editorState = EditorState.forceSelection(editorState, sel)
-
-      //console.log(editorState.getCurrentContent().getBlockMap().valueSeq().toJS())
-    } catch (e) {
-      console.log(blockText)
-      console.error(e)
     }
 
-    const entityKey = block.getEntityAt(index)
+    let entityKey = block.getEntityAt(index)
     const shouldShow = sel.getHasFocus()
 
     const contentText = content.getPlainText('\n')
     //console.log(contentText)
 
-    this.state.editorState = editorState
-    this.state.suggestions.show = false
-    this.setState(this.state)
+    const saveState = () => {
+      this.state.editorState = editorState
+      this.state.suggestions.show = false
+      this.setState(this.state)
+    }
 
+    console.log(entityKey)
+    if (entityKey === null && index > 0) {
+      entityKey = block.getEntityAt(index - 1)
+    }
     if (entityKey !== null && Entity.get(entityKey)) {
+      console.log('null entity')
       const entity = Entity.get(entityKey)
       const type = entity.getType()
 
       const text = entity.getData().text
       const suggestionGetter = this.props.suggestionGetters[type]
       if (suggestionGetter) {
+        console.log('no getter')
         const { getter, setter } = suggestionGetter
 
         getter(text, entity.getData(), (suggestions) => {
-          if (this.state.editorState === editorState) {
+          console.log('getter said', suggestions)
+          //if (this.state.editorState === editorState) {
             const show = hide ? false : (suggestions.length > 0)
+            console.log('showing', suggestions)
             let ranges = []
             block.findEntityRanges((c) => c.getEntity() === entityKey, (begin, end) => ranges.push({ begin, end }))
             const { begin, end } = ranges[0]
@@ -169,12 +180,15 @@ class SemanticEditor extends Component {
                 //tab: tabCompletion
               }
             })
-          } else {
-          }
+          //} else {
+            //saveState()
+          //}
         })
       } else {
+        saveState()
       }
     } else {
+      saveState()
     }
 
     /*
@@ -257,13 +271,58 @@ class SemanticEditor extends Component {
 
   onTab (e) {
     e.preventDefault()
-    const { tab } = this.state.suggestions
-    if (tab) {
-      const newEditorState = tab(this.state.editorState)
-      if (newEditorState) {
-        this.onChange(newEditorState)
-      }
+    //const { tab } = this.state.suggestions
+    //if (tab) {
+      //const newEditorState = tab(this.state.editorState)
+      //if (newEditorState) {
+        //this.onChange(newEditorState)
+      //}
+    //}
+    e.preventDefault()
+    const { editorState } = this.state
+
+    const sel = editorState.getSelection()
+    const startKey = sel.getStartKey()
+    const sindex = sel.getStartOffset()
+    let content = editorState.getCurrentContent()
+    const lineKey = content.getBlockMap().keySeq()
+    const line = lineKey.findIndex((lk) => lk === startKey)
+    const block = content.getBlockForKey(startKey)
+
+    const findBlockEntities = (block) => {
+      let ranges = []
+      block.findEntityRanges((c) => c.getEntity() !== null, (begin, end) => ranges.push({ begin, end }))
+      return ranges
     }
+
+    lineKey.slice(line).find((lk) => {
+      const block = content.getBlockForKey(lk)
+      console.log(lk, block.getText())
+      const index = lk === startKey ? sindex : 0
+      let ranges = findBlockEntities(block)
+      console.log(ranges, index)
+      const range = ranges.find((range) => range.begin > index)
+      console.log(range)
+
+      // found a next entity to jump
+      if (range) {
+        const newSel = sel.merge({
+          anchorKey: lk,
+          focusKey: lk,
+          anchorOffset: range.begin,
+          focusOffset: range.begin
+        })
+        const editorState = EditorState.forceSelection(this.state.editorState, newSel)
+        this.onChange(editorState)
+
+        return true
+      } else {
+        // if there are no tag or semantic information, initialize it
+        // if there is but is empty, remove
+      }
+
+      return false
+    })
   }
 
   onEsc () {
