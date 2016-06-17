@@ -5,8 +5,11 @@ import { createStore, applyMiddleware } from 'redux'
 import reducers from './reducers'
 import { Map } from 'immutable'
 
+const actionsToNotLog = new Set(['DEHIGHLIGHT_SEGMENT', 'HIGHLIGHT_SEGMENT'])
+
 const loggerMiddleware = createLogger({
-  stateTransformer: (state) => state.toJS()
+  stateTransformer: (state) => state.toJS(),
+  predicate: (getState, action) => !actionsToNotLog.has(action.type)
 })
 
 let store = createStore(
