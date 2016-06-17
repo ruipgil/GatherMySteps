@@ -36,6 +36,7 @@ class SemanticEditor extends Component {
     }
 
     this.onChange(editorState, false, true)
+    this.timer = setTimeout(() => {}, 0)
   }
 
   focus () {
@@ -74,7 +75,6 @@ class SemanticEditor extends Component {
           } else {
             switch (part.type) {
               case 'Trip':
-                console.log('part', part)
                 processPart(part.timespan, n)
                 processPart(part.locationFrom, n)
                 processPart(part.locationTo, n)
@@ -86,8 +86,6 @@ class SemanticEditor extends Component {
                 part.details.forEach((d, i) => processPart(d, n, modeId))
                 break
               case 'Timespan':
-                console.log('tsp')
-                console.log(part)
                 processPart(part.start, n, modeId)
                 processPart(part.finish, n, modeId)
                 break
@@ -165,14 +163,19 @@ class SemanticEditor extends Component {
     if (entityKey !== null && Entity.get(entityKey)) {
       const entity = Entity.get(entityKey)
       const type = entity.getType()
+      const { value } = entity.getData()
 
-      const text = entity.getData().text
       const suggestionGetter = this.props.suggestionGetters[type]
-      console.log(type, suggestionGetter)
+
       if (suggestionGetter) {
         const { getter, setter, disposer } = suggestionGetter
 
-        getter(text, entity.getData(), (suggestions) => {
+        clearTimeout(this.timer)
+        this.timer = setTimeout(() => {
+          setter(value, entity.getData())
+        }, 500)
+
+        getter(value, entity.getData(), (suggestions) => {
           // if (this.state.editorState === editorState) {
           const show = hide ? false : (suggestions.length > 0) && shouldShow
           let ranges = []

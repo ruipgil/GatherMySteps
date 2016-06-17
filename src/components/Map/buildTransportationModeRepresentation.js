@@ -1,11 +1,13 @@
 import React from 'react'
 import { FeatureGroup, Marker, DivIcon } from 'leaflet'
 import { renderToString } from 'react-dom/server'
+import { createPointIcon, createMarker } from './utils'
 
 const LABEL_TO_ICON = {
-  'Stop': 'fa-hand-grab-o',
-  'Foot': 'fa-blind',
-  'Vehicle': 'fa-car'
+  'Stop': (color) => createPointIcon(color, '<i class="p-fa fa-hand-grab-o" />'),
+  'Foot': (color) => createPointIcon(color, '<i class="p-fa fa-blind" />'),
+  'Vehicle': (color) => createPointIcon(color, '<i class="p-fa fa-car" />'),
+  '?': (color) => createPointIcon(color, '<i class="p-fa fa-question" />')
 }
 
 const angleBetween = (a, b) => {
@@ -43,9 +45,11 @@ export default (lseg, segment) => {
       const label = mode.get('label')
 
       lastTo = to
-      return buildVerticalMarker(pts[from], pts[from + 1], pts[from - 1], label)
+      // return buildVerticalMarker(pts[from], pts[from + 1], pts[from - 1], label)
+      let iconCreater = LABEL_TO_ICON[label] || LABEL_TO_ICON['?']
+      return createMarker(pts[from], iconCreater(segment.get('color')))
     }).toJS()
-    tModes.push(buildVerticalMarker(pts[lastTo], null, pts[lastTo - 1]))
+    // tModes.push(buildVerticalMarker(pts[lastTo], null, pts[lastTo - 1]))
   }
 
   return new FeatureGroup(tModes)
