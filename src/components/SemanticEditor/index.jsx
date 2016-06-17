@@ -74,6 +74,7 @@ class SemanticEditor extends Component {
           } else {
             switch (part.type) {
               case 'Trip':
+                console.log('part', part)
                 processPart(part.timespan, n)
                 processPart(part.locationFrom, n)
                 processPart(part.locationTo, n)
@@ -84,8 +85,14 @@ class SemanticEditor extends Component {
                 processPart(part.timespan, n)
                 part.details.forEach((d, i) => processPart(d, n, modeId))
                 break
-              case 'Tag':
               case 'Timespan':
+                console.log('tsp')
+                console.log(part)
+                processPart(part.start, n, modeId)
+                processPart(part.finish, n, modeId)
+                break
+              case 'Tag':
+              case 'Time':
               case 'LocationFrom':
               case 'Location':
                 const start = part.offset
@@ -141,6 +148,10 @@ class SemanticEditor extends Component {
     const saveState = (es = editorState) => {
       this.state.editorState = es
       this.state.suggestions.show = false
+      if (this.state.suggestions.disposer) {
+        this.state.suggestions.disposer(this.state.suggestions.data)
+        this.state.suggestions.disposer = null
+      }
       this.setState(this.state)
     }
 
@@ -157,8 +168,9 @@ class SemanticEditor extends Component {
 
       const text = entity.getData().text
       const suggestionGetter = this.props.suggestionGetters[type]
+      console.log(type, suggestionGetter)
       if (suggestionGetter) {
-        const { getter, setter } = suggestionGetter
+        const { getter, setter, disposer } = suggestionGetter
 
         getter(text, entity.getData(), (suggestions) => {
           // if (this.state.editorState === editorState) {
@@ -171,6 +183,7 @@ class SemanticEditor extends Component {
             editorState,
             suggestions: {
               show,
+              disposer,
               list: suggestions,
               selected: -1,
               box: findSuggestionBoxPosition(this.refs.editor, this.state.suggestions.box),

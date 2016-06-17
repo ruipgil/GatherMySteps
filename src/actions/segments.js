@@ -166,3 +166,15 @@ export const updateTransportationMode = (segmentId, name, index) => ({
   segmentId,
   type: 'UPDATE_TRANSPORTATION_MODE'
 })
+
+export const selectPointInMap = (segmentId, highlightedPoint, onClick) => ({
+  onClick,
+  segmentId,
+  highlightedPoint,
+  type: 'SELECT_POINT_IN_MAP'
+})
+
+export const deselectPointInMap = (segmentId) => ({
+  segmentId,
+  type: 'DESELECT_POINT_IN_MAP'
+})

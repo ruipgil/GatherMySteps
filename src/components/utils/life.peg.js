@@ -22,7 +22,7 @@ TSpan "timespan"
   = from:Digits "-" to:Digits ":" { return { type: "Timespan", from, to, location: createLoc() } }
 
 Digits "time"
-  = Hours Minutes { return { label: text(), location: createLoc() } }
+  = Hours Minutes { return { type: 'Time', label: text(), location: createLoc() } }
 
 Hours "hours"
   = [0-1][0-9] { return text() }

@@ -415,6 +415,16 @@ const updateTransportationMode = (state, action) => {
   })
 }
 
+const selectPointInMap = (state, action) => {
+  const { onClick, segmentId, highlightedPoint } = action
+  return state.setIn(['segments', segmentId, 'pointAction'], Map({ highlightedPoint, onClick }))
+}
+
+const deselectPointInMap = (state, action) => {
+  const { segmentId } = action
+  return state.setIn(['segments', segmentId, 'pointAction'], null)
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -435,7 +445,10 @@ const ACTION_REACTION = {
   'UPDATE_TIME_FILTER_SEGMENT': updateTimeFilterSegment,
 
   'UPDATE_LOCATION_NAME': updateLocationName,
-  'UPDATE_TRANSPORTATION_MODE': updateTransportationMode
+  'UPDATE_TRANSPORTATION_MODE': updateTransportationMode,
+
+  'SELECT_POINT_IN_MAP': selectPointInMap,
+  'DESELECT_POINT_IN_MAP': deselectPointInMap
 }
 
 const segments = (state = [], action) => {

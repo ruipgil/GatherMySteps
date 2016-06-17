@@ -38,7 +38,7 @@ const getEntityStrategy = (type) => {
 
 export default [
   {
-    strategy: getEntityStrategy('Timespan'),
+    strategy: getEntityStrategy('Time'),
     component: TimeSpan
   },
   {

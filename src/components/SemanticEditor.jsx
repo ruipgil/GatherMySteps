@@ -13,10 +13,11 @@ let SE = ({ dispatch, segments }) => {
   return (
     <SemanticEditor
       state={ state }
+      segments={ segments }
+      dispatch={ dispatch }
       strategies={ decorators }
       suggestionGetters={ suggestionsGetters }
-      segments={ segments }
-      dispatch={ dispatch }>
+      >
     </SemanticEditor>
   )
 }

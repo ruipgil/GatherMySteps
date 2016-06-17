@@ -1,6 +1,8 @@
 import {
   updateLocationName,
-  updateTransportationMode
+  updateTransportationMode,
+  selectPointInMap,
+  deselectPointInMap
 } from 'actions/segments'
 
 const filterSuggestions = (text, suggestions) => {
@@ -13,6 +15,7 @@ const filterSuggestions = (text, suggestions) => {
 
 const createPlaceSuggestions = (index) => (
   {
+    type: 'TEXT',
     getter: (text, data, callback) => {
       const from = data.segment.get('locations').get(index)
       if (from) {
@@ -29,10 +32,27 @@ const createPlaceSuggestions = (index) => (
 )
 
 export default {
+  'Time': {
+    type: 'DYNAMIC',
+    getter: (text, data, callback) => {
+      // const { dispatch, segment } = data
+      // const id = segment.get('id')
+      // dispatch(selectPointInMap(id, null, (ix, p) => {
+      //   dispatch(deselectPointInMap(id))
+      // }))
+      // callback([])
+    },
+    setter: (text, data) => {},
+    disposer: (data) => {
+      // const { dispatch, segment } = data
+      // dispatch(deselectPointInMap(segment.get('id')))
+    }
+  },
   'Location': createPlaceSuggestions(1),
   'LocationTo': createPlaceSuggestions(1),
   'LocationFrom': createPlaceSuggestions(0),
   'Tag': {
+    type: 'TEXT',
     getter: (text, data, callback) => {
       const tmode = data.segment.get('transportationModes').get(data.modeId)
       const MODES = {

@@ -22,6 +22,7 @@ import splitMode from './Map/splitMode'
 import detailMode from './Map/detailMode'
 import addSegment from './Map/addSegment'
 import updatePoints from './Map/updatePoints'
+import pointActionMode from './Map/pointActionMode'
 
 import buildTransportationModeRepresentation from './Map/buildTransportationModeRepresentation'
 
@@ -229,6 +230,9 @@ export default class PerfMap extends Component {
     }
     if (current.get('joining') === true && (current.get('joining') !== previous.get('joining') || current.get('joinPossible') !== previous.get('joinPossible'))) {
       joinMode(lseg, current, previous, (id, i, pp) => dispatch(joinSegment(id, i, pp)))
+    }
+    if (current.get('pointAction') && current.get('pointAction') !== previous.get('pointAction')) {
+      pointActionMode(lseg, current, previous)
     }
   }
 
