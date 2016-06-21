@@ -9,12 +9,13 @@ import ProgressBar from './ProgressBar.jsx'
 import AlertBox from 'containers/AlertBox'
 
 import loadFiles from '../loadFiles'
+import ConfigPane from 'container/ConfigPane'
 
 import { nextStep, undo, redo } from '../actions/progress'
 
 const GMS = !process.env.BUILD_GPX
 
-let App = ({ ui, tracks, dispatch, ...props }) => {
+let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
   const onDrop = (e) => {
     let dt = e.dataTransfer
     let files = dt.files
@@ -81,6 +82,7 @@ let App = ({ ui, tracks, dispatch, ...props }) => {
 
   return (
     <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
+      { showConfig ? <ConfigPane /> : null }
       <AlertBox />
       <div id='float-container'>
         <div id='title'>{ title }</div>
@@ -93,7 +95,9 @@ let App = ({ ui, tracks, dispatch, ...props }) => {
 }
 
 const mapStateToProps = (state) => {
-  return {}
+  return {
+    showConfig: state.get('ui').get('showConfig')
+  }
 }
 
 App = connect(mapStateToProps)(App)

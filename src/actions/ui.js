@@ -1,3 +1,5 @@
+import { getConfig } from 'actions/progress'
+
 export const useOSMMaps = () => {
   return {
     type: 'USE_OSM_MAPS'
@@ -120,3 +122,18 @@ export const dehighlightSegment = (segmentId) => ({
   segmentId,
   type: 'DEHIGHLIGHT_SEGMENT'
 })
+
+export const toggleConfig = () => {
+  const action = {
+    type: 'TOGGLE_CONFIG'
+  }
+  return (dispatch, getState) => {
+    if (!getState().get('ui').get('showConfig')) {
+      dispatch(getConfig())
+        .then(() => dispatch(action))
+    } else {
+      dispatch(action)
+    }
+  }
+}
+

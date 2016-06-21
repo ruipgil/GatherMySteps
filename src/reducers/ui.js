@@ -55,6 +55,8 @@ const ui = (state = initialState, action) => {
       return state.update('highlighted', (h) => h.add(action.segmentId))
     case 'DEHIGHLIGHT_SEGMENT':
       return state.update('highlighted', (h) => h.delete(action.segmentId))
+    case 'TOGGLE_CONFIG':
+      return state.set('showConfig', !state.get('showConfig'))
     default:
       return state
   }

@@ -56,19 +56,19 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       case 0:
         return (
           <span>
-            <i className='fa fa-check fa-fw fa-ih' /> All tracks are processed
+            <i className='fa fa-check fa-fw fa-ih' /> This is the last days to process
           </span>
         )
       case 1:
         return (
           <span>
-            <i className='fa fa-ellipsis-h fa-ih' /> One track left
+            <i className='fa fa-ellipsis-h fa-ih' /> There is one more day to process
           </span>
         )
       default:
         return (
           <span>
-            <i className='fa fa-ellipsis-h fa-ih' /> { n } tracks left
+            <i className='fa fa-ellipsis-h fa-ih' /> { n } Days to process
           </span>
         )
     }

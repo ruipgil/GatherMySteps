@@ -167,6 +167,14 @@ export const updateTransportationMode = (segmentId, name, index) => ({
   type: 'UPDATE_TRANSPORTATION_MODE'
 })
 
+export const updateTransportationTime = (segmentId, time, start, tmodeIndex) => ({
+  time,
+  start,
+  tmodeIndex,
+  segmentId,
+  type: 'UPDATE_TRANSPORTATION_TIME'
+})
+
 export const selectPointInMap = (segmentId, highlightedPoint, onClick) => ({
   onClick,
   segmentId,

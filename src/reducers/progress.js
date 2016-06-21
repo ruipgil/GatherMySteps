@@ -1,4 +1,4 @@
-import { fromJS } from 'immutable'
+import { Map, fromJS } from 'immutable'
 import { ADJUST_STAGE, ANNOTATE_STAGE } from '../constants'
 
 const advanceToAdjust = (state, action) => {
@@ -14,10 +14,15 @@ const setServerState = (state, action) => {
     .set('remainingTracks', fromJS(action.tracksRemaining))
 }
 
+const updateConfig = (state, action) => {
+  return state.set('config', new Map(action.config))
+}
+
 const ACTION_REACTION = {
   'ADVANCE_TO_ADJUST': advanceToAdjust,
   'ADVANCE_TO_ANNOTATE': advanceToAnnotate,
-  'SET_SERVER_STATE': setServerState
+  'SET_SERVER_STATE': setServerState,
+  'UPDATE_CONFIG': updateConfig
 }
 
 const initialState = fromJS({

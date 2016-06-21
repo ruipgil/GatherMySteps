@@ -36,4 +36,10 @@ export default (map, actions) => {
     title: 'Position on your location',
     onClick: () => map.locate({setView: true})
   }).addTo(map)
+
+  new ControlButton({
+    button: (<i style={{ font: 'normal normal normal 14px/1 FontAwesome', fontSize: 'inherit' }} className='fa-wrench' />),
+    title: 'Configurations',
+    onClick: actions.config
+  }).addTo(map)
 }

@@ -1,6 +1,6 @@
 import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
-import { fitSegments } from 'actions/ui'
+import { fitSegments, toggleConfig } from 'actions/ui'
 import { addPossibilities } from 'actions/segments'
 
 const segmentsToJson = (state) => {
@@ -17,6 +17,44 @@ export const setServerState = (step, tracksRemaining) => {
     step,
     tracksRemaining,
     type: 'SET_SERVER_STATE'
+  }
+}
+
+export const updateConfig = (config) => ({
+  config,
+  type: 'UPDATE_CONFIG'
+})
+
+export const getConfig = (cb) => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    return fetch(getState().get('progress').get('server') + '/config', options)
+      .then((response) => response.json())
+      .then((config) => {
+        dispatch(updateConfig(config))
+      })
+  }
+}
+
+export const saveConfig = (config) => {
+  // const { address } = config._
+  config._ = null
+  return (dispatch, getState) => {
+    const options = {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify(config)
+    }
+    return fetch(getState().get('progress').get('server') + '/config', options)
+      .then((response) => response.json())
+      .then((config) => {
+        dispatch(toggleConfig())
+        // Request server state if address has changed
+        // dispatch(requestServerState())
+      })
   }
 }
 
