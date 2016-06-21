@@ -9,7 +9,7 @@ import ProgressBar from './ProgressBar.jsx'
 import AlertBox from 'containers/AlertBox'
 
 import loadFiles from '../loadFiles'
-import ConfigPane from 'container/ConfigPane'
+import ConfigPane from 'containers/ConfigPane'
 
 import { nextStep, undo, redo } from '../actions/progress'
 

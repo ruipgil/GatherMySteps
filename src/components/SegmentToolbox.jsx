@@ -109,7 +109,7 @@ let SegmentToolbox = ({ dispatch, segment }) => {
   }
   return (
     <div>
-      <div style={{ marginTop: '2px', display: 'flex', justifyContent: 'space-around' }}>
+      <div style={{ width: '100%' }} className='control has-addons'>
         <span title='Delete track' className='button icon-button' onClick={remove(id)}>
           <i className='fa fa-trash' />
         </span>

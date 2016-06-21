@@ -33,9 +33,15 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
   } else {
     title = (
       <div>
-        <div className='float-right clickable icon' onClick={onDownload}>
-          <i className='fa fa-download' />
-        </div>
+        {
+          process.env.BUILD_GPX
+          ? (
+            <div className='float-right clickable icon' onClick={onDownload}>
+              <i className='fa fa-download' />
+            </div>
+            )
+          : null
+        }
         <div onClick={toggleEditing}>{name}</div>
       </div>
     )

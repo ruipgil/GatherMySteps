@@ -112,21 +112,25 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     )
   }
 
+  const multipleActions = (
+    <div className='columns is-gapless'>
+      <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(showHideAll())} title='Toggle all'><i className='fa fa-eye-slash' /></a>
+      <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(downloadAll())} title='Download all'><i className='fa fa-download' /></a>
+      <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(clearAll())} title='Delete all'><i className='fa fa-trash' /></a>
+    </div>
+  )
+
   const nav = (
-    <div style={{ marginTop: '1.1rem' }}>
-      <div className='columns is-gapless'>
-        <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(showHideAll())} title='Toggle all'><i className='fa fa-eye-slash' /></a>
-        <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(downloadAll())} title='Download all'><i className='fa fa-download' /></a>
-        <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(clearAll())} title='Delete all'><i className='fa fa-trash' /></a>
-      </div>
+    <div style={{ marginTop: '0.5rem' }}>
+      { process.env.BUILD_GPX ? multipleActions : null }
       <div className='columns is-gapless' style={{ marginBottom: 0 }}>
-        <span className='column is-half is-gapless is-text-centered'>
+        <span className='column is-half is-gapless has-text-centered'>
           <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
             <i className='fa fa-chevron-left' />
             Previous
           </AsyncButton>
         </span>
-        <span className='column is-half is-gapless is-text-centered'>
+        <span className='column is-half is-gapless has-text-centered'>
           <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
             Continue
             <i className='fa fa-chevron-right' />

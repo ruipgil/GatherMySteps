@@ -187,6 +187,9 @@ html, body {
 }
 .icon-button {
   padding: 3px 3px !important;
+  display: flex;
+  flex-grow: 1;
+  flex-basis: 100%;
 }
 
 .is-monospace {
