@@ -136,7 +136,9 @@ export const nextStep = () => {
           name: getState().get('tracks').get('tracks').first().get('name') || '',
           segments: segmentsToJson(getState())
         },
-        touched: []
+        changes: getState().get('tracks').get('history').get('past').map((undo) => {
+          return { ...undo, undo: null }
+        })
       })
     }
     return fetch(getState().get('progress').get('server') + '/next', options)
