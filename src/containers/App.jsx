@@ -72,7 +72,7 @@ let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
     belowTitle = <ProgressBar />
   } else {
     belowTitle = (
-      <a id='title' href='//github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>
+      <a id='title' href='https://github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>
         by GatherMySteps
       </a>
     )
@@ -80,18 +80,34 @@ let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
 
   const title = GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a>
 
-  return (
-    <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
+  const topPanel = (
+    <div>
+      <div id='title'>{ title }</div>
+      { belowTitle }
+    </div>
+  )
+
+  const content = (
+    <div id='container'>
       { showConfig ? <ConfigPane /> : null }
       <AlertBox />
       <div id='float-container'>
-        <div id='title'>{ title }</div>
-        { belowTitle }
+        { topPanel }
         <Progress onNext={ onNext } onPrevious={ onPrevious } />
       </div>
       <LeafletMap />
-    </Dropzone>
+    </div>
   )
+
+  if (GMS) {
+    return (
+      <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
+        { content }
+      </Dropzone>
+    )
+  } else {
+    return content
+  }
 }
 
 const mapStateToProps = (state) => {
