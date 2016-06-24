@@ -6,6 +6,7 @@ import SemanticEditor from './SemanticEditor/index.jsx'
 import decorators from './utils/decorators'
 import suggestionsGetters from './utils/suggestionsGetters'
 import createTextRepresentation from './utils/createTextRepresentation'
+import { updateLIFE } from 'actions/tracks'
 
 let SE = ({ dispatch, segments }) => {
   const state = ContentState.createFromText(createTextRepresentation(segments, dispatch))
@@ -17,6 +18,10 @@ let SE = ({ dispatch, segments }) => {
       dispatch={ dispatch }
       strategies={ decorators }
       suggestionGetters={ suggestionsGetters }
+      onChange={(state) => {
+        const { editorState, warning } = state
+        dispatch(updateLIFE(editorState.getCurrentContent().getPlainText()), warning)
+      }}
       >
     </SemanticEditor>
   )

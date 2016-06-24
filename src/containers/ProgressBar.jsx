@@ -65,7 +65,8 @@ const BALL_STYLE = {
   height: '16px',
   display: 'inline-block',
   backgroundColor: 'white',
-  zIndex: 100
+  zIndex: 100,
+  boxShadow: '#888 0px 0px 10px'
 }
 
 ProgressBar = ({ state, ballStyle, children }) => {
@@ -73,9 +74,12 @@ ProgressBar = ({ state, ballStyle, children }) => {
   const borderColor = '#97cd76'
 
   const p = 20
-  const rulerBeforeStyle = { background: borderColor }
-  const rulerAfterStyle = { background: 'white' }
-  const rulerSelectedStyle = { background: 'linear-gradient(to right, ' + borderColor + ' 0%,' + borderColor + ' ' + p + '%,#ffffff ' + p + '%,#ffffff 100%)' }
+  const rulerBeforeStyle = { background: borderColor, boxShadow: '#888 0px 0px 10px' }
+  const rulerAfterStyle = { background: 'white', boxShadow: '#888 0px 0px 10px' }
+  const rulerSelectedStyle = {
+    background: 'linear-gradient(to right, ' + borderColor + ' 0%,' + borderColor + ' ' + p + '%,#ffffff ' + p + '%,#ffffff 100%)',
+    boxShadow: '#888 0px 0px 10px'
+  }
 
   const ballAfterStyle = { ...ballStyle, border: '4px solid white', backgroundColor: 'white' }
   const ballSelectedStyle = { ...ballStyle, border: '4px solid ' + borderColor, width: '20px', height: '20px' }
@@ -129,7 +133,6 @@ ProgressBar = ({ state, ballStyle, children }) => {
 
   const forceEqualSize = true
   const equalSize = (100 / STEPS.filter((s) => s && s.name).length) + '%'
-  console.log(equalSize)
 
   const stepLabels = (
     <div style={{ display: 'flex', alignItems: 'center' }}>

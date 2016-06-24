@@ -155,6 +155,7 @@ class SemanticEditor extends Component {
         this.state.suggestions.disposer = null
       }
       this.setState(this.state)
+      this.props.onChange(this.state)
     }
 
     let warning

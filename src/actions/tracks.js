@@ -89,8 +89,14 @@ export const showHideAll = () => {
 export const clearAll = () => {
   return (dispatch, getState) => {
     getState().get('tracks').get('tracks').keySeq().forEach((t) => {
-      //dispatch(removeTrack(t))
+      // dispatch(removeTrack(t))
       alert('Not yet implemented')
     })
   }
 }
+
+export const updateLIFE = (text, warning) => ({
+  text,
+  warning,
+  type: 'UPDATE_LIFE'
+})

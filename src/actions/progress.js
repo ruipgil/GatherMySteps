@@ -128,6 +128,7 @@ export const previousStep = () => {
 
 export const nextStep = () => {
   return (dispatch, getState) => {
+    const hasLIFE = getState().get('tracks').get('LIFE')
     const options = {
       method: 'POST',
       mode: 'cors',
@@ -136,6 +137,7 @@ export const nextStep = () => {
           name: getState().get('tracks').get('tracks').first().get('name') || '',
           segments: segmentsToJson(getState())
         },
+        LIFE: hasLIFE ? hasLIFE.get('text') : null,
         changes: getState().get('tracks').get('history').get('past').map((undo) => {
           return { ...undo, undo: null }
         })
