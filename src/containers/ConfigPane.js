@@ -156,7 +156,7 @@ class ConfigPane extends Component {
 
             <SectionBlock name='Smoothing'>
               <OptionsField title='Algorithm' options={[{ label: 'Kalman with backwards pass', key: 'inverse' }, { label: 'Kalman with start interpolation', key: '' }]} defaultValue={config.smoothing.algorithm} ref='smoothing.algorithm' />
-              <TextField title='Fitting iterations' defaultValue={config.smoothing.iter} ref='smoothing.iter' type='number' min='0' step='1' />
+              <TextField title='Noise' defaultValue={config.smoothing.noise} ref='smoothing.noise' type='number' min='0' step='1' />
             </SectionBlock>
 
             <SectionBlock name='Spatiotemporal segmetation'>
