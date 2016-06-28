@@ -4,7 +4,12 @@ import { connect } from 'react-redux'
 import TrackList from './TrackList.jsx'
 import AsyncButton from 'components/AsyncButton'
 import SemanticEditor from '../components/SemanticEditor.jsx'
-import { nextStep, previousStep } from '../actions/progress'
+import {
+  nextStep,
+  previousStep,
+  bulkProcess
+} from '../actions/progress'
+import DaysLeft from 'containers/DaysLeft'
 import { toggleRemainingTracks } from 'actions/ui'
 import {
   clearAll,
@@ -56,10 +61,16 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       case 0:
         return (
           <span>
-            <i className='fa fa-check fa-fw fa-ih' /> This is the last days to process
+            <i className='fa fa-check fa-fw fa-ih' /> There are no days left to process
           </span>
         )
       case 1:
+        return (
+          <span>
+            <i className='fa fa-check fa-fw fa-ih' /> This is the last day to process
+          </span>
+        )
+      case 2:
         return (
           <span>
             <i className='fa fa-ellipsis-h fa-ih' /> There is one more day to process
@@ -68,27 +79,67 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
       default:
         return (
           <span>
-            <i className='fa fa-ellipsis-h fa-ih' /> { n } Days to process
+            <i className='fa fa-ellipsis-h fa-ih' /> { n } more days to process
           </span>
         )
     }
   }
 
+  let subNav = null
   let toShow
+  let detailsLabel
+
+  const bulkNav = (
+    <div>
+      <span className='column is-gapless has-text-centered'>
+        <AsyncButton className={'is-warning'} onClick={(e, modifier) => {
+          modifier('is-loading')
+          dispatch(bulkProcess())
+            .then(() => modifier())
+        }}>
+          Bulk process all tracks
+        </AsyncButton>
+      </span>
+    </div>
+  )
+  const navNav = (
+    <div>
+      <span className='column is-half is-gapless has-text-centered'>
+        <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
+          <i className='fa fa-chevron-left' />
+          Previous
+        </AsyncButton>
+      </span>
+      <span className='column is-half is-gapless has-text-centered'>
+        <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
+          Continue
+          <i className='fa fa-chevron-right' />
+        </AsyncButton>
+      </span>
+    </div>
+  )
   if (showList) {
-    toShow = (
-      <ul className='is-flexgrow slide-from-top-fade-in' style={{ overflowY: 'auto' }}>
-        {
-          remaining.map((track) => {
-            return (
-              <li>
-                { track.get('name') }
-              </li>
-            )
-          })
-        }
-      </ul>
+    subNav = bulkNav
+    toShow = <DaysLeft style={{ flexGrow: 1, overflowY: 'auto' }}/>
+    detailsLabel = (
+      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
+        <i className='fa fa-pencil fa-fw fa-ih' />Edit tracks of the current day
+      </div>
     )
+
+    // toShow = (
+    //   <ul className='is-flexgrow slide-from-top-fade-in' style={{ overflowY: 'auto' }}>
+    //     {
+    //       remaining.map((track) => {
+    //         return (
+    //           <li>
+    //             { track.get('name') }
+    //           </li>
+    //         )
+    //       })
+    //     }
+    //   </ul>
+    // )
   } else {
     let style = { overflowY: 'auto' }
     if (stage === ANNOTATE_STAGE) {
@@ -110,6 +161,12 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
         <Pane className='is-flexgrow' width='100%' />
       </div>
     )
+    detailsLabel = (
+      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
+        { remainingMessage(remaining.count()) }
+      </div>
+    )
+    subNav = navNav
   }
 
   const multipleActions = (
@@ -120,26 +177,13 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
     </div>
   )
 
-  const nav = (
+  let nav = (
     <div style={{ marginTop: '0.5rem' }}>
       { process.env.BUILD_GPX ? multipleActions : null }
       <div className='columns is-gapless' style={{ marginBottom: 0 }}>
-        <span className='column is-half is-gapless has-text-centered'>
-          <AsyncButton disabled={stage === 0} className={'is-warning'} onClick={onPrevious}>
-            <i className='fa fa-chevron-left' />
-            Previous
-          </AsyncButton>
-        </span>
-        <span className='column is-half is-gapless has-text-centered'>
-          <AsyncButton disabled={!canProceed} className={'is-success'} onClick={onNext}>
-            Continue
-            <i className='fa fa-chevron-right' />
-          </AsyncButton>
-        </span>
+        { subNav }
       </div>
-      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
-        { remainingMessage(remaining.count()) }
-      </div>
+      { detailsLabel }
     </div>
   )
   return (
