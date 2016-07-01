@@ -29,7 +29,7 @@ const ACTION_REACTION = {
 const initialState = fromJS({
   step: 0,
   remainingTracks: [],
-  server: 'http://localhost:5000'
+  server: 'http://0.0.0.0:5000'
 })
 const progress = (state = initialState, action) => {
   if (ACTION_REACTION[action.type]) {

@@ -379,3 +379,31 @@ html, body {
 .day-left:hover {
   background-color: #eee;
 }
+
+.loaderr {
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.loaderr:after {
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  position: absolute;
+  top: 50%;
+  position: absolute !important;
+}
+
+.loaderr:after {
+  -webkit-animation: spin-around 500ms infinite linear;
+  animation: spin-around 500ms infinite linear;
+  border: 2px solid #d3d6db;
+  border-radius: 290486px;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  content: "";
+  display: block;
+  height: 16px;
+  position: relative;
+  width: 16px;
+}
