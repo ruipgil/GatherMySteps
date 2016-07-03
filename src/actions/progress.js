@@ -60,6 +60,19 @@ export const saveConfig = (config) => {
   }
 }
 
+export const loadLIFE = (content) => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'POST',
+      mode: 'cors',
+      body: content
+    }
+    return fetch(getState().get('progress').get('server') + '/loadLIFE', options)
+      .catch((e) => console.error(e))
+      .then((response) => response.json())
+  }
+}
+
 export const completeTrip = (segmentId, from, to, index) => {
   return (dispatch, getState) => {
     const options = {
