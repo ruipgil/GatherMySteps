@@ -76,6 +76,10 @@ class SemanticEditor extends Component {
             part.forEach((p, i) => processPart(p, i))
           } else {
             switch (part.type) {
+              // TODO
+              // case 'Day':
+              //   processPart(part.day)
+              //   break
               case 'Trip':
                 processPart(part.timespan, n)
                 processPart(part.locationFrom, n)
@@ -90,6 +94,11 @@ class SemanticEditor extends Component {
               case 'Timespan':
                 processPart(part.start, n, modeId)
                 processPart(part.finish, n, modeId)
+                break
+              case 'Span':
+                processPart(part.timespan, n)
+                processPart(part.location, n)
+                part.details.forEach((d) => processPart(d, n))
                 break
               case 'Tag':
               case 'Time':
@@ -124,7 +133,8 @@ class SemanticEditor extends Component {
         })
         content = Modifier.applyEntity(content, ts, null)
 
-        processPart(parts)
+        console.log(parts)
+        processPart(parts.value)
         editorState = EditorState.push(editorState, content, 'apply-entity')
         editorState = EditorState.forceSelection(editorState, sel)
       } catch (e) {

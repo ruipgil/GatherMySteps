@@ -13,6 +13,7 @@ const setServerState = (state, action) => {
   return state.set('step', action.step)
     .set('remainingTracks', fromJS(action.tracksRemaining))
     .set('daySelected', action.daySelected)
+    .set('initLIFE', action.life)
 }
 
 const updateConfig = (state, action) => {

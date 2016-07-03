@@ -8,8 +8,9 @@ import suggestionsGetters from './utils/suggestionsGetters'
 import createTextRepresentation from './utils/createTextRepresentation'
 import { updateLIFE } from 'actions/tracks'
 
-let SE = ({ dispatch, segments }) => {
-  const state = ContentState.createFromText(createTextRepresentation(segments, dispatch))
+let SE = ({ dispatch, segments, life }) => {
+  console.log(life)
+  const state = ContentState.createFromText(life)
 
   return (
     <SemanticEditor
@@ -29,7 +30,8 @@ let SE = ({ dispatch, segments }) => {
 
 const mapStateToProps = (state) => {
   return {
-    segments: state.get('tracks').get('segments')
+    segments: state.get('tracks').get('segments'),
+    life: state.get('progress').get('initLIFE') || ''
   }
 }
 

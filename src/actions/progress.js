@@ -12,9 +12,10 @@ const segmentsToJson = (state) => {
   }).toJS()
 }
 
-export const setServerState = (step, tracksRemaining, daySelected) => {
+export const setServerState = (step, tracksRemaining, daySelected, life) => {
   return {
     step,
+    life,
     tracksRemaining,
     daySelected,
     type: 'SET_SERVER_STATE'
@@ -87,13 +88,13 @@ const updateState = (dispatch, json, getState, reverse = false) => {
   resetId()
   console.log('Payload')
   console.log(json)
-  if (json.step === 2) {
+  // if (json.step === 2) {
+  //   dispatch(removeTracksFor(json.track.segments, json.track.name))
+  // }
+  dispatch(setServerState(json.step, json.queue, json.currentDay, json.life))
+  // if (json.step !== 2) {
     dispatch(removeTracksFor(json.track.segments, json.track.name))
-  }
-  dispatch(setServerState(json.step, json.queue, json.currentDay))
-  if (json.step !== 2) {
-    dispatch(removeTracksFor(json.track.segments, json.track.name))
-  }
+  // }
 
   const segments = getState().get('tracks').get('segments').keySeq().toJS()
   dispatch(fitSegments(...segments))
@@ -151,7 +152,7 @@ export const nextStep = () => {
   }
 }
 
-export const removeTracksFor = (segments, name) => {
+export const removeTracksFor = (segments, name, life) => {
   return {
     segments,
     name,
