@@ -7,7 +7,8 @@ import SemanticEditor from '../components/SemanticEditor.jsx'
 import {
   nextStep,
   previousStep,
-  bulkProcess
+  bulkProcess,
+  loadLIFE
 } from '../actions/progress'
 import DaysLeft from 'containers/DaysLeft'
 import { toggleRemainingTracks } from 'actions/ui'
@@ -89,15 +90,29 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   let toShow
   let detailsLabel
 
+  const warningBorderStyle = {
+    border: '1px solid rgba(17, 17, 17, 0.1)'
+  }
   const bulkNav = (
     <div style={{ margin: 'auto' }}>
-      <span className='is-gapless has-text-centered'>
+      <span className='is-gapless has-text-centered control has-addons'>
         <AsyncButton className={'is-warning'} onClick={(e, modifier) => {
           modifier('is-loading')
           dispatch(bulkProcess())
             .then(() => modifier())
-        }}>
+        }} style={warningBorderStyle}>
           Bulk process all tracks
+        </AsyncButton>
+
+        <AsyncButton isFile={true} className='is-warning' title='Load LIFE file' style={{ ...warningBorderStyle, lineHeight: 'inherit' }} onRead={(text, modifier) => {
+          modifier('is-loading')
+          dispatch(loadLIFE(text))
+            .then(() => modifier())
+        }}>
+          <span style={{ fontSize: '0.7rem' }}>
+            <div>Load</div>
+            <div>LIFE</div>
+          </span>
         </AsyncButton>
       </span>
     </div>
