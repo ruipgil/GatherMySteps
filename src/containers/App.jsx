@@ -41,14 +41,6 @@ let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
   const onPrevious = (e) => {
   }
 
-  /*
-  const dropInfo = (
-    <div className='dropInfo' style={{display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '1rem', color: 'gray', border: '2px dashed gray', height: '90%'}} >
-      Drop files inside
-    </div>
-  )
-  */
-
   let metaDown = false
   const downKeyHandler = (event) => {
     const { keyCode } = event
@@ -88,7 +80,7 @@ let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
   )
 
   const content = (
-    <div id='container'>
+    <div id='container' onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
       { showConfig ? <ConfigPane /> : null }
       <AlertBox />
       <div id='float-container'>
@@ -101,7 +93,7 @@ let App = ({ showConfig, ui, tracks, dispatch, ...props }) => {
 
   if (GMS) {
     return (
-      <Dropzone id='container' onDrop={onDrop} onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
+      <Dropzone id='container' onDrop={onDrop} >
         { content }
       </Dropzone>
     )
