@@ -19,7 +19,7 @@ export default class AsyncButton extends Component {
 
   onClick (e) {
     if (this.props.onClick) {
-      this.props.onClick(e, (className) => {
+      this.props.onClick(e, (className, filter) => {
         findDOMNode(this.refs.btn).className = this.createClassName(className, filter)
         // this.state.content = content || this.props.children
         // this.setState(this.state)

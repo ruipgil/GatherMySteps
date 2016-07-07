@@ -63,6 +63,7 @@ const updateMove = (lseg, index, lat, lng, target, glayers) => {
     // Updating first point
     const point = pointInBetweenLeaflet(platlangs[1], ppoint)
     glayers[0].setLatLng(point)
+    lseg.specialMarkers.start.setLatLng(ppoint)
 
     const epoint = interpolatePointLeaflet(ppoint, platlangs[1])
     const ti = glayers[glayers.length - 2].getLayers()
@@ -71,6 +72,7 @@ const updateMove = (lseg, index, lat, lng, target, glayers) => {
     // Updating last point
     const point = pointInBetweenLeaflet(ppoint, platlangs[previous])
     glayers[previous].setLatLng(point)
+    lseg.specialMarkers.end.setLatLng(ppoint)
 
     const epoint = interpolatePointLeaflet(ppoint, platlangs[previous])
     const ti = glayers[glayers.length - 1].getLayers()
@@ -97,6 +99,13 @@ const updateRemove = (lseg, index, group, amarkers) => {
 
   // update add points marker
   amarkers[index - 1].setLatLng(pointInBetweenLeaflet(latlngs[index - 1], latlngs[index]))
+
+  // update start and end markers
+  if (index === 0) {
+    lseg.specialMarkers.start.setLatLng(latlngs[0])
+  } else if(index === latlngs.length - 1) {
+    lseg.specialMarkers.start.setLatLng(latlngs[latlngs.length - 1])
+  }
 
   // update points indexes
   for (let i = index; i < latlngs.length; i++) {
@@ -128,6 +137,7 @@ export default (lseg, current, previous, actions) => {
     // lseg.updated = true
     actions.onRemove(id, e.target.index, lat, lng)
     // updateRemove(lseg, e.target.index, group, overlay)
+    console.log(e)
     lseg.details.removeLayer(group)
   }
   const editModeHandler = (e) => {

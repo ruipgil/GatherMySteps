@@ -2,7 +2,7 @@ import React from 'react'
 import store from 'store'
 import SegmentToolbox from 'components/SegmentToolbox'
 import { Polyline, FeatureGroup, DivIcon, Marker } from 'leaflet'
-import { createPointsFeatureGroup, renderToDiv } from './utils'
+import { createPointsFeatureGroup, renderToDiv, createPointIcon, createMarker } from './utils'
 import { Provider } from 'react-redux'
 import buildTransportationModeRepresentation from './buildTransportationModeRepresentation'
 
@@ -30,11 +30,16 @@ export default (id, points, color, display, filter, segment, dispatch, previousP
 
   const pointsEventMap = {}
   const pointsLayer = createPointsFeatureGroup(pts, color, pointsEventMap)
-  const layergroup = new FeatureGroup([pline])
+  const specialMarkers = {
+    start: createMarker(pts[0], createPointIcon(color, '<i class="p-fa fa-play" />')),
+    end: createMarker(pts[pts.length - 1], createPointIcon(color, '<i class="p-fa fa-stop" />'))
+  }
+  const layergroup = new FeatureGroup([pline, ...Object.keys(specialMarkers).map((k) => specialMarkers[k])])
 
   // add segment
   const obj = {
     layergroup,
+    specialMarkers,
     polyline: pline,
     points: pointsLayer,
     details: new FeatureGroup(),

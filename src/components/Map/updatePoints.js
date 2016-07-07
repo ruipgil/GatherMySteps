@@ -38,10 +38,20 @@ export default function updatePoints (segment, current, previous, color, filter)
       }
     }
     segment.polyline.setLatLngs(update(polylinePoints, markers.getLayers()))
+
+    // Update start marker
+    segment.specialMarkers.start.setLatLng(polylinePoints[0])
+    // Update end marker
+    segment.specialMarkers.end.setLatLng(polylinePoints[polylinePoints.length - 1])
   } else {
     // initalization
     const pts = current.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
     segment.polyline.setLatLngs(pts)
     segment.points = createPointsFeatureGroup(pts, color, segment.pointsEventMap)
+
+    // Update start marker
+    segment.specialMarkers.start.setLatLng(pts[0])
+    // Update end marker
+    segment.specialMarkers.end.setLatLng(pts[pts.length - 1])
   }
 }
