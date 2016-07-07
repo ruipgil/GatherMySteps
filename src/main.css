@@ -407,3 +407,20 @@ html, body {
   position: relative;
   width: 16px;
 }
+
+.control-v .button {
+  display: block;
+}
+
+.control-v.has-addons .button:first-child {
+  border-radius: 3px 3px 0 0;
+}
+
+.control-v.has-addons .button {
+  margin-bottom: -1px;
+  border-radius: 0;
+}
+
+.control-v.has-addons .button:last-child {
+  border-radius: 0px 0px 3px 3px;
+}

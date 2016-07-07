@@ -193,7 +193,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   }
 
   const multipleActions = (
-    <div className='columns is-gapless'>
+    <div className='control-v has-addons' style={{ width: '30px', position: 'fixed', left: '19.6%', top: '100px' }}>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(showHideAll())} title='Toggle all'><i className='fa fa-eye-slash' /></a>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(downloadAll())} title='Download all'><i className='fa fa-download' /></a>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(clearAll())} title='Delete all'><i className='fa fa-trash' /></a>
@@ -202,7 +202,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
 
   let nav = (
     <div style={{ marginTop: '0.5rem' }}>
-      { process.env.BUILD_GPX ? multipleActions : null }
+      { multipleActions }
       <div className='columns is-gapless' style={{ marginBottom: 0 }}>
         { subNav }
       </div>

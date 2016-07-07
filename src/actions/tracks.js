@@ -86,11 +86,15 @@ export const showHideAll = () => {
   }
 }
 
+export const removeTrack = (trackId) => ({
+  trackId,
+  type: 'REMOVE_TRACK'
+})
+
 export const clearAll = () => {
   return (dispatch, getState) => {
     getState().get('tracks').get('tracks').keySeq().forEach((t) => {
-      // dispatch(removeTrack(t))
-      alert('Not yet implemented')
+      dispatch(removeTrack(t))
     })
   }
 }
