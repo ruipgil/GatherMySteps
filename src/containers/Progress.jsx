@@ -20,7 +20,7 @@ import {
 
 import { addAlert } from 'actions/ui'
 
-let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
+let Progress = ({ dispatch, stage, canProceed, remaining, showList, segmentsCount }) => {
   let Pane
   switch (stage) {
     case ADJUST_STAGE:
@@ -193,7 +193,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
   }
 
   const multipleActions = (
-    <div className='control-v has-addons' style={{ width: '30px', position: 'fixed', left: '19.6%', top: '100px' }}>
+    <div className='control-v has-addons fade-in' style={{ width: '30px', position: 'fixed', left: '19.6%', top: '100px' }}>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(showHideAll())} title='Toggle all'><i className='fa fa-eye-slash' /></a>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(downloadAll())} title='Download all'><i className='fa fa-download' /></a>
       <a className='button icon-button column is-gapless is-text-centered' onClick={() => dispatch(clearAll())} title='Delete all'><i className='fa fa-trash' /></a>
@@ -202,7 +202,7 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList }) => {
 
   let nav = (
     <div style={{ marginTop: '0.5rem' }}>
-      { multipleActions }
+      { (segmentsCount > 1 && stage !== ANNOTATE_STAGE) ? multipleActions : null }
       <div className='columns is-gapless' style={{ marginBottom: 0 }}>
         { subNav }
       </div>
@@ -222,7 +222,8 @@ const mapStateToProps = (state) => {
     stage: state.get('progress').get('step'),
     showList: state.get('ui').get('showRemainingTracks'),
     remaining: state.get('progress').get('remainingTracks'),
-    canProceed: state.get('tracks').get('tracks').count() > 0
+    canProceed: state.get('tracks').get('tracks').count() > 0,
+    segmentsCount: state.get('tracks').get('segments').count()
   }
 }
 

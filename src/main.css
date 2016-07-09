@@ -298,7 +298,7 @@ html, body {
 .p-fa {
   font-style: normal;
   font-size: 11px;
-  margin-left: -1px;
+  /* margin-left: -1px; */
 }
 .new-editable-point {
   border-width: 0;
@@ -341,14 +341,14 @@ html, body {
   border-color: #b15928;
 }
 
-.border-color-1b9e77 { border-color: #1b9e77 }
-.border-color-d95f02 { border-color: #d95f02 }
-.border-color-7570b3 { border-color: #7570b3 }
-.border-color-e7298a { border-color: #e7298a }
-.border-color-66a61e { border-color: #66a61e }
-.border-color-e6ab02 { border-color: #e6ab02 }
-.border-color-a6761d { border-color: #a6761d }
-.border-color-666666 { border-color: #666666 }
+.border-color-1b9e77 { border-color: #1b9e77; color: #1b9e77 }
+.border-color-d95f02 { border-color: #d95f02; color: #d95f02 }
+.border-color-7570b3 { border-color: #7570b3; color: #7570b3 }
+.border-color-e7298a { border-color: #e7298a; color: #e7298a }
+.border-color-66a61e { border-color: #66a61e; color: #66a61e }
+.border-color-e6ab02 { border-color: #e6ab02; color: #e6ab02 }
+.border-color-a6761d { border-color: #a6761d; color: #a6761d }
+.border-color-666666 { border-color: #666666; color: #666666 }
 
 .dropInfo {
   display: flex;
