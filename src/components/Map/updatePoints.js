@@ -12,6 +12,9 @@ export default function updatePoints (segment, current, previous, color, filter)
 
         markers[i].setLatLng([lat, lng])
         markers[i].index = i
+        markers[i].previous = i - 1
+        markers[i].next = i + 1
+        markers[i].type = 'NORMAL'
       })
 
       return polylinePoints
