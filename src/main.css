@@ -238,6 +238,10 @@ html, body {
   -webkit-animation: slideFromTopFade 0.5s ease-out;
 }
 
+.expand {
+  -webkit-animation: width 2s ease-out;
+}
+
 @-webkit-keyframes slideFromTopFade {
   0% {
     position: relative;
@@ -294,6 +298,10 @@ html, body {
   border-width: 5px;
   border-style: solid;
   font-style: normal !important;
+
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 .p-fa {
   font-style: normal;
@@ -423,4 +431,8 @@ html, body {
 
 .control-v.has-addons .button:last-child {
   border-radius: 0px 0px 3px 3px;
+}
+
+.selected-point {
+  border-width: 10px;
 }

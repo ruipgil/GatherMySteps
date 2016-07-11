@@ -11,7 +11,7 @@ import {
 import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
-import { Map, fromJS } from 'immutable'
+import { List, Map, fromJS } from 'immutable'
 import moment from 'moment'
 
 const updateSegment = (state, id) => {
@@ -169,10 +169,13 @@ const splitSegment = (state, action) => {
   action.undo = (self, state) => {
     state = state.updateIn(['segments', id, 'points'], (points) => {
       const rest = state.get('segments').get(newSegmentId).get('points')
+      console.log(rest.toJS())
       return points.push(...rest.slice(1))
     })
     .deleteIn(['segments', newSegmentId])
-    .deleteIn(['tracks', state.get('segments').get(id).get('trackId'), 'segments', newSegmentId])
+    .updateIn(['tracks', state.get('segments').get(id).get('trackId'), 'segments'], (segs) => {
+      return segs.delete(segs.indexOf(newSegmentId))
+    })
     state = updateSegment(state, id)
 
     action.forceId = newSegmentId
@@ -306,6 +309,7 @@ const toggleSegmentEditing = (state, action) => {
   const id = action.segmentId
   if (state.get('segments').get(id).get('editing')) {
     state = updateSegment(state, id)
+    state = state.set('pointsSelected', new List())
   }
   return toggleSegProp(state, action.segmentId, 'editing')
 }
@@ -457,6 +461,100 @@ const deselectPointInMap = (state, action) => {
   return state.setIn(['segments', segmentId, 'pointAction'], null)
 }
 
+const selectPoint = (state, action) => {
+  const { segmentId, point } = action
+
+  return state.updateIn(['segments', segmentId, 'selectedPoints'], (points) => {
+    if (!points || points.count() === 0) {
+      return new List([point])
+    } else {
+      if (points.get(0) === point) {
+        if (points.count() === 1) {
+          return points.clear()
+        } else {
+          return points.delete(1)
+        }
+      } else {
+        return points.set(1, point)
+      }
+    }
+  })
+}
+
+const deselectPoint = (state, action) => {
+  const { segmentId, point } = action
+  if (point) {
+    return state.updateIn(['segments', segmentId, 'selectedPoints'], (points) => {
+      return points.delete(points.indexOf(points))
+    })
+  } else {
+    return state.setIn(['segments', segmentId, 'selectedPoints'], new List())
+  }
+}
+
+const closestPointOnLineSegment = (a, b, p) => {
+  const ap = { lat: p.lat - a.lat, lon: p.lon - a.lon }
+  const ab = { lat: b.lat - a.lat, lon: b.lon - a.lon }
+
+  const magAB = ab.lat * ab.lat + ab.lon * ab.lon
+  const abapProduct = ab.lat * ap.lat + ab.lon * ap.lon
+  const distance = abapProduct / magAB
+
+  if (distance < 0) {
+    return a
+  } else if (distance > 1) {
+    return b
+  } else {
+    return {
+      lat: a.lat + ab.lat * distance,
+      lon: a.lon + ab.lon * distance
+    }
+  }
+}
+
+const straightSelected = (state, action) => {
+  const { segmentId } = action
+  const selected = state.get('segments').get(segmentId).get('selectedPoints').sort()
+  const pts = state.get('segments').get(segmentId).get('points')
+
+  const startIndex = selected.get(0)
+  const endIndex = selected.get(-1)
+  const start = pts.get(startIndex).toJS()
+  const end = pts.get(endIndex).toJS()
+
+  return state.updateIn(['segments', segmentId, 'points'], (points) => {
+    for (let i = startIndex; i < endIndex; i++) {
+      points = points.update(i, (p) => {
+        const closest = closestPointOnLineSegment(start, end, p.toJS())
+        return p
+          .set('lat', closest.lat)
+          .set('lon', closest.lon)
+      })
+    }
+    return points
+  })
+}
+
+// const interpolateTimeSelected = (state, action) => {
+//   const { segmentId } = action
+//   const selected = state.get('segments').get(segmentId).get('selectedPoints').sort()
+//   const pts = state.get('segments').get(segmentId).get('points')
+//
+//   const startIndex = selected.get(0)
+//   const endIndex = selected.get(-1)
+//   const start = pts.get(startIndex).toJS()
+//   const end = pts.get(endIndex).toJS()
+//
+//   return state.updateIn(['segments', segmentId, 'points'], (points) => {
+//     for (let i = startIndex; i < endIndex; i++) {
+//       points = points.update(i, (p) => {
+//         return p.set('time', closest.lat)
+//       })
+//     }
+//     return points
+//   })
+// }
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -481,7 +579,12 @@ const ACTION_REACTION = {
   'UPDATE_TRANSPORTATION_TIME': updateTransportationTime,
 
   'SELECT_POINT_IN_MAP': selectPointInMap,
-  'DESELECT_POINT_IN_MAP': deselectPointInMap
+  'DESELECT_POINT_IN_MAP': deselectPointInMap,
+
+  'SELECT_POINT': selectPoint,
+  'DESELECT_POINT': deselectPoint,
+
+  'STRAIGHT_SELECTED': straightSelected
 }
 
 const segments = (state = [], action) => {

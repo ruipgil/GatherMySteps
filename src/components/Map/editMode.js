@@ -1,5 +1,6 @@
 import { DivIcon, Polyline, FeatureGroup } from 'leaflet'
 import { createMarker, setupMarker } from './utils'
+import editPointProperties from './editPointProperties'
 
 const newPointIcon = new DivIcon({
   className: 'fa fa-plus editable-point new-editable-point',
@@ -85,48 +86,16 @@ const updateMove = (lseg, index, lat, lng, target, glayers) => {
   }
 }
 
-const updateRemove = (lseg, index, group, amarkers) => {
-  // remove point from polyline
-  const latlngs = lseg.polyline.getLatLngs()
-  latlngs.splice(index, 1)
-  lseg.polyline.setLatLngs(latlngs)
-
-  // remove point from points and update them
-  const points = lseg.points.getLayers()
-  lseg.points.removeLayer(points[index])
-
-  // remove add point marker, keep one for the new connection
-  group.removeLayer(amarkers[index])
-  amarkers.splice(index, 1)
-
-  // update add points marker
-  amarkers[index - 1].setLatLng(pointInBetweenLeaflet(latlngs[index - 1], latlngs[index]))
-
-  // update start and end markers
-  if (index === 0) {
-    lseg.specialMarkers.start.setLatLng(latlngs[0])
-  } else if(index === latlngs.length - 1) {
-    lseg.specialMarkers.start.setLatLng(latlngs[latlngs.length - 1])
-  }
-
-  // update points indexes
-  for (let i = index; i < latlngs.length; i++) {
-    const marker = amarkers[i]
-    marker.index = i
-    marker.previous = i - 1
-    marker.next = i + 1
-  }
-}
-
-const setupExistingMarker = (marker, i, editModeHandler, removePoint, visualHelper) => {
+const setupExistingMarker = (marker, i, editModeHandler, removePoint, visualHelper, editPP) => {
   marker.options.draggable = true
+  marker.on('click', editPP)
   marker.on('dragend', editModeHandler)
   marker.on('contextmenu', removePoint)
   marker.on('drag dragstart dragend', visualHelper)
   return marker
 }
 
-export default (lseg, current, previous, actions) => {
+export default (lseg, current, previous, actions, dispatch) => {
   const id = current.get('id')
   const color = current.get('color')
   const points = current.get('points')
@@ -208,11 +177,12 @@ export default (lseg, current, previous, actions) => {
 
   let prevPoint
   const markers = lseg.points.getLayers()
+  const editPP = editPointProperties(lseg, current, dispatch)
   points.forEach((point, i) => {
     if (prevPoint) {
       overlay.push(setupNewMarker(pointInBetween(prevPoint, point), i))
     }
-    setupExistingMarker(markers[i], i, editModeHandler, removePoint, visualHelper)
+    setupExistingMarker(markers[i], i, editModeHandler, removePoint, visualHelper, editPP)
     prevPoint = point
   })
 
@@ -246,6 +216,7 @@ export default (lseg, current, previous, actions) => {
   markers.forEach((m) => !m.dragging || m.dragging.enable())
 
   lseg.tearDown = (current, previous) => {
+    console.log('aa')
     if (!current.get('editing') || (current.get('editing') && current.get('points') !== previous.get('points'))) {
       lseg.details.removeLayer(lseg.points)
       lseg.details.removeLayer(group)
@@ -255,6 +226,28 @@ export default (lseg, current, previous, actions) => {
       lseg.specialMarkers.end.addTo(lseg.layergroup)
 
       lseg.tearDown = null
+    } else if (current.get('selectedPoints') !== previous.get('selectedPoints')) {
+      const lpoints = lseg.points.getLayers()
+
+      let psp = previous.get('selectedPoints')
+      if (psp) {
+        psp = psp.sort()
+        const psp_start = psp.get(0)
+        const psp_end = psp.get(-1)
+        for (let i = psp_start; i <= psp_end; i++) {
+          lpoints[i]._icon.className = lpoints[i]._icon.className.split(' ').filter((x) => x !== 'selected-point').join(' ')
+        }
+      }
+
+      let csp = current.get('selectedPoints')
+      if (csp) {
+        csp = csp.sort()
+        const csp_start = csp.get(0)
+        const csp_end = csp.get(-1)
+        for (let i = csp_start; i <= csp_end; i++) {
+          lpoints[i]._icon.className = lpoints[i]._icon.className + ' selected-point'
+        }
+      }
     }
   }
 }
