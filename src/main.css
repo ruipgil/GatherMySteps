@@ -436,3 +436,7 @@ html, body {
 .selected-point {
   border-width: 10px;
 }
+
+.is-halfwidth {
+  width: 50%;
+}

@@ -1,75 +1,61 @@
 import React from 'react'
-import { render } from 'react-dom'
-import DetailPopup from './DetailPopup'
+import { createPopup, openPopup } from './createPopup'
 import {
   selectPoint,
+  updatePoint,
   deselectPoint,
-  straightSelected,
-  interpolateTimeSelected
+  straightSelected
+  // interpolateTimeSelected
 } from 'actions/segments'
 
 export default (lseg, current, dispatch) => {
   return (e) => {
     const { target, originalEvent } = e
     const { shiftKey } = originalEvent
+    const { index } = target
 
-    const index = target.index
+    const cPopup = (index, next) => {
+      return createPopup(current.get('points'), index, true, next, {
+        onSave: (lat, lon, time) => dispatch(updatePoint(current.get('id'), index, lat, lon, time))
+      })
+    }
 
-    const openPopupFor = (target, index, bulk = false) => {
-      const point = current.get('points').get(index)
-      const previousPoint = current.get('points').get(index - 1)
-      const nextPoint = current.get('points').get(index + 1)
-
-      const pm = current.get('metrics').get('points').get(index)
-      const count = current.get('points').count()
+    const openPopupFor = (layer, index, bulk = false) => {
       const next = (i) => {
-        target.closePopup()
-        target = lseg.points.getLayers()[i]
-        openPopupFor(target, i)
+        layer.closePopup()
+        const targetLayer = lseg.points.getLayers()[i]
+
+        const popup = cPopup(index, next)
+        openPopup(popup, targetLayer)
       }
+
       let popup
       if (!bulk) {
-        popup = (
-          <DetailPopup
-            lat={point.get('lat')}
-            lon={point.get('lon')}
-            time={point.get('time')}
-
-            distance={pm.get('distance')}
-            velocity={pm.get('velocity')}
-
-            previousPoint={previousPoint}
-            nextPoint={nextPoint}
-
-            i={index}
-            count={count}
-            editable={true}
-            onMove={next} />
-        )
+        popup = cPopup(index, next)
       } else {
         popup = (
           <div>
             <div>
               <a className='button' onClick={() => dispatch(straightSelected(current.get('id')))}>Straight line</a>
             </div>
-            <div>
-              <a className='button' onClick={() => dispatch(interpolateTimeSelected())}>Interpolate time</a>
-            </div>
+            {
+            // <div>
+            //   <a className='button' onClick={() => dispatch(interpolateTimeSelected())}>Interpolate time</a>
+            // </div>
+            }
           </div>
         )
       }
-      const div = document.createElement('div')
-      render(popup, div)
-      target.bindPopup(div).openPopup()
+      openPopup(popup, layer)
     }
 
     if (shiftKey) {
       const selected = dispatch(selectPoint(current.get('id'), index))
-      if (selected && selected.count() !== 0) {
+      if (selected && selected.count() > 1) {
         openPopupFor(target, index, selected)
       }
     } else {
-      dispatch(deselectPoint())
+      dispatch(deselectPoint(current.get('id')))
       openPopupFor(target, index)
     }
   }

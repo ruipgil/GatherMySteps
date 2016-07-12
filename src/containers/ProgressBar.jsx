@@ -122,7 +122,6 @@ ProgressBar = ({ state, ballStyle, children }) => {
               } else if (state < s) {
                 stl = rulerAfterStyle
               }
-              console.log(state, s, stl)
               return (<ProgressRuler style={stl} />)
             }
           }

@@ -214,3 +214,12 @@ export const interpolateTimeSelected = (segmentId) => ({
   segmentId,
   type: 'INTERPOLATED_TIME_SELECTED'
 })
+
+export const updatePoint = (segmentId, index, lat, lon, time) => ({
+  segmentId,
+  index,
+  lat,
+  lon,
+  time,
+  type: 'UPDATE_POINT'
+})

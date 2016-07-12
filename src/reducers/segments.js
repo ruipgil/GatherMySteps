@@ -309,8 +309,8 @@ const toggleSegmentEditing = (state, action) => {
   const id = action.segmentId
   if (state.get('segments').get(id).get('editing')) {
     state = updateSegment(state, id)
-    state = state.set('pointsSelected', new List())
   }
+  state = state.setIn(['segments', id, 'selectedPoints'], new List())
   return toggleSegProp(state, action.segmentId, 'editing')
 }
 
@@ -555,6 +555,16 @@ const straightSelected = (state, action) => {
 //   })
 // }
 
+const updatePoint = (state, action) => {
+  const { segmentId, index, lat, lon, time } = action
+  return state.updateIn(['segments', segmentId, 'points', index], (point) => {
+    return point
+      .set('lat', lat)
+      .set('lon', lon)
+      .set('time', time)
+  })
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -584,7 +594,8 @@ const ACTION_REACTION = {
   'SELECT_POINT': selectPoint,
   'DESELECT_POINT': deselectPoint,
 
-  'STRAIGHT_SELECTED': straightSelected
+  'STRAIGHT_SELECTED': straightSelected,
+  'UPDATE_POINT': updatePoint
 }
 
 const segments = (state = [], action) => {
