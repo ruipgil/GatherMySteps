@@ -56,7 +56,13 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
       <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
         {
           segments
-          .sort((a, b) => a.get('start').diff(b.get('start')))
+            .sort((a, b) => {
+              if (a.get('start').isSame(b.get('start'))) {
+                return a.get('end').diff(b.get('end'))
+              } else {
+                return a.get('start').diff(b.get('start'))
+              }
+            })
           .map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)
         }
       </ul>
