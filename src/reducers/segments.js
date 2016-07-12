@@ -566,6 +566,14 @@ const updatePoint = (state, action) => {
   })
 }
 
+const addNewSegment = (state, action) => {
+  const { trackId, point } = action
+  const seg = createSegmentObj(trackId, [point])
+  return state
+    .setIn(['segments', seg.get('id')], seg)
+    .updateIn(['tracks', trackId, 'segments'], (segs) => segs.push(seg.get('id')))
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -596,7 +604,8 @@ const ACTION_REACTION = {
   'DESELECT_POINT': deselectPoint,
 
   'STRAIGHT_SELECTED': straightSelected,
-  'UPDATE_POINT': updatePoint
+  'UPDATE_POINT': updatePoint,
+  'ADD_NEW_SEGMENT': addNewSegment
 }
 
 const segments = (state = [], action) => {

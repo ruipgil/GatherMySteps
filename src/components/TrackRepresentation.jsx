@@ -1,6 +1,13 @@
 import React from 'react'
 import SegmentRepresentation from './SegmentRepresentation.jsx'
-import { downloadTrack, toggleTrackRenaming, updateTrackName } from '../actions/tracks'
+import {
+  downloadTrack,
+  toggleTrackRenaming,
+  updateTrackName
+} from 'actions/tracks'
+import {
+  addNewSegment
+} from 'actions/segments'
 
 const TrackRepresentation = ({ dispatch, track, segments }) => {
   // const { name, segments, renaming, id } = track
@@ -65,6 +72,21 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
             })
           .map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)
         }
+
+        <div style={{ borderLeft: '4px dotted #aaa', marginLeft: '3px', paddingLeft: '6px' }} className='slide-from-top-fade-in' >
+          <a style={{
+            borderStyle: 'dashed',
+            width: '100%',
+            color: 'gray',
+            padding: '5px',
+            margin: '5px 0 6px 0px'
+          }} className='button is-small' onClick={() => dispatch(addNewSegment(id))}>
+            <span className='icon is-small'>
+              <i className='fa fa-plus' />
+            </span>
+            new segment
+          </a>
+        </div>
       </ul>
     </div>
   )

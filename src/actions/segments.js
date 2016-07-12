@@ -14,6 +14,7 @@ import {
   TOGGLE_SEGMENT_POINT_DETAILS,
   TOGGLE_SEGMENT_JOINING,
   TOGGLE_SEGMENT_EDITING } from './'
+import moment from 'moment'
 
 export const addSegmentPoint = (segmentId, index, lat, lon) => {
   return {
@@ -223,3 +224,24 @@ export const updatePoint = (segmentId, index, lat, lon, time) => ({
   time,
   type: 'UPDATE_POINT'
 })
+
+export const addNewSegment = (trackId) => {
+  return (dispatch, getState) => {
+    const bounds = getState().get('ui').get('bounds')
+
+    const topLeft = bounds.get(0)
+    const bottomRight = bounds.get(1)
+
+    const point = {
+      lat: topLeft.get(0) + Math.abs(topLeft.get(0) - bottomRight.get(0)) / 2,
+      lon: topLeft.get(1) + Math.abs(topLeft.get(1) - bottomRight.get(1)) / 2,
+      time: moment()
+    }
+
+    return dispatch({
+      trackId,
+      point,
+      type: 'ADD_NEW_SEGMENT'
+    })
+  }
+}
