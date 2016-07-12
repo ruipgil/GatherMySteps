@@ -15,6 +15,7 @@ import {
   TOGGLE_SEGMENT_JOINING,
   TOGGLE_SEGMENT_EDITING } from './'
 import moment from 'moment'
+import { addAlert, removeAlert } from 'actions/ui'
 
 export const addSegmentPoint = (segmentId, index, lat, lon) => {
   return {
@@ -227,21 +228,24 @@ export const updatePoint = (segmentId, index, lat, lon, time) => ({
 
 export const addNewSegment = (trackId) => {
   return (dispatch, getState) => {
-    const bounds = getState().get('ui').get('bounds')
+    dispatch(addAlert('Click on the map to insert one point', 'success', 3, 'point-prompt'))
+    dispatch({
+      callback: (point) => {
+        point.time = moment()
 
-    const topLeft = bounds.get(0)
-    const bottomRight = bounds.get(1)
+        dispatch({
+          trackId,
+          point,
+          type: 'ADD_NEW_SEGMENT'
+        })
 
-    const point = {
-      lat: topLeft.get(0) + Math.abs(topLeft.get(0) - bottomRight.get(0)) / 2,
-      lon: topLeft.get(1) + Math.abs(topLeft.get(1) - bottomRight.get(1)) / 2,
-      time: moment()
-    }
+        dispatch({
+          type: 'REMOVE_POINT_PROMPT'
+        })
 
-    return dispatch({
-      trackId,
-      point,
-      type: 'ADD_NEW_SEGMENT'
+        dispatch(removeAlert(null, 'point-prompt'))
+      },
+      type: 'ADD_POINT_PROMPT'
     })
   }
 }
