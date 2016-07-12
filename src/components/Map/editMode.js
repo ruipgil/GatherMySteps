@@ -1,6 +1,7 @@
 import { DivIcon, Polyline, FeatureGroup } from 'leaflet'
 import { createMarker, setupMarker } from './utils'
 import editPointProperties from './editPointProperties'
+import { Map } from 'immutable'
 
 const newPointIcon = new DivIcon({
   className: 'fa fa-plus editable-point new-editable-point',
@@ -202,13 +203,26 @@ export default (lseg, current, previous, actions, dispatch) => {
   }
 
   // extend polyline
-  const startInterpolated = interpolatePoint(points.get(0), points.get(1))
-  const startGuide = newAndGuide(startInterpolated, markers[0].getLatLng(), 0, -1, 0)
-  overlay.push(startGuide)
+  if (points.count() === 1) {
+    const start = points.get(0)
+    const aPoint = start.set('lat', start.get('lat') + 0.0001)
+    const bPoint = start.set('lat', start.get('lat') - 0.0001)
+    const startInterpolated = interpolatePoint(start, aPoint)
+    const startGuide = newAndGuide(startInterpolated, markers[0].getLatLng(), 1, -1, 0)
+    overlay.push(startGuide)
 
-  const endInterpolated = interpolatePoint(points.get(-1), points.get(-2))
-  const endGuide = newAndGuide(endInterpolated, markers[markers.length - 1].getLatLng(), points.count(), points.count() - 1, points.count() - 1)
-  overlay.push(endGuide)
+    const endInterpolated = interpolatePoint(points.get(-1), bPoint)
+    const endGuide = newAndGuide(endInterpolated, markers[0].getLatLng(), 1, -1, 0)
+    overlay.push(endGuide)
+  } else {
+    const startInterpolated = interpolatePoint(points.get(0), points.get(1))
+    const startGuide = newAndGuide(startInterpolated, markers[0].getLatLng(), 0, -1, 0)
+    overlay.push(startGuide)
+
+    const endInterpolated = interpolatePoint(points.get(-1), points.get(-2))
+    const endGuide = newAndGuide(endInterpolated, markers[markers.length - 1].getLatLng(), points.count(), points.count() - 1, points.count() - 1)
+    overlay.push(endGuide)
+  }
 
   group = new FeatureGroup(overlay)
   group.addTo(lseg.details)
