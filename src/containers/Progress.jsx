@@ -8,7 +8,8 @@ import {
   nextStep,
   previousStep,
   bulkProcess,
-  loadLIFE
+  loadLIFE,
+  reloadQueue
 } from '../actions/progress'
 import DaysLeft from 'containers/DaysLeft'
 import { toggleRemainingTracks } from 'actions/ui'
@@ -29,6 +30,9 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList, segmentsCoun
       break
     case ANNOTATE_STAGE:
       Pane = SemanticEditor
+      break
+    default:
+      Pane = TrackList
       break
   }
 
@@ -184,12 +188,20 @@ let Progress = ({ dispatch, stage, canProceed, remaining, showList, segmentsCoun
         <Pane className='is-flexgrow' width='100%' />
       </div>
     )
-    detailsLabel = (
-      <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
-        { remainingMessage(remaining.count()) }
-      </div>
-    )
-    subNav = navNav
+    if (segmentsCount !== 0) {
+      detailsLabel = (
+        <div style={{ color: 'gray', textAlign: 'center', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(toggleRemainingTracks())}>
+          { remainingMessage(remaining.count()) }
+        </div>
+      )
+      subNav = navNav
+    } else if (stage !== -2) {
+      detailsLabel = (
+        <div style={{ color: 'gray', textAlign: 'center', fontWeight: 'bold', fontSize: '0.9rem' }} className='clickable' onClick={() => dispatch(reloadQueue())}>
+          Rescan Folder
+        </div>
+      )
+    }
   }
 
   const multipleActions = (

@@ -2,6 +2,8 @@ import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
 import { fitSegments, toggleConfig } from 'actions/ui'
 import { addPossibilities } from 'actions/segments'
+import { clearAll } from 'actions/tracks'
+import { addAlert } from 'actions/ui'
 
 const segmentsToJson = (state) => {
   return state.get('tracks').get('segments').valueSeq().map((segment) => {
@@ -27,6 +29,12 @@ export const updateConfig = (config) => ({
   type: 'UPDATE_CONFIG'
 })
 
+export const handleError = (error, dispatch) => {
+  if (error.message === 'Failed to fetch') {
+    dispatch(toggleConfig())
+  }
+}
+
 export const getConfig = (cb) => {
   return (dispatch, getState) => {
     const options = {
@@ -35,6 +43,11 @@ export const getConfig = (cb) => {
     }
     return fetch(getState().get('progress').get('server') + '/config', options)
       .then((response) => response.json())
+      // .catch((err) => {
+      //   if (err.message === 'Failed to fetch') {
+      //     dispatch(addAlert('Couldn\'t connect to the server', 'error'))
+      //   }
+      // })
       .then((config) => {
         dispatch(updateConfig(config))
       })
@@ -52,10 +65,16 @@ export const saveConfig = (config) => {
     }
     return fetch(getState().get('progress').get('server') + '/config', options)
       .then((response) => response.json())
+      .catch((err) => {
+        dispatch(addAlert('Error while saving configurations to the server', 'error', 5, 'config-err'))
+        throw err
+      })
       .then((config) => {
+        dispatch(addAlert('Configurations saved to the server', 'success', 5, 'config-done'))
+        if (getState().get('progress').get('step') < 0) {
+          dispatch(requestServerState())
+        }
         dispatch(toggleConfig())
-        // Request server state if address has changed
-        // dispatch(requestServerState())
       })
   }
 }
@@ -99,12 +118,19 @@ export const completeTrip = (segmentId, from, to, index) => {
 
 const updateState = (dispatch, json, getState, reverse = false) => {
   resetId()
+  if (!json) {
+    return
+  }
   console.log('Payload')
   console.log(json)
+  dispatch(setServerState(json.step, json.queue, json.currentDay, json.life))
+  if (json.step < 0) {
+    dispatch(clearAll())
+    return
+  }
   // if (json.step === 2) {
   //   dispatch(removeTracksFor(json.track.segments, json.track.name))
   // }
-  dispatch(setServerState(json.step, json.queue, json.currentDay, json.life))
   // if (json.step !== 2) {
     dispatch(removeTracksFor(json.track.segments, json.track.name))
   // }
@@ -122,7 +148,7 @@ export const requestServerState = () => {
     fetch(getState().get('progress').get('server') + '/current', options)
       .then((response) => response.json())
       .catch((err) => {
-        console.log(err)
+        handleError(err, dispatch)
       })
       .then((json) => updateState(dispatch, json, getState))
   }

@@ -131,6 +131,7 @@ export const toggleConfig = () => {
     if (!getState().get('ui').get('showConfig')) {
       dispatch(getConfig())
         .then(() => dispatch(action))
+        .catch(() => dispatch(action))
     } else {
       dispatch(action)
     }
