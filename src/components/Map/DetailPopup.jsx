@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import haversine from 'haversine'
+import AsyncButton from 'components/AsyncButton'
 
 const flexAlignStyle = {
   display: 'flex',
@@ -8,6 +9,7 @@ const flexAlignStyle = {
   justifyContent: 'center',
   margin: '0 10px'
 }
+const formatTime = (t) => t.local().format('YYYY-MM-DDTHH:mm:ss')
 
 const PointMetrics = ({ current, previous, next, index }) => {
   const ballStyle = {
@@ -97,7 +99,8 @@ class EditPoint extends Component {
     this.state = {
       lat: this.props.current.get('lat'),
       lon: this.props.current.get('lon'),
-      time: this.props.current.get('time')
+      time: this.props.current.get('time'),
+      validationError: ' '
     }
   }
 
@@ -109,10 +112,44 @@ class EditPoint extends Component {
         this.state[prop] = parseFloat(value)
         break
       case 'time':
+        // if (previousPoint && previousPoint.get('time').valueOf() < currentValue) {
+        //   console.log('bad with previous')
+        //   this.state[prop] = previousPoint.get('time').clone()
+        // } else if (nextPoint && currentValue < nextPoint.get('time').valueOf()) {
+        //   console.log('bad with next')
+        //   this.state[prop] = nextPoint.get('time').clone()
+        // } else {
+        //   console.log('good')
         this.state[prop] = moment(value)
+        this.validateDate(e, false)
+        // }
         break
     }
     this.setState(this.state)
+  }
+
+  validateDate (e, change = true) {
+    const { value } = e.target
+    const { previousPoint, nextPoint } = this.props
+    const currentValue = moment(value)
+    if (previousPoint && previousPoint.get('time').valueOf() > currentValue) {
+      this.state.validationError = 'Time must be ' + formatTime(previousPoint.get('time')) + ' or higher'
+      if (change) {
+        this.state.time = previousPoint.get('time').clone()
+        this.setState(this.state)
+      }
+    } else if (nextPoint && currentValue > nextPoint.get('time').valueOf()) {
+      this.state.validationError = 'Time must be ' + formatTime(nextPoint.get('time')) + ' or lower'
+      if (change) {
+        this.state.time = nextPoint.get('time').clone()
+        this.setState(this.state)
+      }
+    } else {
+      if (this.state.validationError !== ' ') {
+        this.state.validationError = ' '
+        this.setState(this.state)
+      }
+    }
   }
 
   onReset () {
@@ -126,16 +163,16 @@ class EditPoint extends Component {
       !this.state.time.isSame(this.props.current.get('time'))
   }
 
-  onSave () {
+  onSave (e, modifier) {
     const { lat, lon, time } = this.state
     this.props.onSave(lat, lon, time)
+    modifier('is-success', undefined, <i className='fa is-small fa-check' />)
+    setTimeout(() => modifier(), 1000)
   }
 
   render () {
     const { onSave, current, previousPoint, nextPoint, index, editable } = this.props
     const { lat, lon, time } = this.state
-
-    const formatTime = (t) => t.local().format('YYYY-MM-DDThh:mm:ss')
 
     const datetime = formatTime(time)
     const datetimeMin = previousPoint ? formatTime(previousPoint.get('time')) : null
@@ -146,6 +183,7 @@ class EditPoint extends Component {
     const controlStyle = {
       marginBottom: '2px'
     }
+
     return (
       <div>
         <PointMetrics current={current} previous={previousPoint} next={nextPoint} index={index} />
@@ -191,19 +229,23 @@ class EditPoint extends Component {
                     className='input is-small'
                     value={datetime}
                     onChange={this.onChange.bind(this, 'time')}
+                    onBlur={this.validateDate.bind(this)}
                     step={1} />
                   )
                 : datetime
             }
           </div>
         </div>
+        <div style={{ color: '#cb4b16', fontSize: '0.9em', textAlign: 'right' }}>{ this.state.validationError }</div>
 
         {
           editable
           ? (
             <div className='has-text-right'>
               <a className='button is-link is-small' onClick={this.onReset.bind(this)}>Reset</a>
-              <a className={'button is-success is-small' + (!this.hasChanged() ? ' is-disabled' : '')} onClick={this.onSave.bind(this)}>Save</a>
+              <AsyncButton className={'button is-primary is-small' + (!this.hasChanged() ? ' is-disabled' : '')} onClick={this.onSave.bind(this)}>
+                Save
+              </AsyncButton>
             </div>
             )
           : null
