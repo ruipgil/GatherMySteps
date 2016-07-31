@@ -14,6 +14,7 @@ const setServerState = (state, action) => {
     .set('remainingTracks', fromJS(action.tracksRemaining))
     .set('daySelected', action.daySelected)
     .set('initLIFE', action.life)
+    .set('lifeQueue', action.lifeQueue)
 }
 
 const updateConfig = (state, action) => {

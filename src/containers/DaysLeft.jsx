@@ -28,7 +28,7 @@ const Day = ({ date, gpxs, isSelected, onSelectDay }) => {
   )
 }
 
-let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges }) => {
+let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExistent }) => {
   const refresh = (
     <AsyncButton
       className='fa fa-refresh'
@@ -44,6 +44,15 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges }) => {
   return (
     <div style={{...style}} title='Click to change the day to process'>
       <div style={{ fontSize: '1.5rem' }}>Days left to process { refresh }</div>
+      {
+        lifesExistent.map((file) => {
+          return (
+            <div style={{ marginTop: '0.5rem', padding: '0.2rem', borderRadius: '3px', border: '1px #bbb dashed', opacity: 0.7 }}>
+              <i>{ file }</i>
+            </div>
+          )
+        })
+      }
       {
         remaining.map(([day, gpxs]) => {
           return (
@@ -72,6 +81,7 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges }) => {
 
 const mapStateToProps = (state) => {
   return {
+    lifesExistent: state.get('progress').get('lifeQueue') || [],
     remaining: state.get('progress').get('remainingTracks'),
     selected: state.get('progress').get('daySelected'),
     hasChanges: state.get('tracks').get('history').get('past').count() !== 0 || state.get('progress').get('step') !== 0
