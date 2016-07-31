@@ -4,9 +4,17 @@ import TrackRepresentation from '../components/TrackRepresentation.jsx'
 
 const GMS = !process.env.BUILD_GPX
 
+const segmentStartTime = (segment) => {
+  return segment.get('points').get(0).get('time')
+}
+
+const segmentEndTime = (segment) => {
+  return segment.get('points').get(-1).get('time')
+}
+
 let TrackList = ({ dispatch, tracks, segments, className, step }) => {
   const findStart = (seg) =>
-    seg.get('segments').map((s) => segments.get(s).get('start')).sort((_a, _b) => _a.get('start').diff(_b.get('start'))).get(0)
+    seg.get('segments').map((s) => segmentStartTime(segments).sort((_a, _b) => segmentStartTime(_a).diff(segmentEndTime(_b)))).get(0)
 
   if (tracks.count() !== 0) {
     return (
@@ -16,7 +24,7 @@ let TrackList = ({ dispatch, tracks, segments, className, step }) => {
         .sort((a, b) => {
           const aStart = findStart(a)
           const bStart = findStart(b)
-          return aStart.get('start').diff(bStart.get('start'))
+          return segmentStartTime(aStart).diff(segmentEndTime(bStart))
         })
         .map((track, i) => {
           const trackSegments = track.get('segments').map((id) => segments.get(id))

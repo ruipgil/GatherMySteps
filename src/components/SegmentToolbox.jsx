@@ -17,8 +17,8 @@ const btnHighlight = ' is-success is-outlined'
 
 let SegmentToolbox = ({ dispatch, segment }) => {
   const id = segment.get('id')
-  const start = segment.get('start')
-  const end = segment.get('end')
+  const start = segment.get('points').get(0).get('time')
+  const end = segment.get('points').get(-1).get('time')
   const editing = segment.get('editing')
   const spliting = segment.get('spliting')
   const joining = segment.get('joining')

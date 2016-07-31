@@ -5,7 +5,8 @@ export default class AsyncButton extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      className: ''
+      className: '',
+      content: null
     }
   }
 
@@ -19,10 +20,10 @@ export default class AsyncButton extends Component {
 
   onClick (e) {
     if (this.props.onClick) {
-      this.props.onClick(e, (className, filter) => {
+      this.props.onClick(e, (className, filter, content) => {
         findDOMNode(this.refs.btn).className = this.createClassName(className, filter)
-        // this.state.content = content || this.props.children
-        // this.setState(this.state)
+        this.state.content = content
+        this.setState(this.state)
       })
     }
   }
@@ -61,20 +62,20 @@ export default class AsyncButton extends Component {
        <div {...this.props} className={classes} ref='btn'>
           <input type='file' id={id} style={{display: 'none'}} onChange={onChange}/>
           <label htmlFor={id}>
-            { this.props.children }
+            { this.state.content || this.props.children }
           </label>
         </div>
       )
     } else if (this.props.isDiv) {
       return (
         <div {...this.props} className={classes} onClick={this.onClick.bind(this)} ref='btn'>
-          { this.props.children }
+          { this.state.content || this.props.children }
         </div>
       )
     } else {
       return (
         <a {...this.props} className={classes} onClick={this.onClick.bind(this)} ref='btn'>
-          { this.props.children }
+          { this.state.content || this.props.children }
         </a>
       )
     }

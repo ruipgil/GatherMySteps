@@ -14,15 +14,18 @@ import {
 import { List, Map, fromJS } from 'immutable'
 import moment from 'moment'
 
+const segmentStartTime = (segment) => {
+  return segment.get('points').get(0).get('time')
+}
+
+const segmentEndTime = (segment) => {
+  return segment.get('points').get(-1).get('time')
+}
+
 const updateSegment = (state, id) => {
   return state.updateIn(['segments', id], (segment) => {
     // TODO create metrics with immutable
-    const pts = segment.get('points')
-
-    const segState = segment
-      .set('start', pts.get(0).get('time'))
-      .set('end', pts.get(-1).get('time'))
-    return calculateBounds(calculateMetrics(segState))
+    return calculateBounds(calculateMetrics(segment))
   })
 }
 
@@ -346,7 +349,7 @@ const toggleSegmentJoining = function (state, action) {
 
     const segs = track.get('segments')
       .map((ts) => state.get('segments').get(ts))
-      .sort((a, b) => a.get('start').diff(b.get('start')))
+      .sort((a, b) => segmentStartTime(a).diff(segmentStartTime(b)))
 
     const idIndex = segs.findIndex((elm) => {
       return elm.get('id') === id
@@ -428,18 +431,18 @@ const updateTransportationTime = (state, action) => {
     const hours = parseInt(time.substr(0, 2), 10)
     const mins = parseInt(time.substr(2), 10)
 
-    const t = moment(seg.get('start').clone().hours(hours).minutes(mins)).valueOf()
+    const t = moment(segmentStartTime(seg).clone().hours(hours).minutes(mins)).valueOf()
     const timeIndex = seg.get('points').findIndex((point) => point.get('time').valueOf() >= t)
 
     if (timeIndex > -1) {
       if (start) {
-        if (seg.get('start').format('HHmm') === time) {
+        if (segmentStartTime(seg).format('HHmm') === time) {
           return tmode
         } else {
           return tmode.set('from', timeIndex)
         }
       } else {
-        if (seg.get('end').format('HHmm') === time) {
+        if (segmentEndTime(seg).format('HHmm') === time) {
           return tmode
         } else {
           return tmode.set('to', timeIndex)

@@ -15,8 +15,8 @@ const style = {
 const SegmentRepresentation = ({ dispatch, segment }) => {
   const id = segment.get('id')
   const points = segment.get('points')
-  const start = segment.get('start')
-  const end = segment.get('end')
+  const start = segment.get('points').get(0).get('time')
+  const end = segment.get('points').get(-1).get('time')
   const display = segment.get('display')
   const color = segment.get('color')
   const metrics = segment.get('metrics').toJS()

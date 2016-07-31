@@ -29,8 +29,8 @@ const createRawRepresentation = (segments, dispatch) => {
   segments.forEach((segment, i) => {
     let block = createBlock()
 
-    const start = segment.get('start')
-    const end = segment.get('end')
+    const start = segment.get('points').get(0).get('time')
+    const end = segment.get('points').get(-1).get('time')
     const from = segment.get('locations').get(0)
     const to = segment.get('locations').get(1)
     const transp = segment.get('transportationModes')

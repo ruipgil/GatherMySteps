@@ -9,6 +9,14 @@ import {
   addNewSegment
 } from 'actions/segments'
 
+const segmentStartTime = (segment) => {
+  return segment.get('points').get(0).get('time')
+}
+
+const segmentEndTime = (segment) => {
+  return segment.get('points').get(-1).get('time')
+}
+
 const TrackRepresentation = ({ dispatch, track, segments }) => {
   // const { name, segments, renaming, id } = track
   const id = track.get('id')
@@ -64,10 +72,10 @@ const TrackRepresentation = ({ dispatch, track, segments }) => {
         {
           segments
             .sort((a, b) => {
-              if (a.get('start').isSame(b.get('start'))) {
-                return a.get('end').diff(b.get('end'))
+              if (segmentStartTime(a).isSame(segmentStartTime(b))) {
+                return segmentEndTime(a).diff(segmentEndTime(b))
               } else {
-                return a.get('start').diff(b.get('start'))
+                return segmentStartTime(a).diff(segmentStartTime(b))
               }
             })
           .map((s, i) => <SegmentRepresentation dispatch={dispatch} segment={s} key={i} />)
