@@ -7,10 +7,55 @@ const d = (type, obj) => {
   const offset = start.column-1
   const length = end.column - start.column
   const line = start.line - 1
-  return Object.assign({}, {type, offset, length, line}, obj)
+  return Object.assign({}, {type, marks: {offset, length, line}}, obj)
+}
+const push = (elm, arr) => {
+  arr.push(elm)
+  return arr
+}
+const append = (elm, arr) => {
+  arr.unshift(elm)
+  return arr
 }
 }
 
+DayBlock
+  = day:DayDate nl+ blocks:StaysTrips { return { day, blocks } }
+
+StaysTrips
+  = head:StayTrip nl+ rest:StaysTrips { return append(head, rest) }
+  / st:StayTrip { return [st] }
+
+StayTrip
+  = Trip
+  / Stay
+  / Empty
+
+/*
+  = StayTripBlock StaysTrips
+  / Stay StaysTrips
+  / Empty
+*/
+
+Empty
+  = Comment
+  / nl*
+
+StayTripBlock
+  = Stay
+
+
+nl
+  = '\n'
+
+DayDate
+  = "--" year:([0-9]+) "_" month:([0-9]+) "_" day:([0-9]+) { return d('Date', { value: { year: Number(year.join('')), month: Number(month.join('')), day: Number(day.join('')) } }) }
+
+Stay
+  = timespan:Timespan _ location:Location details:Details* comment:_ {
+  return d('Stay', { timespan, location, comment, details })
+  }
+/*
 First
   = day:DayDate nl? value:Start { return { day, value } }
   / value:Start { return { day: undefined, value } }
@@ -21,11 +66,6 @@ Start
   / h:OneOf { return [h] }
   / nl { return [] }
 
-nl
-  = '\n'
-
-DayDate
-  = "--" year:([0-9]+) "_" month:([0-9]+) "_" day:([0-9]+)
 
 Timezone
   = "UTC+" offset:([0-9]{1,2}) { return d('Timezone', { value: parseInt(offset.join('')) }) }
@@ -33,9 +73,9 @@ Timezone
 
 OneOf
   = Trip
-  / Span
+  / Stay
   / Comment
-
+*/
 Timespan
   = start:Time "-" finish:Time ":" {
   return d('Timespan', { start, finish, length: start.length + finish.length + 1 })
@@ -61,10 +101,7 @@ LocationFrom
   return d('LocationFrom', { value: h + r.value, length: 1 + r.length })
   }
 
-Span
-  = timespan:Timespan _ location:Location details:Details* comment:_ {
-  return d('Span', { timespan, location, comment, details })
-  }
+
 
 TMode
   = __ timespan:Timespan details:Details*  _ {
@@ -87,7 +124,6 @@ Semantic
 Details
   = _ r:Tag { return r }
   / _ r:Semantic { return r }
-
 _
   = Comment
   / [ \t]*
@@ -96,7 +132,7 @@ __
   = [ \t]+
 
 Comment
-  = ';' r:[^\n]* { return r.join('') }
+  = ';' r:[^\n]* { return d('Comment', {value: r.join('')}) }
 `
 
 export default PEG.buildParser(simpleParserString, { cache: true })

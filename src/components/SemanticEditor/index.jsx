@@ -7,7 +7,7 @@ import {
   EditorState,
   CompositeDecorator
 } from 'draft-js'
-import LIFEParser from 'components/utils/life.peg.js'
+import decorate from './decorate'
 
 import SuggestionBox from 'components/SuggestionBox.jsx'
 
@@ -51,99 +51,7 @@ class SemanticEditor extends Component {
   }
 
   decorateState (editorState, force) {
-    const sel = editorState.getSelection()
-    const startKey = sel.getStartKey()
-    let content = editorState.getCurrentContent()
-    const lineKey = content.getBlockMap().keySeq()
-    const block = content.getBlockForKey(startKey)
-    const blockText = block.getText()
-
-    const current = this.state.editorState.getCurrentContent().getPlainText()
-    const next = content.getPlainText()
-    let warning
-
-    if (force || current !== next) {
-      const segs = this.props.segments.toList()
-
-      try {
-        const parts = LIFEParser.parse(content.getPlainText())
-        const processPart = (part, n, modeId) => {
-          if (!part) {
-            return
-          }
-
-          if (part.values) {
-            part.forEach((p, i) => processPart(p, i))
-          } else {
-            switch (part.type) {
-              // TODO
-              // case 'Day':
-              //   processPart(part.day)
-              //   break
-              case 'Trip':
-                processPart(part.timespan, n)
-                processPart(part.locationFrom, n)
-                processPart(part.locationTo, n)
-                part.tmodes.forEach((d, i) => processPart(d, n, i))
-                part.details.forEach((d) => processPart(d, n))
-                break
-              case 'TMode':
-                processPart(part.timespan, n)
-                part.details.forEach((d, i) => processPart(d, n, modeId))
-                break
-              case 'Timespan':
-                processPart(part.start, n, modeId)
-                processPart(part.finish, n, modeId)
-                break
-              case 'Span':
-                processPart(part.timespan, n)
-                processPart(part.location, n)
-                part.details.forEach((d) => processPart(d, n))
-                break
-              case 'Tag':
-              case 'Time':
-              case 'LocationFrom':
-              case 'Location':
-                const start = part.offset
-                const end = part.offset + part.length
-
-                const _sel = new SelectionState({
-                  anchorOffset: start,
-                  anchorKey: lineKey.get(part.line),
-                  focusKey: lineKey.get(part.line),
-                  focusOffset: end,
-                  isBackward: false,
-                  hasFocus: false
-                })
-                const ekey = Entity.create(part.type, 'MUTABLE', {
-                  value: part.value,
-                  segment: segs.get(n),
-                  dispatch: this.props.dispatch,
-                  modeId
-                })
-                content = Modifier.applyEntity(content, _sel, ekey)
-                break
-            }
-          }
-        }
-
-        const ts = sel.merge({
-          focusOffset: blockText.length,
-          anchorOffset: 0
-        })
-        content = Modifier.applyEntity(content, ts, null)
-
-        console.log(parts)
-        processPart(parts.value)
-        editorState = EditorState.push(editorState, content, 'apply-entity')
-        editorState = EditorState.forceSelection(editorState, sel)
-      } catch (e) {
-        warning = e
-        console.error(e)
-      }
-    }
-
-    return [editorState, warning]
+    return decorate(this.state.editorState.getCurrentContent().getPlainText(), editorState, force, this.props.segments, this.props.dispatch)
   }
 
   onChange (editorState, hide = false, force = false) {
@@ -318,7 +226,7 @@ class SemanticEditor extends Component {
       <div style={{ display: 'flex' }}>
         <div style={{ color: '#c1c175', width: '23px' }}>
           {
-            warning
+            (false || warning)
               ? (
                 <i className='fa fa-exclamation-triangle' style={{ padding: '1px', marginTop: (warning.location.start.line - 1) + 'em' }} title={warning.message} />
                 )

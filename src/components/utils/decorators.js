@@ -8,12 +8,21 @@ import {
 
 const TimeSpan = (props) => {
   const onMouseEnter = () => {
-    const { dispatch, segment } = Entity.get(props.entityKey).getData()
-    dispatch(highlightSegment(segment.get('id')))
+    console.log(Entity.get(props.entityKey).getData())
+    const { dispatch, references } = Entity.get(props.entityKey).getData()
+    if (Array.isArray(references)) {
+      // dispatch(highlightSegment(segment.get('id')))
+    } else {
+      dispatch(highlightSegment(references))
+    }
   }
   const onMouseLeave = () => {
-    const { dispatch, segment } = Entity.get(props.entityKey).getData()
-    dispatch(dehighlightSegment(segment.get('id')))
+    const { dispatch, references } = Entity.get(props.entityKey).getData()
+    if (Array.isArray(references)) {
+      // dispatch(highlightSegment(segment.get('id')))
+    } else {
+      dispatch(dehighlightSegment(references))
+    }
   }
 
   return (
@@ -60,5 +69,10 @@ export default [
   {
     strategy: getEntityStrategy('Semantic'),
     component: TimeSpan
+  },
+  {
+    strategy: getEntityStrategy('Day'),
+    component: TimeSpan
   }
+
 ]
