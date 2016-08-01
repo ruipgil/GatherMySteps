@@ -186,6 +186,10 @@ export default class PerfMap extends Component {
           opacity
         })
         lseg.transportation.getLayers().forEach((m) => m.setOpacity(opacity))
+
+        Object.keys(lseg.specialMarkers).forEach((key) => {
+          lseg.specialMarkers[key].setOpacity(opacity)
+        })
       })
     }
 
@@ -303,7 +307,10 @@ export default class PerfMap extends Component {
   shouldUpdateDisplay (segment, display, prev) {
     if (display !== prev) {
       segment.layergroup.setStyle({
-        opacity: display ? 1 : 0
+        opacity: display ? 1 : 0.2
+      })
+      Object.keys(segment.specialMarkers).forEach((key) => {
+        segment.specialMarkers[key].setOpacity(display ? 1 : 0.2)
       })
     }
   }
