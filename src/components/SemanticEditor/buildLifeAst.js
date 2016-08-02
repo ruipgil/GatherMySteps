@@ -34,6 +34,9 @@ export default (text) => {
               insertReference(block, ['end', previous.references])
             }
           }
+          if (!block.references) {
+            block.references = []
+          }
           stack.push(block)
           break
       }

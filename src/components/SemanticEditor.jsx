@@ -21,7 +21,7 @@ let SE = ({ dispatch, segments, life }) => {
       suggestionGetters={ suggestionsGetters }
       onChange={(state) => {
         const { editorState, warning } = state
-        dispatch(updateLIFE(editorState.getCurrentContent().getPlainText()), warning)
+        // dispatch(updateLIFE(editorState.getCurrentContent().getPlainText()), warning)
       }}
       >
     </SemanticEditor>

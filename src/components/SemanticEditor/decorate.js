@@ -1,3 +1,4 @@
+import { diff } from 'deep-diff'
 import { EditorState, SelectionState, Modifier, Entity } from 'draft-js'
 import buildLifeAst from './buildLifeAst'
 
@@ -32,6 +33,7 @@ const StyleMappings = {
   'Time': generalMapping,
   'LocationFrom': generalMapping,
   'Location': generalMapping,
+  'Comment': generalMapping,
   'Trip': (trip, content, lineKeys, more) => {
     const refs = { ...more, references: trip.references }
     content = StyleMappings['Timespan'](trip.timespan, content, lineKeys, refs)
@@ -68,49 +70,54 @@ const StyleMappings = {
   }
 }
 
-const decorate = (currentText, editorState, force, segments, dispatch) => {
-  const sel = editorState.getSelection()
-  const startKey = sel.getStartKey()
+const decorateAstRoot = (content, root, lineKeys) => {
+  content = StyleMappings['Day'](root.day, content, lineKeys)
+  root.blocks.forEach((block) => {
+    content = StyleMappings[block.type](block, content, lineKeys, { /* dispatch */ })
+  })
+  return content
+}
+
+const decorateWithAst = (previousAst, text, content, lineKeys) => {
+  let ast
+  try {
+    ast = buildLifeAst(text)
+  } catch (e) {
+    return [content, null, e]
+  }
+
+  content = decorateAstRoot(content, ast, lineKeys)
+  return [content, ast, null]
+}
+
+const decorate = (previousAst, editorState, segments, dispatch) => {
   let content = editorState.getCurrentContent()
-  const lineKey = content.getBlockMap().keySeq()
+  const sel = editorState.getSelection()
+  // immutablejs sequence, that associates line number (index) with draft-js key
+  const lineKeys = content.getBlockMap().keySeq()
+
+  const startKey = sel.getStartKey()
   const block = content.getBlockForKey(startKey)
   const blockText = block.getText()
 
-  const next = content.getPlainText()
-  let warning
+  let warning, ast
 
-  if (force || currentText !== next) {
-    // const segs = segments.toList()
+  const text = content.getPlainText()
 
-    // try {
-      const parts = buildLifeAst(content.getPlainText())
-      console.log(parts)
+  const ts = sel.merge({
+    focusOffset: blockText.length,
+    anchorOffset: 0
+  })
+  content = Modifier.applyEntity(content, ts, null)
 
-      content = StyleMappings['Day'](parts.day, content, lineKey)
-      parts.blocks.forEach((block) => {
-        try {
-          content = StyleMappings[block.type](block, content, lineKey, { dispatch })
-        } catch (e) {
-          console.log(e)
-        }
-      })
+  const res = decorateWithAst(previousAst, text, content, lineKeys)
+  content = res[0]
+  ast = res[1]
+  warning = res[2]
 
-      const ts = sel.merge({
-        focusOffset: blockText.length,
-        anchorOffset: 0
-      })
-      content = Modifier.applyEntity(content, ts, null)
-
-      editorState = EditorState.push(editorState, content, 'apply-entity')
-      editorState = EditorState.forceSelection(editorState, sel)
-    // } catch (e) {
-    //   warning = e
-    //   console.error(e)
-    // }
-  }
-  console.log(editorState, warning)
-
-  return [editorState, warning]
+  editorState = EditorState.push(editorState, content, 'apply-entity')
+  editorState = EditorState.acceptSelection(editorState, sel)
+  return [editorState, ast, warning]
 }
 
 export default decorate

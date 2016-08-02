@@ -2,12 +2,16 @@ import PEG from 'pegjs'
 
 const simpleParserString = String.raw`
 {
-const d = (type, obj) => {
+// equivalent of { ...obj, ...that }
+const extend = (obj, that) => {
+  return Object.assign({}, obj, that)
+}
+const d = (type, obj, marksExt) => {
   const {start, end} = location()
   const offset = start.column-1
   const length = end.column - start.column
   const line = start.line - 1
-  return Object.assign({}, {type, marks: {offset, length, line}}, obj)
+  return extend({type, marks: extend({offset, length, line}, marksExt)}, obj)
 }
 const push = (elm, arr) => {
   arr.push(elm)
@@ -20,7 +24,7 @@ const append = (elm, arr) => {
 }
 
 DayBlock
-  = day:DayDate nl+ blocks:StaysTrips { return { day, blocks } }
+  = _ day:DayDate _ nl+ blocks:StaysTrips { return { day, blocks } }
 
 StaysTrips
   = head:StayTrip nl+ rest:StaysTrips { return append(head, rest) }
@@ -53,7 +57,7 @@ DayDate
 
 Stay
   = timespan:Timespan _ location:Location details:Details* comment:_ {
-  return d('Stay', { timespan, location, comment, details })
+  return { type: 'Stay', timespan, location, comment, details }
   }
 /*
 First
@@ -78,7 +82,7 @@ OneOf
 */
 Timespan
   = start:Time "-" finish:Time ":" {
-  return d('Timespan', { start, finish, length: start.length + finish.length + 1 })
+  return d('Timespan', { start, finish } , { length: start.marks.length + finish.marks.length + 1 })
   }
 
 Time
@@ -86,19 +90,22 @@ Time
 
 Trip
   = timespan:Timespan _ locationFrom:LocationFrom _ locationTo:Location details:Details* comment:_ tmodes:TModes {
-  return d('Trip', { timespan, locationFrom, locationTo, details, comment, tmodes })
+  return { type: 'Trip', timespan, locationFrom, locationTo, details, comment, tmodes }
   }
 
 Location
   = [^\n\[\{;]* {
   const value = text().trim()
-  return d('Location', { value, length: value.length })
+  return d('Location', { value }, { length: value.length })
   }
 
 LocationFrom
-  = _ '->' { return { value: '', length: 0 } }
+  = h:[^\n\[\{;] _ '->' {
+  return d('LocationFrom', { value: h }, { length: 1 })
+  //return { value: '', marks: { length: 0 } }
+  }
   / h:[^\n\[\{;] r:LocationFrom {
-  return d('LocationFrom', { value: h + r.value, length: 1 + r.length })
+  return d('LocationFrom', { value: h + r.value }, { length: 1 + r.marks.length })
   }
 
 
