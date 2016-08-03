@@ -52,9 +52,17 @@ const ui = (state = initialState, action) => {
     case 'CENTER_MAP':
       return state.set('center', { lat: action.lat, lon: action.lon })
     case 'HIGHLIGHT_SEGMENT':
-      return state.update('highlighted', (h) => h.add(action.segmentId))
+      return state.update('highlighted', (highlighted) => {
+        return action.segmentsIds.reduce((highlighted, segId) => {
+          return highlighted.add(segId)
+        }, highlighted)
+      })
     case 'DEHIGHLIGHT_SEGMENT':
-      return state.update('highlighted', (h) => h.delete(action.segmentId))
+      return state.update('highlighted', (highlighted) => {
+        return action.segmentsIds.reduce((highlighted, segId) => {
+          return highlighted.delete(segId)
+        }, highlighted)
+      })
     case 'TOGGLE_CONFIG':
       return state.set('showConfig', !state.get('showConfig'))
     case 'ADD_POINT_PROMPT':

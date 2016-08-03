@@ -1,59 +1,52 @@
+import moment from 'moment'
 import LIFEParser from 'components/utils/life.peg.js'
 
-const insertReference = (target, obj) => {
-  if (target.references) {
-    target.references.push(obj)
-  } else {
-    target.references = [obj]
+const findPointInSegments = (date, segments) => {
+  const S_60 = 60 * 1000
+  const dateValue = date.valueOf()
+  for (let segmentId of segments.keySeq().toJS()) {
+    const segment = segments.get(segmentId)
+    const points = segment.get('points')
+    let startTime = points.get(0).get('time').valueOf() - S_60
+    let endTime = points.get(-1).get('time').valueOf() + S_60
+    if (startTime <= dateValue && dateValue <= endTime) {
+      for (let i = 1; i < points.count(); i++) {
+        startTime = points.get(i - 1).get('time').valueOf() - S_60
+        endTime = points.get(i).get('time').valueOf() + S_60
+        if (startTime <= dateValue && dateValue <= endTime) {
+          return { segmentId, index: i - 1 }
+        }
+      }
+
+      return { segmentId, index: points.count() - 1 }
+    }
   }
+  return null
 }
 
-export default (text) => {
+const timeToMoment = (day, time) => {
+  return moment(day + ' ' + time.slice(0, 2) + ':' + time.slice(2))
+}
+
+export default (text, segments) => {
   try {
     const fragments = LIFEParser.parse(text)
-
-    let tripCounter = 0
-    let stack = []
+    const { year, month, day } = fragments.day.value
+    const currentDay = year + '-' + month + '-' + day
 
     for (let block of fragments.blocks) {
-      const previous = stack[stack.length - 1]
       switch (block.type) {
         case 'Trip':
-          if (previous && previous.type === 'Stay') {
-            if (previous.location.value === block.locationFrom.value) {
-              insertReference(previous, ['start', tripCounter])
-            }
-          }
-          block.references = tripCounter
-          tripCounter++
-          stack.push(block)
-          break
         case 'Stay':
-          if (previous && previous.type === 'Trip') {
-            if (previous.locationTo.value === block.location.value) {
-              insertReference(block, ['end', previous.references])
-            }
-          }
-          if (!block.references) {
-            block.references = []
-          }
-          stack.push(block)
+          const { timespan } = block
+          const fromTime = timeToMoment(currentDay, timespan.start.value)
+          const toTime = timeToMoment(currentDay, timespan.finish.value)
+
+          const fromPoint = findPointInSegments(fromTime, segments)
+          const toPoint = findPointInSegments(toTime, segments)
+          block.references = { to: toPoint, from: fromPoint }
           break
       }
-      // if (block.type === 'Trip' || block.type === 'Stay') {
-      //   const pattern3 = makePattern(stack, -3)
-      //   const len = stack.length
-      //   if (pattern3 === 'StayTripStay') {
-      //     insert(stack[len - 3], ['start', tripCounter])
-      //     stack[len - 2].references = tripCounter
-      //     insert(stack[len - 1], ['start', tripCounter])
-      //   }
-      //
-      //   if (block.type === 'Trip') {
-      //     tripCounter++
-      //   }
-      //   stack.push(block)
-      // }
     }
     return fragments
   } catch (e) {

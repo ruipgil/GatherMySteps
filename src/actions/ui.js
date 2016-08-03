@@ -113,13 +113,13 @@ export const centerMap = (lat, lon) => {
   }
 }
 
-export const highlightSegment = (segmentId) => ({
-  segmentId,
+export const highlightSegment = (segmentsIds) => ({
+  segmentsIds,
   type: 'HIGHLIGHT_SEGMENT'
 })
 
-export const dehighlightSegment = (segmentId) => ({
-  segmentId,
+export const dehighlightSegment = (segmentsIds) => ({
+  segmentsIds,
   type: 'DEHIGHLIGHT_SEGMENT'
 })
 

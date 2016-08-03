@@ -5,11 +5,13 @@ import decorate from './decorate'
 class SemanticEditor extends Component {
   constructor (props) {
     super(props)
+    this.previousAst = null
+    this.warning = null
+    this.timeout = null
+
     const { state, strategies } = this.props
     const decorator = new CompositeDecorator(strategies)
-    const editorState = EditorState.createWithContent(state, decorator)
-
-    this.previousAst = null
+    const editorState = this.decorate(EditorState.createWithContent(state, decorator))
 
     this.state = {
       editorState
@@ -20,43 +22,27 @@ class SemanticEditor extends Component {
     if (prev.initial !== this.props.initial) {
       const state = EditorState.push(this.state.editorState, this.props.initial, 'insert-characters')
       this.onChange(state)
+    } else if (prev.segments !== this.props.segments) {
+      const editorState = this.decorate(this.state.editorState)
+      this.setState({editorState})
     }
   }
 
-  onChange (editorState) {
-    // const changeType = editorState.getLastChangeType()
-    // console.log(editorState.isInCompositionMode(), editorState.getLastChangeType())
-    // if (changeType === 'apply-entity' || changeType === 'spellcheck-change') {
-    //   return
-    // }
-    // //   console.log('exiting')
-    // //   console.log('Saving editor state with')
-    // //   const sel = editorState.getSelection()
-    // //   console.log(sel.serialize())
-    // //   this.setState({editorState})
-    // //   return
-    // // }
-    // let warning
-    // const doChangeTypes = [
-    //   'backspace-character',
-    //   'delete-character',
-    //   'insert-characters',
-    //   'remove-range',
-    //   'undo',
-    //   'redo'
-    // ]
-    // // if (doChangeTypes.indexOf(changeType) !== -1) {
-    // //   [editorState, this.previousAst, warning] = decorate(this.previousAst, editorState)
-    // //   if (warning) {
-    // //     console.log(warning)
-    // //   }
-    // // }
+  decorate (editorState) {
+    let warning
+    [editorState, this.previousAst, warning] = decorate(this.previousAst, editorState, this.props.segments, this.props.dispatch)
+    if (warning) {
+      this.warning = warning
+    } else {
+      this.warning = null
+    }
+    return editorState
+  }
 
-    // console.log('Saving editor state with')
-    // const sel = editorState.getSelection()
-    // console.log(sel.serialize())
+  onChange (editorState) {
     const previousText = this.state.editorState.getCurrentContent().getPlainText()
     const currentText = editorState.getCurrentContent().getPlainText()
+
     this.setState({editorState})
 
     if (previousText === currentText) {
@@ -67,14 +53,10 @@ class SemanticEditor extends Component {
       clearTimeout(this.timeout)
     }
     this.timeout = setTimeout(() => {
-      let warning
-      [editorState, this.previousAst, warning] = decorate(this.previousAst, editorState)
-      if (warning) {
-        console.log(warning)
-      }
+      editorState = this.decorate(editorState)
       this.setState({editorState})
       this.timeout = null
-    }, 0)
+    }, 100)
   }
 
   render () {
