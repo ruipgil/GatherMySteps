@@ -440,3 +440,10 @@ html, body {
 .is-halfwidth {
   width: 50%;
 }
+.highlight-point {
+  background-color: transparent;
+  width: 38px !important;
+  height: 38px !important;
+  /* border-width: 3px; */
+  z-index: 1000;
+}

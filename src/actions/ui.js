@@ -123,6 +123,16 @@ export const dehighlightSegment = (segmentsIds) => ({
   type: 'DEHIGHLIGHT_SEGMENT'
 })
 
+export const highlightPoint = (points) => ({
+  points,
+  type: 'HIGHLIGHT_POINT'
+})
+
+export const dehighlightPoint = (points) => ({
+  points,
+  type: 'DEHIGHLIGHT_POINT'
+})
+
 export const toggleConfig = () => {
   const action = {
     type: 'TOGGLE_CONFIG'

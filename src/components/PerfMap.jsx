@@ -25,6 +25,8 @@ import addSegment from './Map/addSegment'
 import updatePoints from './Map/updatePoints'
 import pointActionMode from './Map/pointActionMode'
 
+import { createMarker, createPointIcon } from './Map/utils'
+
 import buildTransportationModeRepresentation from './Map/buildTransportationModeRepresentation'
 
 export default class PerfMap extends Component {
@@ -48,6 +50,8 @@ export default class PerfMap extends Component {
      *    this should be reconstructed each time there is an update to the points or the visualization mode.
      */
     this.segments = {}
+
+    this.pointHighlights = []
   }
 
   componentDidMount () {
@@ -85,6 +89,7 @@ export default class PerfMap extends Component {
       bounds,
       zoom,
       highlighted,
+      highlightedPoints,
       segments,
       dispatch,
       canUndo,
@@ -104,6 +109,7 @@ export default class PerfMap extends Component {
     this.shouldUpdateCenter(center, prev.center)
     this.shouldUpdateBounds(bounds, prev.bounds)
     this.shouldUpdateHighlighted(highlighted, prev.highlighted, segments)
+    this.shouldUpdateHighlightedPoints(highlightedPoints, prev.highlightedPoints, segments)
     this.shouldUpdateSegments(segments, prev.segments, dispatch)
     this.shouldUpdatePrompt(pointPrompt, prev.pointPrompt)
   }
@@ -172,6 +178,24 @@ export default class PerfMap extends Component {
       lseg.transportation = buildTransportationModeRepresentation(lseg, current)
       this.onZoomEnd()
     }
+  }
+
+  shouldUpdateHighlightedPoints (highlighted, previous, allSegments) {
+    if (highlighted === previous) {
+      return
+    }
+
+    this.pointHighlights = this.pointHighlights.filter((point) => {
+      this.map.removeLayer(point)
+    })
+
+    const icon = createPointIcon(null, null, 'highlight-point', [19, 19])
+    highlighted.reduce((arr, point) => {
+      const marker = createMarker(point.toJS(), icon)
+      this.map.addLayer(marker)
+      arr.push(marker)
+      return arr
+    }, this.pointHighlights)
   }
 
   shouldUpdateHighlighted (highlighted, previous, allSegments) {

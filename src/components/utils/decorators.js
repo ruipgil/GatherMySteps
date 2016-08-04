@@ -3,7 +3,9 @@ import { Entity } from 'draft-js'
 
 import {
   highlightSegment,
-  dehighlightSegment
+  dehighlightSegment,
+  highlightPoint,
+  dehighlightPoint
 } from 'actions/ui'
 
 const TimeSpan = (props) => {
@@ -12,13 +14,16 @@ const TimeSpan = (props) => {
   // const segmentsToHighlight = [references.from, references.to].filter((x) => x).map((x) => x.segmentId)
   const onMouseEnter = () => {
     // console.log(references.to || references.from)
-    // dispatch(highlightSegment(segmentsToHighlight))
+    const refs = references.point || references.to || references.from
+    dispatch(highlightPoint([refs.point || refs]))
     // if (Array.isArray(references)) {
     //   dispatch(highlightSegmentEnd(references))
     // } else {
     // }
   }
   const onMouseLeave = () => {
+    const refs = references.point || references.to || references.from
+    dispatch(dehighlightPoint([refs.point || refs]))
     // dispatch(dehighlightSegment(segmentsToHighlight))
     // const { dispatch, references } = Entity.get(props.entityKey).getData()
     // if (Array.isArray(references)) {

@@ -8,6 +8,7 @@ const mapStateToProps2 = (state) => {
     bounds: state.get('ui').get('bounds'),
     center: state.get('ui').get('center'),
     highlighted: state.get('ui').get('highlighted'),
+    highlightedPoints: state.get('ui').get('highlightedPoints'),
     segments: state.get('tracks').get('segments'),
     details: state.get('ui').get('details'),
     canUndo: history.get('past').count() !== 0,
