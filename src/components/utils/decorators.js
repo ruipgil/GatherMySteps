@@ -11,7 +11,7 @@ const TimeSpan = (props) => {
   const { dispatch, references } = Entity.get(props.entityKey).getData()
   // const segmentsToHighlight = [references.from, references.to].filter((x) => x).map((x) => x.segmentId)
   const onMouseEnter = () => {
-    // console.log(references)
+    // console.log(references.to || references.from)
     // dispatch(highlightSegment(segmentsToHighlight))
     // if (Array.isArray(references)) {
     //   dispatch(highlightSegmentEnd(references))

@@ -22,8 +22,11 @@ const createPlaceSuggestions = (index) => (
     type: 'TEXT',
     getter: (text, data, callback) => {
       const { dispatch, references } = data
-      dispatch(getLocationSuggestion(references.point))
-        .then((response) => callback(filterSuggestions(data.value, response)))
+      const refs = references.point ? references : (references.from || references.to)
+      if (refs && refs.point) {
+        dispatch(getLocationSuggestion(refs.point))
+          .then((response) => callback(filterSuggestions(data.value, response)))
+      }
       // getLocationSuggestion(references)
       // const from = data.segment.get('locations').get(index)
       // if (from) {

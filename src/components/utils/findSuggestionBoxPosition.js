@@ -11,7 +11,7 @@ const getValidParent = (elm) => {
 export default function findSuggestionBoxPosition (editorRef, last) {
   const _sel = window.getSelection()
   if (_sel.rangeCount) {
-    const parent = getValidParent(_sel.baseNode).parentElement.parentElement
+    const parent = getValidParent(_sel.baseNode)
     const rect = parent.getBoundingClientRect()
     return {
       left: rect.left,

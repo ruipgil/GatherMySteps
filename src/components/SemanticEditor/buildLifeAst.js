@@ -33,25 +33,28 @@ const getPointForTime = (from, to, time) => {
   })
 }
 
+const isGTE = (a, b) => {
+  return a.hours() <= b.hours() && a.minutes() <= b.minutes()
+}
+
+const isBetween = (a, b, c) => {
+  return isGTE(a, b) && isGTE(b, c)
+}
+
 const findPointInSegments = (date, segments) => {
-  const S_60 = 60 * 1000
-  const dateValue = date.valueOf()
+  // const S_60 = 60 * 1000
+  // const dateValue = date.valueOf()
   for (let segmentId of segments.keySeq().toJS()) {
     const segment = segments.get(segmentId)
     const points = segment.get('points')
-    let startTime = points.get(0).get('time').valueOf() - S_60
-    let endTime = points.get(-1).get('time').valueOf() + S_60
-    if (startTime <= dateValue && dateValue <= endTime) {
+
+    if (isBetween(points.get(0).get('time'), date, points.get(-1).get('time'))) {
       for (let i = 1; i < points.count(); i++) {
-        startTime = points.get(i - 1).get('time').valueOf() - S_60
-        endTime = points.get(i).get('time').valueOf() + S_60
-        if (startTime <= dateValue && dateValue <= endTime) {
+        if (isBetween(points.get(i - 1).get('time'), date, points.get(i).get('time'))) {
           const point = getPointForTime(points.get(i - 1), points.get(i), date)
           return { segmentId, index: i - 1, point }
         }
       }
-
-      return { segmentId, index: points.count() - 1, point: points.get(-1) }
     }
   }
   return null
