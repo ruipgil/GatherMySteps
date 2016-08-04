@@ -9,8 +9,6 @@ import createTextRepresentation from './utils/createTextRepresentation'
 import { updateLIFE } from 'actions/tracks'
 
 let SE = ({ dispatch, segments, life }) => {
-  console.log(segments.toJS())
-  // console.log(life)
   const state = ContentState.createFromText(life)
 
   return (

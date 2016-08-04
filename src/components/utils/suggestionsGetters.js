@@ -13,10 +13,18 @@ const filterSuggestions = (text, suggestions) => {
   return filtered
 }
 
+import {
+  getLocationSuggestion
+} from 'actions/progress'
+
 const createPlaceSuggestions = (index) => (
   {
     type: 'TEXT',
     getter: (text, data, callback) => {
+      const { dispatch, references } = data
+      dispatch(getLocationSuggestion(references.point))
+        .then((response) => callback(filterSuggestions(data.value, response)))
+      // getLocationSuggestion(references)
       // const from = data.segment.get('locations').get(index)
       // if (from) {
       //   return callback(filterSuggestions(data.value, from.get('other').map((l) => l.get('label')).toJS()))
@@ -25,7 +33,8 @@ const createPlaceSuggestions = (index) => (
       // }
     },
     setter: (text, data) => {
-      // const { dispatch, segment } = data
+      const { dispatch, segment } = data
+
       // dispatch(updateLocationName(segment.get('id'), text, !index))
     }
   }

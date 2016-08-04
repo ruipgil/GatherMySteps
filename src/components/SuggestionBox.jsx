@@ -22,7 +22,9 @@ const SuggestionBox = ({ left, top, selected, onSelect, suggestions, show }) => 
     <ul style={ style }>
       {
         suggestions.map((s, i) => {
-          return <li key={i} onClick={() => onSelect(s)} style={{
+          return <li key={i} onMouseDown={(e) => e.preventDefault()} onMouseUp={(e) => {
+            onSelect(s)
+          }} style={{
             paddingLeft: '8px',
             backgroundColor: (i === selected) ? '#EAEAEA' : 'transparent'
           }}>{s}</li>

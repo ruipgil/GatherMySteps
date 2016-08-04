@@ -263,3 +263,17 @@ export const bulkProcess = () => {
       .then((json) => updateState(dispatch, json, getState))
   }
 }
+
+export const getLocationSuggestion = (point) => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    const addr = getState().get('progress').get('server')
+    return fetch(addr + '/location?lat=' + point.get('lat') + '&lon=' + point.get('lon'), options)
+      .then((response) => response.json())
+      .catch((e) => console.error(e))
+      .then((location) => location.other.map((x) => x.label))
+  }
+}

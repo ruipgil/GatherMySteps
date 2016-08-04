@@ -1,5 +1,37 @@
+import { Map } from 'immutable'
 import moment from 'moment'
 import LIFEParser from 'components/utils/life.peg.js'
+
+const sameMilitary = (a, b) => {
+  return a.minutes() === b.minutes() && a.hours() === b.hours()
+}
+
+const getPointForTime = (from, to, time) => {
+  const fromTime = from.get('time')
+  if (sameMilitary(fromTime, time)) {
+    return from
+  }
+
+  const toTime = to.get('time')
+  if (sameMilitary(toTime, time)) {
+    return to
+  }
+
+  const dlat = to.get('lat') - from.get('lat')
+  const dlon = to.get('lon') - from.get('lon')
+
+  const dt1 = fromTime.valueOf() - time.valueOf()
+  const dt2 = fromTime.valueOf() - toTime.valueOf()
+  const dtNorm = dt1 / dt2
+
+  const lat = from.get('lat') + dlat * dtNorm
+  const lon = from.get('lon') + dlon * dtNorm
+
+  return Map({
+    lat,
+    lon
+  })
+}
 
 const findPointInSegments = (date, segments) => {
   const S_60 = 60 * 1000
@@ -14,11 +46,12 @@ const findPointInSegments = (date, segments) => {
         startTime = points.get(i - 1).get('time').valueOf() - S_60
         endTime = points.get(i).get('time').valueOf() + S_60
         if (startTime <= dateValue && dateValue <= endTime) {
-          return { segmentId, index: i - 1 }
+          const point = getPointForTime(points.get(i - 1), points.get(i), date)
+          return { segmentId, index: i - 1, point }
         }
       }
 
-      return { segmentId, index: points.count() - 1 }
+      return { segmentId, index: points.count() - 1, point: points.get(-1) }
     }
   }
   return null
