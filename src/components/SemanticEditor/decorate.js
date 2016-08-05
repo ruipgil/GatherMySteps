@@ -48,7 +48,8 @@ const StyleMappings = {
     return content
   },
   'TMode': (tmode, content, lineKeys, more) => {
-    content = StyleMappings['Timespan'](tmode.timespan, content, lineKeys, { ...more, references: tmode.references })
+    more = { ...more, references: tmode.references }
+    content = StyleMappings['Timespan'](tmode.timespan, content, lineKeys, more)
     tmode.details.forEach((detail) => {
       content = StyleMappings[detail.type](detail, content, lineKeys, more)
     })

@@ -2,7 +2,8 @@ import {
   updateLocationName,
   updateTransportationMode,
   selectPointInMap,
-  deselectPointInMap
+  deselectPointInMap,
+  getTransportationModesFor
 } from 'actions/segments'
 
 const filterSuggestions = (text, suggestions) => {
@@ -66,6 +67,13 @@ export default {
   'Tag': {
     type: 'TEXT',
     getter: (text, data, callback) => {
+      console.log(data)
+      const { dispatch, references } = data
+      if (references) {
+        const { segmentId, index } = references.from
+        const list = dispatch(getTransportationModesFor(segmentId, index))
+        return callback(filterSuggestions(text, list))
+      }
       // const tmode = data.segment.get('transportationModes').get(data.modeId)
       // const MODES = {
       //   '0': 'Stop',

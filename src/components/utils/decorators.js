@@ -9,8 +9,17 @@ import {
 } from 'actions/ui'
 
 const STYLES = {
-  'Time': { color: '#268bd2', backgroundColor: '#eef6fc', padding: '1px 2px 1px 2px', borderRadius: '4px', fontWeight: 'bold' },
-  'Comment': { color: 'rgba(128, 128, 128, 0.4)', fontWeight: 'bold' }
+  '_': {
+    color: '#268bd2',
+    backgroundColor: '#eef6fc',
+    padding: '1px 2px 1px 2px',
+    borderRadius: '4px',
+    fontWeight: 'bold'
+  },
+  'Comment': {
+    color: 'rgba(128, 128, 128, 0.4)',
+    fontWeight: 'bold'
+  }
 }
 
 const TimeSpan = (props) => {
@@ -56,13 +65,68 @@ const TimeSpan = (props) => {
       onMouseLeave={onMouseLeave}
       onMouseEnter={onMouseEnter}
       className='clickable'
-      style={STYLES['Time']}
+      style={STYLES._}
       {...props}
     >{props.children}</span>
   )
 }
 
+const extractReferences = (references) => {
+  let point, segmentId
+  if (references) {
+    if (references.point) {
+      point = references.point
+      segmentId = references.segmentId
+    } else if (references.from || references.to) {
+      const { from, to } = references
+      if (from) {
+        point = from.point
+        segmentId = from.segmentId
+      } else if (to) {
+        point = to.point
+        segmentId = to.segmentId
+      }
+    }
+  }
+  return { segmentId, point }
+}
+
+const Reference = (props) => {
+  const { dispatch, references } = Entity.get(props.entityKey).getData()
+  const { segmentId, point } = extractReferences(references)
+  const onMouseEnter = () => {
+    console.log(references)
+    if (segmentId !== undefined) {
+      dispatch(highlightSegment([segmentId]))
+    }
+    if (point) {
+      dispatch(highlightPoint([point]))
+    }
+  }
+  const onMouseLeave = () => {
+    if (segmentId !== undefined) {
+      dispatch(dehighlightSegment([segmentId]))
+    }
+    if (point) {
+      dispatch(dehighlightPoint([point]))
+    }
+  }
+
+  return (
+    <a onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} style={STYLES._} {...props}>{props.children}</a>
+  )
+}
+
 const CommentComp = (props) => {
+  return (
+    <span
+      style={STYLES['Comment']}
+      {...props}
+    >{props.children}</span>
+  )
+}
+
+const Day = (props) => {
   return (
     <span
       style={STYLES['Comment']}
@@ -89,31 +153,31 @@ const getEntityStrategy = (type) => {
 export default [
   {
     strategy: getEntityStrategy('Time'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('LocationFrom'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('LocationTo'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('Location'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('Tag'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('Semantic'),
-    component: TimeSpan
+    component: Reference
   },
   {
     strategy: getEntityStrategy('Day'),
-    component: TimeSpan
+    component: Day
   },
   {
     strategy: getEntityStrategy('Comment'),
