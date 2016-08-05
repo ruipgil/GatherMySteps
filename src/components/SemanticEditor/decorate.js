@@ -48,21 +48,24 @@ const StyleMappings = {
     return content
   },
   'TMode': (tmode, content, lineKeys, more) => {
-    content = StyleMappings['Timespan'](tmode.timespan, content, lineKeys, more)
+    content = StyleMappings['Timespan'](tmode.timespan, content, lineKeys, { ...more, references: tmode.references })
     tmode.details.forEach((detail) => {
       content = StyleMappings[detail.type](detail, content, lineKeys, more)
     })
     return content
   },
   'Timespan': (time, content, lineKeys, more) => {
-    content = StyleMappings[time.start.type](time.start, content, lineKeys, more)
-    content = StyleMappings[time.finish.type](time.finish, content, lineKeys, more)
+    content = StyleMappings[time.start.type](time.start, content, lineKeys, { ...more, references: more.references.from })
+    content = StyleMappings[time.finish.type](time.finish, content, lineKeys, { ...more, references: more.references.to })
     return content
   },
   'Stay': (stay, content, lineKeys, more) => {
     const refs = { ...more, references: stay.references }
     content = StyleMappings['Timespan'](stay.timespan, content, lineKeys, refs)
     content = StyleMappings['Location'](stay.location, content, lineKeys, refs)
+    if (stay.comment.type) {
+      content = StyleMappings[stay.comment.type](stay.comment, content, lineKeys, refs)
+    }
     stay.details.forEach((detail) => {
       content = StyleMappings[detail.type](detail, content, lineKeys, refs)
     })
@@ -83,7 +86,6 @@ const decorateWithAst = (previousAst, text, content, lineKeys, segments, more) =
   try {
     ast = buildLifeAst(text, segments)
   } catch (e) {
-    console.log(e)
     return [content, null, e]
   }
 

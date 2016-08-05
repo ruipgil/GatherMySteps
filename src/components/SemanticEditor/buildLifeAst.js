@@ -41,10 +41,9 @@ const isBetween = (a, b, c) => {
   return isGTE(a, b) && isGTE(b, c)
 }
 
-const findPointInSegments = (date, segments) => {
-  // const S_60 = 60 * 1000
-  // const dateValue = date.valueOf()
-  for (let segmentId of segments.keySeq().toJS()) {
+const findPointInSegments = (date, segments, reverse = false) => {
+  let iter = segments.keySeq()
+  for (let segmentId of iter.toJS()) {
     const segment = segments.get(segmentId)
     const points = segment.get('points')
 
@@ -71,17 +70,22 @@ export default (text, segments) => {
     const currentDay = year + '-' + month + '-' + day
 
     for (let block of fragments.blocks) {
-      switch (block.type) {
-        case 'Trip':
-        case 'Stay':
-          const { timespan } = block
-          const fromTime = timeToMoment(currentDay, timespan.start.value)
-          const toTime = timeToMoment(currentDay, timespan.finish.value)
+      if (block.type === 'Trip' || block.type === 'Stay') {
+        const { timespan } = block
+        const fromTime = timeToMoment(currentDay, timespan.start.value)
+        const toTime = timeToMoment(currentDay, timespan.finish.value)
 
-          const fromPoint = findPointInSegments(fromTime, segments)
-          const toPoint = findPointInSegments(toTime, segments)
-          block.references = { to: toPoint, from: fromPoint }
-          break
+        const fromPoint = findPointInSegments(fromTime, segments)
+        const toPoint = findPointInSegments(toTime, segments, true)
+        block.references = { to: toPoint, from: fromPoint }
+
+        if (block.type === 'Trip' && block.tmodes) {
+          block.tmodes.forEach((tmode) => {
+            const tmFromPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.start.value), segments)
+            const tmToPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.finish.value), segments, true)
+            tmode.references = { to: tmToPoint, from: tmFromPoint }
+          })
+        }
       }
     }
     return fragments
