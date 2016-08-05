@@ -31,7 +31,8 @@ StaysTrips
   / st:StayTrip { return [st] }
 
 StayTrip
-  = Trip
+  = Timezone
+  / Trip
   / Stay
   / Empty
 
@@ -49,11 +50,11 @@ StayTripBlock
   = Stay
 
 
-nl
+nl "new line"
   = '\n'
 
 DayDate
-  = "--" year:([0-9]+) "_" month:([0-9]+) "_" day:([0-9]+) { return d('Date', { value: { year: Number(year.join('')), month: Number(month.join('')), day: Number(day.join('')) } }) }
+  = "--" year:([0-9]+) "_" month:([0-9]+) "_" day:([0-9]+) { return d('Day', { value: { year: Number(year.join('')), month: Number(month.join('')), day: Number(day.join('')) } }) }
 
 Stay
   = timespan:Timespan _ location:Location details:Details* comment:_ {
@@ -70,11 +71,15 @@ Start
   / h:OneOf { return [h] }
   / nl { return [] }
 
+*/
+TimezoneOffset
+  = "+" offset:[0-9]+ { return Number(offset.join('')) }
+  / "-" offset:[0-9]+ { return Number(offset.join('')) }
 
-Timezone
-  = "UTC+" offset:([0-9]{1,2}) { return d('Timezone', { value: parseInt(offset.join('')) }) }
-  / "UTC" { return d('Timezone', { value: 0 }) }
+Timezone "timezone"
+  = "@"? "UTC" offset:TimezoneOffset? ws:ws comment:Comment? { return d('Timezone', { value: offset || 0, comment }) }
 
+/*
 OneOf
   = Trip
   / Stay
@@ -85,7 +90,7 @@ Timespan
   return d('Timespan', { start, finish } , { length: start.marks.length + finish.marks.length + 1 })
   }
 
-Time
+Time "time"
   = [0-9]+ { return d('Time', { value: text() }) }
 
 Trip
@@ -93,7 +98,7 @@ Trip
   return { type: 'Trip', timespan, locationFrom, locationTo, details, comment, tmodes }
   }
 
-Location
+Location "location"
   = [^\n\[\{;]* {
   const value = text().trim()
   return d('Location', { value }, { length: value.length })
@@ -111,8 +116,8 @@ LocationFrom
 
 
 TMode
-  = __ timespan:Timespan details:Details*  _ {
-  return d('TMode', { timespan, details })
+  = __ timespan:Timespan details:Details* ws comment:Comment? {
+  return d('TMode', { timespan, details, comment })
   }
 
 TModes
@@ -131,6 +136,10 @@ Semantic
 Details
   = _ r:Tag { return r }
   / _ r:Semantic { return r }
+
+ws
+  = [ \t]*
+
 _
   = Comment
   / [ \t]*
@@ -138,7 +147,7 @@ _
 __
   = [ \t]+
 
-Comment
+Comment "comment"
   = ';' r:[^\n]* { return d('Comment', {value: r.join('')}) }
 `
 

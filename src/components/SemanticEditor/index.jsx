@@ -53,7 +53,9 @@ class SemanticEditor extends Component {
 
   suggest (editorState) {
     suggest(editorState, this.props.suggestionGetters, (suggestions) => {
-      this.setState({ editorState, suggestions })
+      if (this.state.editorState === editorState) {
+        this.setState({ editorState, suggestions })
+      }
     }, this.refs, this.state.suggestions)
   }
 

@@ -67,25 +67,12 @@ export default {
   'Tag': {
     type: 'TEXT',
     getter: (text, data, callback) => {
-      console.log(data)
       const { dispatch, references } = data
       if (references) {
         const { segmentId, index } = references.from
         const list = dispatch(getTransportationModesFor(segmentId, index))
         return callback(filterSuggestions(text, list))
       }
-      // const tmode = data.segment.get('transportationModes').get(data.modeId)
-      // const MODES = {
-      //   '0': 'Stop',
-      //   '1': 'Foot',
-      //   '2': 'Vehicle'
-      // }
-      // if (tmode) {
-      //   const list = tmode.get('classification').entrySeq().sort((a, b) => (a[1] < b[1])).map((v) => MODES[v[0]]).toJS()
-      //   return callback(filterSuggestions(data.value, list))
-      // } else {
-      //   return []
-      // }
     },
     setter: (text, data) => {
       // const { dispatch, segment } = data
