@@ -33,7 +33,6 @@ export default (editorState, getter, stateSetter, refs, tsuggestions) => {
         let ranges = []
         block.findEntityRanges((c) => c.getEntity() === entityKey, (begin, end) => ranges.push({ begin, end }))
         const { begin, end } = ranges[0]
-        console.log(block)
 
         const _suggestions = {
           show,

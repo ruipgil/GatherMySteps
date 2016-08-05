@@ -54,7 +54,7 @@ class SemanticEditor extends Component {
   suggest (editorState) {
     suggest(editorState, this.props.suggestionGetters, (suggestions) => {
       if (this.state.editorState === editorState) {
-        this.setState({ editorState, suggestions })
+        this.setState({ editorState: this.state.editorState, suggestions })
       }
     }, this.refs, this.state.suggestions)
   }
@@ -136,9 +136,9 @@ class SemanticEditor extends Component {
 
   onTab (e) {
     e.preventDefault()
-    const backwards = e.shiftKey
+    const isBackwards = e.shiftKey
     let { editorState } = this.state
-    this.onChange(selectNextEntity(editorState, backwards))
+    this.onChange(selectNextEntity(editorState, isBackwards))
   }
 
   onEsc () {
