@@ -74,7 +74,7 @@ Start
 */
 TimezoneOffset
   = "+" offset:[0-9]+ { return Number(offset.join('')) }
-  / "-" offset:[0-9]+ { return Number(offset.join('')) }
+  / "-" offset:[0-9]+ { return -Number(offset.join('')) }
 
 Timezone "timezone"
   = "@"? "UTC" offset:TimezoneOffset? ws:ws comment:Comment? { return d('Timezone', { value: offset || 0, comment }) }

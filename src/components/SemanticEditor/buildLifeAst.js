@@ -68,10 +68,15 @@ export default (text, segments) => {
     const fragments = LIFEParser.parse(text)
     const { year, month, day } = fragments.day.value
     const currentDay = year + '-' + month + '-' + day
+    let timezone = 0
 
     for (let block of fragments.blocks) {
+      if (block.type === 'Timezone') {
+        timezone = block.value
+      }
       if (block.type === 'Trip' || block.type === 'Stay') {
         const { timespan } = block
+        timespan.timezone = timezone
         const fromTime = timeToMoment(currentDay, timespan.start.value)
         const toTime = timeToMoment(currentDay, timespan.finish.value)
 
@@ -84,12 +89,14 @@ export default (text, segments) => {
             const tmFromPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.start.value), segments)
             const tmToPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.finish.value), segments, true)
             tmode.references = { to: tmToPoint, from: tmFromPoint }
+            tmode.timespan.timezone = timezone
           })
         }
       }
     }
     return fragments
   } catch (e) {
+    console.log(e)
     throw e
   }
 }

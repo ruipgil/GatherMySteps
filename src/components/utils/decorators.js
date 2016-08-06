@@ -127,6 +127,18 @@ const TokenSpan = (props) => {
   )
 }
 
+const TimeSpan = (props) => {
+  const type = Entity.get(props.entityKey).getType()
+  const typeStyles = STYLES[type] ? STYLES[type] : {}
+  const style = { ...STYLES._, ...typeStyles }
+
+  const { timezone } = Entity.get(props.entityKey).getData()
+
+  return (
+    <span onMouseEnter={() => console.log(timezone)} style={style} {...props}>{props.children}</span>
+  )
+}
+
 const getEntityStrategy = (type) => {
   return (contentBlock, callback) => {
     contentBlock.findEntityRanges(
@@ -145,7 +157,7 @@ const getEntityStrategy = (type) => {
 export default [
   {
     strategy: getEntityStrategy('Time'),
-    component: Reference
+    component: TimeSpan
   },
   {
     strategy: getEntityStrategy('LocationFrom'),

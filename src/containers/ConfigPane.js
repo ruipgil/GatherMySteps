@@ -23,7 +23,7 @@ class TextField extends Component {
         <p className='control has-addons' style={{ marginBottom: '0' }}>
           <input {...details} className='input is-expanded' type={type || 'text'} defaultValue={defaultValue} placeholder={placeholder} ref='field' />
         </p>
-        <blockquote style={{ color: 'gray', fontSize: '0.9rem', marginBottom: '10px' }}>
+        <blockquote className='help' style={{ color: 'gray'/* , fontSize: '0.9rem' */, marginBottom: '10px' }}>
           {help}
         </blockquote>
       </span>
@@ -61,7 +61,7 @@ class OptionsField extends Component {
             </select>
           </span>
         </p>
-        <blockquote style={{ color: 'gray', fontSize: '0.9rem', marginBottom: '10px' }}>
+        <blockquote className='help' style={{ color: 'gray', /* fontSize: '0.9rem', */ marginBottom: '10px' }}>
           {help}
         </blockquote>
       </span>
@@ -207,7 +207,7 @@ class ConfigPane extends Component {
     }
 
     return (
-      <form style={style}>
+      <div style={style}>
         <header style={{ fontSize: '2rem' }}>
           Configuration
         </header>
@@ -232,7 +232,7 @@ class ConfigPane extends Component {
             modifier()
           }} > Save </AsyncButton>
         </footer>
-      </form>
+      </div>
     )
   }
 }

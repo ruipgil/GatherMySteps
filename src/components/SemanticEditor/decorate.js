@@ -66,8 +66,8 @@ const StyleMappings = {
     return content
   },
   'Timespan': (time, content, lineKeys, more) => {
-    content = StyleMappings[time.start.type](time.start, content, lineKeys, { ...more, references: more.references.from })
-    content = StyleMappings[time.finish.type](time.finish, content, lineKeys, { ...more, references: more.references.to })
+    content = StyleMappings[time.start.type](time.start, content, lineKeys, { ...more, timezone: time.timezone, references: more.references.from })
+    content = StyleMappings[time.finish.type](time.finish, content, lineKeys, { ...more, timezone: time.timezone, references: more.references.to })
     return content
   },
   'Stay': (stay, content, lineKeys, more) => {
