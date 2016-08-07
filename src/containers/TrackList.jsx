@@ -4,72 +4,72 @@ import Track from 'components/Track'
 
 const GMS = !process.env.BUILD_GPX
 
-const segmentStartTime = (segment) => {
-  return segment.get('points').get(0).get('time')
+const LOADING = <span className='button is-large is-loading' style={{ border: 0 }}>Loading</span>
+
+const EMPTY_FOLDER = (
+  <div style={{ width: '70%' }}>
+    <div>
+      <i className='fa fa-check-circle-o' style={{ color: 'rgb(191, 191, 191)' }} />
+    </div>
+    There are no more files at the input folder
+  </div>
+)
+
+const DROP_FILES = (
+  <div className='dropInfo'>
+    Drop .gpx files here
+  </div>
+)
+
+const style = {
+  display: 'flex',
+  alignItems: 'center',
+  textAlign: 'center',
+  justifyContent: 'center',
+  width: '100%'
 }
 
-const segmentEndTime = (segment) => {
-  return segment.get('points').get(-1).get('time')
-}
-
-let TrackList = ({ dispatch, tracks, segments, className, step }) => {
-  const findStart = (seg) =>
-    seg.get('segments').map((s) => segmentStartTime(segments).sort((_a, _b) => segmentStartTime(_a).diff(segmentEndTime(_b)))).get(0)
-
+let TrackList = ({ dispatch, tracks, className, step }) => {
   if (tracks.count() !== 0) {
     return (
       <ul className={className}>
-      {
-        tracks
-        .sort((a, b) => {
-          const aStart = findStart(a)
-          const bStart = findStart(b)
-          return segmentStartTime(aStart).diff(segmentEndTime(bStart))
-        })
-        .map((track, i) => {
-          const trackSegments = track.get('segments').map((id) => segments.get(id))
-          const segmentCount = trackSegments.count()
-          const pointCount = trackSegments.reduce((x, segment) => x + segment.pointCount(), 0)
-          return <Track trackId={track.get('id')} segmentCount={segmentCount} pointCount={pointCount} key={i} />
-        })
-      }
+        {
+          tracks.map((track, i) => {
+            return <Track trackId={track} />
+          })
+        }
       </ul>
     )
+  } else if (GMS) {
+    return (
+      <div style={style}>
+        { step === -2 ? LOADING : EMPTY_FOLDER }
+      </div>
+    )
   } else {
-    if (GMS) {
-      let message = null
-      if (step === -2) {
-        message = <span className='button is-large is-loading' style={{ border: 0 }}>Loading</span>
-      } else {
-        message = (
-          <div style={{ width: '70%' }}>
-            <div>
-              <i className='fa fa-check-circle-o' style={{ color: 'rgb(191, 191, 191)' }} />
-            </div>
-            There are no more files at the input folder
-          </div>
-        )
-      }
-      return (
-        <div style={{ display: 'flex', alignItems: 'center', textAlign: 'center', justifyContent: 'center', width: '100%' }}>
-          { message }
-        </div>
-      )
-    } else {
-      return (
-        <div className='dropInfo'>
-          Drop .gpx files here
-        </div>
-      )
-    }
+    return DROP_FILES
   }
 }
 
 const mapStateToProps = (state) => {
+  const findStart = (track) => {
+    return track
+      .get('segments').toList().map((segmentId) => {
+        return state.get('tracks').get('segments').get(segmentId)
+      })
+      .sort((a, b) => {
+        return a.getStartTime().diff(b.getStartTime())
+      })
+      .get(0)
+  }
+  const tracks = state
+    .get('tracks').get('tracks').valueSeq().sort((a, b) => {
+      return findStart(a).diff(findStart(b))
+    })
+    .map((segment) => segment.get('id'))
   return {
     step: state.get('progress').get('step'),
-    tracks: state.get('tracks').get('tracks'),
-    segments: state.get('tracks').get('segments')
+    tracks
   }
 }
 
