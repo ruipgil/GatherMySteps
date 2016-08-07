@@ -1,13 +1,8 @@
 import {
-  /*
-  updateBoundsWithPoint,
-  getSegmentById,
-  getTrackBySegmentId,
-  */
   calculateBounds,
   createSegmentObj,
   calculateMetrics
-} from './utils'
+} from 'records'
 import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
@@ -22,11 +17,13 @@ const segmentEndTime = (segment) => {
   return segment.get('points').get(-1).get('time')
 }
 
+// TODO compute metrics
 const updateSegment = (state, id) => {
-  return state.updateIn(['segments', id], (segment) => {
-    // TODO create metrics with immutable
-    return calculateBounds(calculateMetrics(segment))
-  })
+  // return state.updateIn(['segments', id], (segment) => {
+  //   // TODO create metrics with immutable
+  //   return calculateBounds(calculateMetrics(segment))
+  // })
+  return state
 }
 
 const changeSegmentPoint = (state, action) => {
@@ -140,11 +137,12 @@ const removeSegment = (state, action) => {
     }
   } else {
     state = state.updateIn(['tracks', trackId, 'segments'], (segments) => {
-      return segments.delete(segments.indexOf(id))
+      return segments.delete(id)
     })
     action.undo = (self, state) => {
       return state
-      .setIn(['segments', id], segment)
+        .updateIn(['tracks', trackId, 'segments'], (segments) => segments.add(id))
+        .setIn(['segments', id], segment)
     }
   }
   return state
@@ -167,18 +165,17 @@ const splitSegment = (state, action) => {
   let newSegmentId
   state = state.updateIn(['tracks', segment.get('trackId'), 'segments'], (segments) => {
     newSegmentId = segData.get('id')
-    return segments.push(newSegmentId)
+    return segments.add(newSegmentId)
   })
 
   action.undo = (self, state) => {
     state = state.updateIn(['segments', id, 'points'], (points) => {
       const rest = state.get('segments').get(newSegmentId).get('points')
-      console.log(rest.toJS())
       return points.push(...rest.slice(1))
     })
     .deleteIn(['segments', newSegmentId])
     .updateIn(['tracks', state.get('segments').get(id).get('trackId'), 'segments'], (segs) => {
-      return segs.delete(segs.indexOf(newSegmentId))
+      return segs.delete(newSegmentId)
     })
     state = updateSegment(state, id)
 
@@ -223,7 +220,7 @@ const joinSegment = (state, action) => {
         state = state.setIn(['segments', details.segment], lastSeg)
         state = updateSegment(state, details.segment)
         state = updateSegment(state, action.segmentId)
-        state = state.updateIn(['tracks', trackId, 'segments'], (sgs) => sgs.push(details.segment))
+        state = state.updateIn(['tracks', trackId, 'segments'], (sgs) => sgs.add(details.segment))
         return state
       }
 
@@ -347,7 +344,7 @@ const toggleSegmentJoining = function (state, action) {
     var thisStartp = segment.get('points').get(0)
     var thisEndp = segment.get('points').get(-1)
 
-    const segs = track.get('segments')
+    const segs = track.get('segments').toList()
       .map((ts) => state.get('segments').get(ts))
       .sort((a, b) => segmentStartTime(a).diff(segmentStartTime(b)))
 

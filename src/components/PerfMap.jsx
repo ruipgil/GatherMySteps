@@ -311,10 +311,9 @@ export default class PerfMap extends Component {
   shouldUpdateBounds (bounds, prev) {
     let tBounds
     if (bounds) {
-      tBounds = latLngBounds(bounds.toJS())
+      tBounds = latLngBounds([[bounds.minLat, bounds.minLon], [bounds.maxLat, bounds.maxLon]])
     }
     if (bounds !== prev) {
-      console.log('updating')
       this.map.fitBounds(tBounds, {
         ...this.fitBounds,
         maxZoom: this.map.getBoundsZoom(tBounds, true)

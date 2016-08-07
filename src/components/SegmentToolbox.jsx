@@ -23,7 +23,7 @@ let SegmentToolbox = ({ dispatch, segment }) => {
   const spliting = segment.get('spliting')
   const joining = segment.get('joining')
   const pointDetails = segment.get('pointDetails')
-  const bounds = segment.get('bounds').toJS()
+  const bounds = segment.get('bounds')
   const showTimeFilter = segment.get('showTimeFilter')
   const filterStart = segment.get('timeFilter').get(0)
   const filterEnd = segment.get('timeFilter').get(1)

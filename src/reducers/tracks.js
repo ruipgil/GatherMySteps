@@ -1,5 +1,5 @@
 import { Map } from 'immutable'
-import { createTrackObj } from './utils'
+import { createTrackObj } from 'records'
 import { addTrack as addTrackAction } from '../actions/tracks'
 
 const addTrack = (state, action) => {
