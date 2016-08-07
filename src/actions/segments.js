@@ -15,7 +15,7 @@ import {
   TOGGLE_SEGMENT_JOINING,
   TOGGLE_SEGMENT_EDITING } from './'
 import moment from 'moment'
-import { addAlert, removeAlert } from 'actions/ui'
+import { updateBounds, centerMap, addAlert, removeAlert } from 'actions/ui'
 
 export const addSegmentPoint = (segmentId, index, lat, lon) => {
   return {
@@ -37,6 +37,14 @@ export const changeSegmentPoint = (segmentId, index, lat, lon) => {
   }
 }
 
+export const centerPointOnMap = (segmentId, index) => {
+  return (dispatch, getState) => {
+    const { lat, lon } = getState()
+      .get('tracks').get('segments').get(segmentId).get('points').get(index)
+    dispatch(centerMap(lat, lon))
+  }
+}
+
 export const extendSegment = (segmentId, index, lat, lon) => {
   return {
     segmentId,
@@ -48,9 +56,9 @@ export const extendSegment = (segmentId, index, lat, lon) => {
 }
 
 export const fitSegment = (segmentId) => {
-  return {
-    segmentId,
-    type: FIT_SEGMENT
+  return (dispatch, getState) => {
+    const bounds = getState().get('tracks').get('segments').get(segmentId).get('bounds')
+    dispatch(updateBounds(bounds))
   }
 }
 

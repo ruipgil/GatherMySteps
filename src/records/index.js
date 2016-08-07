@@ -144,6 +144,9 @@ class SegmentRecord extends Record(SEGMENT_DEFAULT_PROPS) {
   getEndTime () {
     return this.points.get(-1).get('time')
   }
+  pointCount () {
+    return this.points.count()
+  }
 }
 
 export const createSegmentObj = (trackId, points, location, transModes, nSegs, customId) => {

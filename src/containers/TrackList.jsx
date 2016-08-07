@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import TrackRepresentation from '../components/TrackRepresentation.jsx'
+import Track from 'components/Track'
 
 const GMS = !process.env.BUILD_GPX
 
@@ -28,7 +28,9 @@ let TrackList = ({ dispatch, tracks, segments, className, step }) => {
         })
         .map((track, i) => {
           const trackSegments = track.get('segments').map((id) => segments.get(id))
-          return <TrackRepresentation dispatch={dispatch} track={track} segments={trackSegments} key={i} />
+          const segmentCount = trackSegments.count()
+          const pointCount = trackSegments.reduce((x, segment) => x + segment.pointCount(), 0)
+          return <Track trackId={track.get('id')} segmentCount={segmentCount} pointCount={pointCount} key={i} />
         })
       }
       </ul>
