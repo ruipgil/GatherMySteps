@@ -19,22 +19,21 @@ let ProgressBar = ({ state, children }) => {
   }
   return (
     <div>
-    <div>
-      <ul className='progressbar'>
-        <li { ...active } style={{ width }}></li>
-        <li { ...selector(state, 0) } style={{width}}></li>
-        <li { ...selector(state, 1) } style={{width}}></li>
-        <li { ...selector(state, 2) } style={{width}}></li>
-        <li { ...none } style={{width}}></li>
-      </ul>
+      <div>
+        <ul className='progressbar'>
+          <li { ...active } style={{ width }}></li>
+          <li { ...selector(state, 0) } style={{width}}></li>
+          <li { ...selector(state, 1) } style={{width}}></li>
+          <li { ...selector(state, 2) } style={{width}}></li>
+          <li { ...none } style={{width}}></li>
+        </ul>
+      </div>
+      <div className='pg-text'>
+        <span { ...selector(state, 0) }>Preview</span>
+        <span { ...selector(state, 1) }>Adjust</span>
+        <span { ...selector(state, 2) }>Annotate</span>
+      </div>
     </div>
-    <div className='pg-text'>
-      <span { ...selector(state, 0) }>Preview</span>
-      <span { ...selector(state, 1) }>Adjust</span>
-      <span { ...selector(state, 2) }>Annotate</span>
-    </div>
-  </div>
-
   )
 }
 
@@ -166,13 +165,5 @@ ProgressBar = ({ state, ballStyle, children }) => {
     </div>
   )
 }
-
-const mapStateToProps = (state) => {
-  return {
-    state: state.get('progress').get('step') || 0
-  }
-}
-
-ProgressBar = connect(mapStateToProps)(ProgressBar)
 
 export default ProgressBar
