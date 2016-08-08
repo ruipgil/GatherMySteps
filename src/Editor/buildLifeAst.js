@@ -1,6 +1,6 @@
 import { Map } from 'immutable'
 import moment from 'moment'
-import LIFEParser from 'components/utils/life.peg.js'
+import LIFEParser from './life.peg.js'
 
 const sameMilitary = (a, b) => {
   return a.minutes() === b.minutes() && a.hours() === b.hours()

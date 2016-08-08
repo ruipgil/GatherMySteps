@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 import { ContentState } from 'draft-js'
 import Editor from 'Editor'
 
-import decorators from './utils/decorators'
-import suggestionsGetters from './utils/suggestionsGetters'
+import decorators from 'Editor/decorators'
+import suggestionsGetters from 'Editor/suggestionsGetters'
 // import { updateLIFE } from 'actions/tracks'
 
 let SE = ({ dispatch, segments, life }) => {
