@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import PerfMap from 'components/PerfMap'
+import PerfMap from 'map'
 
 const mapStateToProps2 = (state) => {
   const history = state.get('tracks').get('history')

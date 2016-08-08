@@ -1,4 +1,4 @@
-import { map, latLngBounds, LatLng } from 'leaflet'
+import { map, latLngBounds } from 'leaflet'
 // import { Google } from 'leaflet-plugins/layer/tile/Google.js'
 import React, { Component } from 'react'
 import { Set } from 'immutable'
@@ -14,22 +14,22 @@ import {
 import { undo, redo } from 'actions/progress'
 import { toggleConfig } from 'actions/ui'
 
-import setupControls from './Map/setupControls'
-import setupTileLayers from './Map/setupTileLayers'
+import setupControls from './setupControls'
+import setupTileLayers from './setupTileLayers'
 
-import editMode from './Map/editMode'
-import joinMode from './Map/joinMode'
-import splitMode from './Map/splitMode'
-import detailMode from './Map/detailMode'
-import addSegment from './Map/addSegment'
-import updatePoints from './Map/updatePoints'
-import pointActionMode from './Map/pointActionMode'
+import editMode from './editMode'
+import joinMode from './joinMode'
+import splitMode from './splitMode'
+import detailMode from './detailMode'
+import addSegment from './addSegment'
+import updatePoints from './updatePoints'
+import pointActionMode from './pointActionMode'
 
-import { createMarker, createPointIcon } from './Map/utils'
+import { createMarker, createPointIcon } from './utils'
 
-import buildTransportationModeRepresentation from './Map/buildTransportationModeRepresentation'
+import buildTransportationModeRepresentation from './buildTransportationModeRepresentation'
 
-export default class PerfMap extends Component {
+export default class LeafletMap extends Component {
   constructor (props) {
     super(props)
 
