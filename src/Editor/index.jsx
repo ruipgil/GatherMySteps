@@ -1,12 +1,18 @@
 import React, { Component } from 'react'
-import { findDOMNode } from 'react-dom'
-import { Editor, Modifier, CompositeDecorator, EditorState, SelectionState } from 'draft-js'
+import {
+  Editor as DraftEditor,
+  Modifier,
+  CompositeDecorator,
+  EditorState,
+  SelectionState
+} from 'draft-js'
 import suggest from './suggest'
 import decorate from './decorate'
 import { selectNextEntity } from './selectNextEntity'
-import SuggestionBox from 'components/SuggestionBox.jsx'
+import SuggestionBox from './SuggestionBox.jsx'
+import Gutter from './Gutter'
 
-class SemanticEditor extends Component {
+class Editor extends Component {
   constructor (props) {
     super(props)
     this.previousAst = null
@@ -121,7 +127,6 @@ class SemanticEditor extends Component {
     })
     let content = editorState.getCurrentContent()
     content = Modifier.replaceText(content, range, suggestion)
-    // TODO replace value in entity
     let newEditorState = this.decorate(EditorState.push(editorState, content, 'insert-characters'))
     const sl = editorState.getSelection().merge({
       hasFocus: false
@@ -151,33 +156,32 @@ class SemanticEditor extends Component {
   render () {
     const { editorState, suggestions } = this.state
     const { selected, list, show, box: { left, top } } = suggestions
+    const gutterStyle = {
+      paddingRight: '6px',
+      color: '#d3d6db',
+      textAlign: 'right'
+    }
+    const flexStyle = {
+      display: 'flex'
+    }
+    const editorStyle = {
+      ...flexStyle,
+      fontFamily: 'monospace'
+    }
+
     return (
-      <div style={{ display: 'flex', fontFamily: 'monospace' }}>
-        <div style={{ display: 'flex' }}>
-          <ol style={{ paddingRight: '6px' }}>
+      <div style={editorStyle} onClick={() => this.refs.editor.focus()}>
+        <div style={flexStyle}>
+          <Gutter editorState={editorState} defaultGutter={(i) => i + 1} style={gutterStyle}>
             {
-              editorState.getCurrentContent().getBlockMap().keySeq().map((blockKey, i) => {
-                const block = document.querySelector('[data-offset-key="' + blockKey + '-0-0"][data-block=true]')
-                const stl = {}
-                if (block) {
-                  stl.height = block.offsetHeight + 'px'
-                }
-                i++
-                return (
-                  <li style={{ color: '#d3d6db', textAlign: 'right', ...stl }}>
-                    {
-                      this.warning && this.warning.location.start.line === i
-                        ? <i className='fa fa-warning' style={{ color: '#fcda73' }} title={this.warning.message} />
-                        : i
-                    }
-                  </li>
-                )
-              })
+              this.warning
+              ? <i className='fa fa-warning' style={{ color: '#fcda73' }} title={this.warning.message} line={this.warning.location.start.line - 1} />
+              : null
             }
-          </ol>
+          </Gutter>
         </div>
-        <div style={{ display: 'flex' }}>
-          <Editor
+        <div style={flexStyle}>
+          <DraftEditor
             editorState={editorState}
             onChange={this.onChange.bind(this)}
             stripPastedStyles={true}
@@ -187,21 +191,16 @@ class SemanticEditor extends Component {
             onEscape={this.onEsc.bind(this)}
             onTab={this.onTab.bind(this)}
             ref='editor'
-            spellcheck={false}
-          />
+            spellcheck={false} />
         </div>
         <SuggestionBox
-          left={left}
-          top={top}
-          show={show}
-          selected={selected}
           onSelect={this.onSuggestionSelect.bind(this)}
           suggestions={list}
-        />
+          left={left} top={top} show={show} selected={selected} />
       </div>
     )
   }
 
 }
 
-export default SemanticEditor
+export default Editor

@@ -1,18 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { ContentState } from 'draft-js'
-import SemanticEditor from './SemanticEditor/index.jsx'
+import Editor from 'Editor'
 
 import decorators from './utils/decorators'
 import suggestionsGetters from './utils/suggestionsGetters'
-import createTextRepresentation from './utils/createTextRepresentation'
-import { updateLIFE } from 'actions/tracks'
+// import { updateLIFE } from 'actions/tracks'
 
 let SE = ({ dispatch, segments, life }) => {
   const state = ContentState.createFromText(life)
 
   return (
-    <SemanticEditor
+    <Editor
       state={ state }
       segments={ segments }
       dispatch={ dispatch }
@@ -23,7 +22,7 @@ let SE = ({ dispatch, segments, life }) => {
         // dispatch(updateLIFE(editorState.getCurrentContent().getPlainText()), warning)
       }}
       >
-    </SemanticEditor>
+    </Editor>
   )
 }
 

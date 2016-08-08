@@ -1,5 +1,5 @@
 import { Entity } from 'draft-js'
-import findSuggestionBoxPosition from '../utils/findSuggestionBoxPosition'
+import findSuggestionBoxPosition from './findSuggestionBoxPosition'
 
 export default (editorState, getter, stateSetter, refs, tsuggestions) => {
   const sel = editorState.getSelection()

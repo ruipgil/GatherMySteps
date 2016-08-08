@@ -1,6 +1,5 @@
-import { diff } from 'deep-diff'
-import { EditorState, SelectionState, Modifier, Entity } from 'draft-js'
 import buildLifeAst from './buildLifeAst'
+import { EditorState, SelectionState, Modifier, Entity } from 'draft-js'
 
 const decriptiveStyle = (styleType, marks, value, content, lineKeys, more = {}) => {
   const { offset, length, line } = marks
