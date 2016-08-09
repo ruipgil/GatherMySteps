@@ -571,7 +571,7 @@ const addNewSegment = (state, action) => {
   const seg = createSegmentObj(trackId, [point])
   return state
     .setIn(['segments', seg.get('id')], seg)
-    .updateIn(['tracks', trackId, 'segments'], (segs) => segs.push(seg.get('id')))
+    .updateIn(['tracks', trackId, 'segments'], (segs) => segs.add(seg.get('id')))
 }
 
 const ACTION_REACTION = {

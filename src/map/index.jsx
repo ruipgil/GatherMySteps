@@ -29,13 +29,17 @@ import { createMarker, createPointIcon } from './utils'
 
 import buildTransportationModeRepresentation from './buildTransportationModeRepresentation'
 
+const DEFAULT_PROPS = {
+  detailLevel: 18,
+  decorationLevel: 12,
+  mapCreation: {}
+}
+
 export default class LeafletMap extends Component {
   constructor (props) {
     super(props)
-
-    this.detailLevel = props.detailLevel || 18
-    this.transportationModeLevel = props.transportationModeLevel || 12
     this.map = undefined
+
     /**
      * Holds the segments currently displayed in their leaflet form
      *  key: segment id
@@ -75,13 +79,12 @@ export default class LeafletMap extends Component {
   }
 
   componentDidMount () {
+    const { mapCreation, children } = this.props
     const m = findDOMNode(this.refs.map)
-    this.map = map(m, {
-      // bounds: this.props.bounds
-      zoomControl: false,
-      zoomDelta: 0.4,
-      zoomSnap: 0.4
-    })
+
+    this.map = map(m, mapCreation)
+
+    setupTileLayers(this.map)
 
     const { dispatch } = this.props
     setupControls(this.map, {
@@ -92,7 +95,6 @@ export default class LeafletMap extends Component {
       config: () => dispatch(toggleConfig())
     })
 
-    setupTileLayers(this.map)
 
     this.fitWorld()
     this.map.on('zoomend', this.onZoomEnd.bind(this))
@@ -250,9 +252,9 @@ export default class LeafletMap extends Component {
   }
 
   onZoomEnd (e) {
-    const { detailLevel, transportationModeLevel } = this
+    const { detailLevel, decorationLevel } = this.props
     const currentZoom = this.map.getZoom()
-    if (currentZoom >= detailLevel || currentZoom >= transportationModeLevel) {
+    if (currentZoom >= detailLevel || currentZoom >= decorationLevel) {
       // add layers
       Object.keys(this.segments).forEach((s) => {
         if (this.segments[s]) {
@@ -261,7 +263,7 @@ export default class LeafletMap extends Component {
             layergroup.addLayer(details)
           }
 
-          if (layergroup.hasLayer(transportation) === false && transportationModeLevel) {
+          if (layergroup.hasLayer(transportation) === false && decorationLevel) {
             layergroup.addLayer(transportation)
           }
         }
@@ -367,11 +369,11 @@ export default class LeafletMap extends Component {
     obj.layergroup.addTo(this.map)
 
     const currentZoom = this.map.getZoom()
-    const { detailLevel, transportationModeLevel } = this
+    const { detailLevel, decorationLevel } = this.props
     if (currentZoom >= detailLevel) {
       obj.details.addTo(obj.layergroup)
     }
-    if (currentZoom >= transportationModeLevel) {
+    if (currentZoom >= decorationLevel) {
       obj.transportation.addTo(obj.layergroup)
     }
   }
@@ -393,3 +395,5 @@ export default class LeafletMap extends Component {
     )
   }
 }
+
+LeafletMap.defaultProps = DEFAULT_PROPS
