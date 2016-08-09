@@ -24,7 +24,7 @@ const middleStatsDown = {
 
 const middleStatsUp = {
   ...middleStatsDown,
-  paddingTop: '1rem'
+  paddingTop: '0.5rem'
 }
 
 const middleStatsChild = {
@@ -60,23 +60,27 @@ const Segment = ({ dispatch, segmentId, points, start, end, display, color, metr
     cursor: 'pointer'
   }
 
+  const fadeStyle = {
+    fontWeight: 200
+  }
+
   return (
     <li className='slide-from-top-fade-in'>
       <div style={style}>
-        <div onClick={toggleTrack}>
+        <div onClick={toggleTrack} style={{ marginBottom: '0.5rem' }}>
           <div style={middleStatsUp} >
-            <i className='fa fa-calendar-o' style={middleStatsChild} /> {end.fromNow()}
+            <div>
+              <i className='fa fa-calendar-o' style={middleStatsChild} /> {end.fromNow()} <span style={fadeStyle}>during</span> {start.to(end, true)}
+            </div>
           </div>
           <div style={{ display: 'flex' }}>
             <SegmentStartEnd segmentId={segmentId} index={0} time={start} dispatch={dispatch} />
             <SegmentStartEnd segmentId={segmentId} index={-1} time={end} dispatch={dispatch} />
           </div>
           <div style={middleStatsDown}>
-            <i className='fa fa-clock-o' style={middleStatsChild} /> {start.to(end, true)}
-          </div>
-
-          <div style={metricsStyle}>
-            {points.count()} points, { distance.toFixed(2) } km at { averageVelocity.toFixed(2) } km/h
+            <div>
+              <i className='fa fa-dashboard' style={middleStatsChild} /> { distance.toFixed(3) } km <span style={fadeStyle}>at</span> { averageVelocity.toFixed(2) } km/h
+            </div>
           </div>
         </div>
 
