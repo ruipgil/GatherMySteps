@@ -25,7 +25,7 @@ const mapStateToProps = (state, { trackId }) => {
   return {
     trackId,
     pointCount: track.get('segments').reduce((x, segmentId) => x + getSegment(segmentId).pointCount(), 0),
-    segmentCount: track.get('segments')
+    segmentCount: track.get('segments').count()
   }
 }
 

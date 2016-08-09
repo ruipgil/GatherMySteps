@@ -35,7 +35,7 @@ let TrackList = ({ dispatch, tracks, className, step }) => {
       <ul className={className}>
         {
           tracks.map((track, i) => {
-            return <Track trackId={track} />
+            return <Track trackId={track} key={i} />
           })
         }
       </ul>

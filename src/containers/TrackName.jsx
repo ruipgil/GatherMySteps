@@ -46,7 +46,7 @@ const TrackName = ({ dispatch, trackId, renaming, name }) => {
 const mapStateToProps = (state, { trackId }) => {
   const { name, renaming } = state.get('tracks').get('tracks').get(trackId)
   return {
-    name,
+    name: name || 'Untitled.gpx',
     trackId,
     renaming
   }
