@@ -73,8 +73,9 @@ const Segment = ({ dispatch, segmentId, points, start, end, display, color, metr
               <i className='fa fa-calendar-o' style={middleStatsChild} /> {end.fromNow()} <span style={fadeStyle}>during</span> {start.to(end, true)}
             </div>
           </div>
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <SegmentStartEnd segmentId={segmentId} index={0} time={start} dispatch={dispatch} />
+            <i className={ 'fa fa-' + (display ? 'eye' : 'low-vision') } title='Click to hide this segment' style={{ fontSize: '1.0rem', opacity: 0.5 }} />
             <SegmentStartEnd segmentId={segmentId} index={-1} time={end} dispatch={dispatch} />
           </div>
           <div style={middleStatsDown}>
