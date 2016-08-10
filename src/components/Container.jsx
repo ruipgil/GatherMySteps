@@ -15,6 +15,14 @@ const GMS_ATTRIBUTION = (
 const TITLE = GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a>
 
 const Container = ({ keyHandler, downKeyHandler, showConfig, step }) => {
+  const progress = (
+    <ProgressBar state={step}>
+      <span>Preview</span>
+      <span>Adjust</span>
+      <span>Annotate</span>
+    </ProgressBar>
+  )
+
   return (
     <div id='container' onKeyUp={keyHandler} onKeyDown={downKeyHandler} >
       { showConfig ? <ConfigPane /> : null }
@@ -22,7 +30,7 @@ const Container = ({ keyHandler, downKeyHandler, showConfig, step }) => {
       <div id='float-container'>
         <div>
           <div id='title'>{ TITLE }</div>
-          { GMS ? <ProgressBar state={step} /> : GMS_ATTRIBUTION }
+          { GMS ? progress : GMS_ATTRIBUTION }
         </div>
         <SidePane />
       </div>
