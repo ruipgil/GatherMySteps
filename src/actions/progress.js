@@ -277,3 +277,25 @@ export const getLocationSuggestion = (point) => {
       .then((location) => location.other.map((x) => x.label))
   }
 }
+
+export const displayCanonicalTrips = (trips) => ({
+  trips,
+  type: 'DISPLAY_CANONICAL_TRIPS'
+})
+
+export const loadCanonicalTrips = () => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    const addr = getState().get('progress').get('server')
+    return fetch(addr + '/canonicalTrips', options)
+      .then((response) => response.json())
+      .catch((e) => console.error(e))
+      .then((trips) => {
+        dispatch(displayCanonicalTrips(trips))
+      })
+  }
+}
+

@@ -95,7 +95,6 @@ export default class LeafletMap extends Component {
       config: () => dispatch(toggleConfig())
     })
 
-
     this.fitWorld()
     this.map.on('zoomend', this.onZoomEnd.bind(this))
   }

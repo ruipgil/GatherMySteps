@@ -6,6 +6,18 @@ import AsyncButton from 'components/AsyncButton'
 
 const POINTS_PER_KB = 7.2
 
+const GPXStyle = { paddingLeft: '1rem', fontSize: '0.9rem' }
+const GPXOfDay = ({ date, size }) => {
+  size = size / 1000
+  date = moment(new Date(date))
+  const pointsPredicted = Math.floor(size * POINTS_PER_KB)
+  return (
+    <div style={GPXStyle}>
+      { date.format('LT') } • { Math.round(size) }kb • ~{ pointsPredicted } points
+    </div>
+  )
+}
+
 const Day = ({ date, gpxs, isSelected, onSelectDay }) => {
   const mDate = moment(date)
   return (
@@ -15,12 +27,8 @@ const Day = ({ date, gpxs, isSelected, onSelectDay }) => {
       </div>
       <div>
         {
-          gpxs.map((gpx) => {
-            const size = gpx.get('size') / 1000
-            const pointsPredicted = size * POINTS_PER_KB
-            return (
-              <div style={{ paddingLeft: '1rem', fontSize: '0.9rem' }}>{ moment(gpx.get('start')).format('LT') } • { Math.round(size) }kb • ~{ Math.floor(pointsPredicted) } points</div>
-            )
+          gpxs.map((gpx, key) => {
+            return <GPXOfDay key={key} date={gpx.get('start')} size={gpx.get('size')} />
           }).toJS()
         }
       </div>
@@ -54,9 +62,9 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
         })
       }
       {
-        remaining.map(([day, gpxs]) => {
+        remaining.map(([day, gpxs], i) => {
           return (
-            <AsyncButton isDiv={true} withoutBtnClass={true} onClick={(e, modifier) => {
+            <AsyncButton key={i} isDiv={true} withoutBtnClass={true} onClick={(e, modifier) => {
               if (selected !== day) {
                 /*global confirm*/
                 const go = !hasChanges || confirm('Do you wish to change days?\n\nAll changes made to the current day will be lost')
@@ -68,8 +76,7 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
               }
             }}>
               <Day
-                date={day}
-                gpxs={gpxs}
+                gpxs={gpxs} date={day}
                 isSelected={selected === day} />
             </AsyncButton>
           )

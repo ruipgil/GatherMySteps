@@ -2,7 +2,7 @@ import moment from 'moment'
 import { genTrackId, genSegId } from 'reducers/idState'
 import colors from 'reducers/colors'
 import haversine from '../haversine'
-import { Record, List, Set, fromJS } from 'immutable'
+import { Map, Record, List, Set, fromJS } from 'immutable'
 
 export const max = (a, b) => a >= b ? a : b
 export const min = (a, b) => a <= b ? a : b
@@ -132,7 +132,14 @@ const computeMetrics = (points) => {
   })
 }
 
-class SegmentRecord extends Record(SEGMENT_DEFAULT_PROPS) {
+export const pointsToRecord = (points) => {
+  return new List(points.map((point) => {
+    point.time = point.time ? moment(point.time) : null
+    return new PointRecord(point)
+  }))
+}
+
+export class SegmentRecord extends Record(SEGMENT_DEFAULT_PROPS) {
   constructor (defaultValues) {
     defaultValues.bounds = defaultValues.bounds || computeBounds(defaultValues.points)
     defaultValues.metrics = defaultValues.metrics || computeMetrics(defaultValues.points)
@@ -155,16 +162,13 @@ export const createSegmentObj = (trackId, points, location, transModes, nSegs, c
     trackId,
     id: sId,
     color: colors(customId === undefined ? max(nSegs, sId) : customId),
-    points: new List(points.map((point) => {
-      point.time = moment(point.time)
-      return new PointRecord(point)
-    })),
+    points: pointsToRecord(points),
     location: fromJS(location),
     transportationModes: fromJS(transModes)
   })
 }
 
-class TrackRecord extends Record({
+export class TrackRecord extends Record({
   id: -1,
   name: '',
   renaming: false,

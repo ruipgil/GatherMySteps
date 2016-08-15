@@ -1,5 +1,5 @@
-import { Map } from 'immutable'
-import { createTrackObj } from 'records'
+import { List, Map } from 'immutable'
+import { pointsToRecord, SegmentRecord, TrackRecord, createTrackObj } from 'records'
 import { addTrack as addTrackAction } from '../actions/tracks'
 
 const addTrack = (state, action) => {
@@ -47,6 +47,30 @@ const removeTracksFor = (state, action) => {
   const locations = segments.map((s) => [s.locationFrom, s.locationTo])
   const act = addTrackAction(points, name, locations, transportationModes)
   return addTrack(state, act)
+}
+
+const displayCanonicalTrips = (state, action) => {
+  const { trips } = action
+  const canonicalSegments = trips.filter((trip) => trip.points.length > 1).map((trip, i) => {
+    return new SegmentRecord({
+      trackId: 0,
+      id: trip.id,
+      points: pointsToRecord(trip.points)
+    })
+  })
+  const canonicalTrack = new TrackRecord({
+    segments: new List(canonicalSegments.map((trip) => trip.id))
+  })
+
+  state = state.set('alternate', state)
+    .updateIn(['tracks'], (tracks) => tracks.clear().set(canonicalTrack.id, canonicalTrack))
+    .updateIn(['segments'], (segments) => {
+      segments = segments.clear()
+      return canonicalSegments.reduce((segments, segment) => {
+        return segments.set(segment.id, segment)
+      }, segments)
+    })
+  return state
 }
 
 const undo = (state, action) => {
@@ -101,7 +125,8 @@ const ACTION_REACTION = {
   'UNDO': undo,
   'REDO': redo,
 
-  'UPDATE_LIFE': updateLIFE
+  'UPDATE_LIFE': updateLIFE,
+  'DISPLAY_CANONICAL_TRIPS': displayCanonicalTrips
 }
 
 import segments from './segments'

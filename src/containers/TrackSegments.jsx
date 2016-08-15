@@ -42,10 +42,14 @@ const mapStateToProps = (state, { trackId }) => {
     .get('tracks').get('tracks').get(trackId).get('segments').toList()
     .map((segmentId) => state.get('tracks').get('segments').get(segmentId))
     .sort((a, b) => {
-      if (a.getStartTime().isSame(b.getStartTime())) {
-        return a.getEndTime().diff(b.getEndTime())
+      if (a.getStartTime() && b.getStartTime()) {
+        if (a.getStartTime().isSame(b.getStartTime())) {
+          return a.getEndTime().diff(b.getEndTime())
+        } else {
+          return a.getStartTime().diff(b.getStartTime())
+        }
       } else {
-        return a.getStartTime().diff(b.getStartTime())
+        return
       }
     })
     .map((segment) => segment.id)

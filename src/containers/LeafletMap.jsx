@@ -2,14 +2,21 @@ import React from 'react'
 import { connect } from 'react-redux'
 import PerfMap from 'map'
 
+const style = { height: '100%', zIndex: '1' }
 const LeafletMap = ({ ...props }) => {
-  return <PerfMap {...props} fitBounds={() => {
+  const fitBounds = () => {
     const floatContainer = document.querySelector('#float-container')
     const left = floatContainer ? floatContainer.offsetWidth : 0
     return {
       paddingTopLeft: [left, 0]
     }
-  }} style={{ height: '100%', zIndex: '1' }} />
+  }
+  const mapCreation = {
+    zoomControl: false,
+    zoomDelta: 0.4,
+    zoomSnap: 0.4
+  }
+  return <PerfMap {...props} fitBounds={fitBounds} style={style} mapCreation={mapCreation} />
 }
 
 const mapStateToProps = (state) => {

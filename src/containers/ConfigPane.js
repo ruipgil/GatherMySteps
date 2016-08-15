@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { saveConfig } from 'actions/progress'
+import {
+  saveConfig,
+  loadCanonicalTrips
+} from 'actions/progress'
 import { toggleConfig } from 'actions/ui'
 import AsyncButton from 'components/AsyncButton'
 
@@ -15,7 +18,6 @@ class TextField extends Component {
 
   render () {
     const { title, placeholder, type, defaultValue, help, ...details } = this.props
-    console.log(help)
 
     return (
       <span key={title}>
@@ -210,6 +212,8 @@ class ConfigPane extends Component {
       <div style={style}>
         <header style={{ fontSize: '2rem' }}>
           Configuration
+          <a className='button is-small' onClick={() => dispatch(loadCanonicalTrips())}>Load canonical trips</a>
+          <a className='button is-small'>Load canonical locations</a>
         </header>
         <section style={{ flexGrow: 1, overflowY: 'auto' }}>
           <div style={{ maxWidth: '400px', margin: 'auto' }}>

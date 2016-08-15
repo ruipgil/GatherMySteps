@@ -7,13 +7,19 @@ import { Provider } from 'react-redux'
 import buildTransportationModeRepresentation from './buildTransportationModeRepresentation'
 
 export default (id, points, color, display, filter, segment, dispatch, previousPoints, currentSegment) => {
-  const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
-  const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
-  const timeFilter = (point) => {
-    const t = point.get('time')
-    return tfLower <= t && t <= tfUpper
+  let pts
+  if (points.get(0).get('time')) {
+    const tfLower = (filter.get(0) || points.get(0).get('time')).valueOf()
+    const tfUpper = (filter.get(-1) || points.get(-1).get('time')).valueOf()
+    const timeFilter = (point) => {
+      const t = point.get('time')
+      return tfLower <= t && t <= tfUpper
+    }
+    pts = points.filter(timeFilter).map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
+  } else {
+    pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
   }
-  const pts = points.filter(timeFilter).map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
+  console.log(pts)
 
   const pline = new Polyline(pts, {
     color,
