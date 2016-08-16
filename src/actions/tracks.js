@@ -31,6 +31,11 @@ export const addMultipleTracks = (tracks, options) => {
   }
 }
 
+export const displayCanonicalTrips = (trips) => ({
+  trips,
+  type: 'DISPLAY_CANONICAL_TRIPS'
+})
+
 export const toggleTrackRenaming = (trackId) => {
   return {
     trackId,

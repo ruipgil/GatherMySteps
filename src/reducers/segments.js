@@ -7,6 +7,7 @@ import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
 import { List, Map, fromJS } from 'immutable'
+import { PointRecord } from 'records'
 import moment from 'moment'
 
 const segmentStartTime = (segment) => {
@@ -74,10 +75,12 @@ const extendSegmentPoint = (state, action) => {
   }
 
   const points = state.get('segments').get(id).get('points')
-  let point = fromJS({
+  let point = new PointRecord({
     lat: action.lat,
     lon: action.lon,
-    time: points.count() === 1 ? points.get(0).get('time').clone().add(1000) : extrapolateTime(points, action.index)
+    time: points.get(0).get('time') ? (
+      points.count() === 1 ? points.get(0).get('time').clone().add(1000) : extrapolateTime(points, action.index)
+    ) : null
   })
   return state.updateIn(['segments', id, 'points'], (points) => {
     if (action.index === 0) {
@@ -97,6 +100,9 @@ const extendSegmentPoint = (state, action) => {
 const addSegmentPoint = (state, action) => {
   const id = action.segmentId
   const extrapolateTimeA = (points, n) => {
+    if (!points.get(n).get('time')) {
+      return null
+    }
     let prev = points.get(n - 1).get('time')
     let next = points.get(n).get('time')
 

@@ -14,6 +14,22 @@ export const fitSegments = (...segmentIds) => {
   }
 }
 
+export const fitTracks = (...trackIds) => {
+  return (dispatch, getState) => {
+    const tracks = getState().get('tracks').get('tracks')
+    const segments = getState().get('tracks').get('segments')
+    const bounds = trackIds.reduce((prev, trackId) => {
+      const trackSegments = tracks.get(trackId).get('segments')
+      return trackSegments.reduce((pr, segmentId) => {
+        const segmentBounds = segments.get(segmentId).get('bounds')
+        return pr.updateWithBounds(segmentBounds)
+      }, prev)
+    }, new BoundsRecord())
+
+    dispatch(updateBounds(bounds))
+  }
+}
+
 export const toggleRemainingTracks = () => {
   return {
     type: 'TOGGLE_REMAINING_TRACKS'

@@ -1,6 +1,7 @@
 import { List, Map } from 'immutable'
 import { pointsToRecord, SegmentRecord, TrackRecord, createTrackObj } from 'records'
 import { addTrack as addTrackAction } from '../actions/tracks'
+import colors from 'reducers/colors'
 
 const addTrack = (state, action) => {
   let { name, segments, locations, transModes } = action
@@ -55,14 +56,22 @@ const displayCanonicalTrips = (state, action) => {
     return new SegmentRecord({
       trackId: 0,
       id: trip.id,
+      color: colors(i),
       points: pointsToRecord(trip.points)
     })
   })
   const canonicalTrack = new TrackRecord({
+    id: 0,
     segments: new List(canonicalSegments.map((trip) => trip.id))
   })
 
-  state = state.set('alternate', state)
+  if (!state.get('alternate')) {
+    state = state.set('alternate', state)
+  }
+
+  return state
+    .updateIn(['history', 'past'], (past) => past.clear())
+    .updateIn(['history', 'future'], (future) => future.clear())
     .updateIn(['tracks'], (tracks) => tracks.clear().set(canonicalTrack.id, canonicalTrack))
     .updateIn(['segments'], (segments) => {
       segments = segments.clear()
@@ -70,7 +79,6 @@ const displayCanonicalTrips = (state, action) => {
         return segments.set(segment.id, segment)
       }, segments)
     })
-  return state
 }
 
 const undo = (state, action) => {

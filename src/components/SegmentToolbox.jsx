@@ -13,13 +13,18 @@ import {
 } from '../actions/segments'
 import { addAlert, removeAlert } from '../actions/ui'
 
-const btnHighlight = ' is-success is-outlined'
-
 const INFO_TIME = 100
 
-const ToolboxButton = ({ icon, title, onClick, highlighted }) => {
+const ToolboxButton = ({ icon, title, onClick, highlighted, disabled }) => {
+  const className = ['button', 'icon-button']
+  if (highlighted) {
+    className.push('is-success', 'is-outlined')
+  }
+  if (disabled) {
+    className.push('is-disabled')
+  }
   return (
-    <span title={title} className={'button icon-button' + (highlighted ? btnHighlight : '')} onClick={onClick}>
+    <span title={title} className={className.join(' ')} onClick={disabled ? null : onClick}>
       <i className={'fa fa-' + icon} />
     </span>
   )
@@ -81,9 +86,9 @@ let SegmentToolbox = ({ dispatch, segmentId, start, end, editing, spliting, join
         <ToolboxButton title='Center on map' icon='arrows-alt' onClick={fit} />
         <ToolboxButton title='Edit points' icon='pencil' onClick={toggleEdit} highlighted={editing} />
         <ToolboxButton title='Split' icon='expand' onClick={toggleSplit} highlighted={spliting} />
-        <ToolboxButton title='Join' icon='compress' onClick={toggleJoin} highlighted={joining} />
+        <ToolboxButton title='Join' icon='compress' onClick={toggleJoin} highlighted={joining} disabled={!start} />
         <ToolboxButton title='Inspect points' icon='map-pin' onClick={toggleDetails} highlighted={pointDetails} />
-        <ToolboxButton title='Filter points by time' icon='calendar' onClick={toggleTF} highlighted={showTimeFilter} />
+        <ToolboxButton title='Filter points by time' icon='calendar' onClick={toggleTF} highlighted={showTimeFilter} disabled={!start} />
 
       </div>
       {

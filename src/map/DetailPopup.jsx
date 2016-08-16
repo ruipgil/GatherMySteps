@@ -36,17 +36,34 @@ const PointMetrics = ({ current, previous, next, index }) => {
 
   const buildMetrics = (before, after) => {
     if (before && after) {
-      const dt = after.get('time').diff(before.get('time'), 'seconds')
       const dx = haversine(before.get('lat'), before.get('lon'), after.get('lat'), after.get('lon')) * 1000
-      const vel = (dx / 1000) / (dt / 3600)
+      if (before.get('time') && after.get('time')) {
+        const dt = after.get('time').diff(before.get('time'), 'seconds')
+        const vel = (dx / 1000) / (dt / 3600)
 
-      return {
-        distances: (
-          <div><strong>{ dx.toFixed(2) }m</strong> in <strong>{ dt }s</strong></div>
-        ),
-        velocity: (
-          <div><strong>{ vel.toFixed(2) }km/h</strong></div>
-        )
+        return {
+          distances: (
+            <div>
+              <strong>{ dx.toFixed(2) }m</strong> in <strong>{ dt }s</strong>
+            </div>
+          ),
+          velocity: (
+            <div>
+              <strong>{ vel.toFixed(2) }km/h</strong>
+            </div>
+          )
+        }
+      } else {
+        return {
+          distances: (
+            <div>
+              <strong>{ dx.toFixed(2) }m</strong>
+            </div>
+          ),
+          velocity: (
+            <div style={{ height: '1rem' }}>&nbsp;</div>
+          )
+        }
       }
     } else {
       return {
@@ -158,9 +175,14 @@ class EditPoint extends Component {
   }
 
   hasChanged () {
-    return this.state.lat !== this.props.current.get('lat') ||
-      this.state.lon !== this.props.current.get('lon') ||
-      !this.state.time.isSame(this.props.current.get('time'))
+    if (this.state.time) {
+      return this.state.lat !== this.props.current.get('lat') ||
+        this.state.lon !== this.props.current.get('lon') ||
+        !this.state.time.isSame(this.props.current.get('time'))
+    } else {
+      return this.state.lat !== this.props.current.get('lat') ||
+        this.state.lon !== this.props.current.get('lon')
+    }
   }
 
   onSave (e, modifier) {
@@ -174,9 +196,9 @@ class EditPoint extends Component {
     const { onSave, current, previousPoint, nextPoint, index, editable } = this.props
     const { lat, lon, time } = this.state
 
-    const datetime = formatTime(time)
-    const datetimeMin = previousPoint ? formatTime(previousPoint.get('time')) : null
-    const datetimeMax = nextPoint ? formatTime(nextPoint.get('time')) : null
+    const datetime = time ? formatTime(time) : null
+    const datetimeMin = previousPoint && time ? formatTime(previousPoint.get('time')) : null
+    const datetimeMax = nextPoint && time ? formatTime(nextPoint.get('time')) : null
 
     const labelStyle = {}
 
@@ -214,28 +236,34 @@ class EditPoint extends Component {
           </div>
         </div>
 
-        <div className='control is-horizontal' style={controlStyle}>
-          <div className='control-label' style={labelStyle}>
-            <label className='label is-small'>Time</label>
-          </div>
-          <div className='control is-fullwidth'>
-            {
-              editable
-                ? (
-                  <input
-                    type='datetime-local'
-                    min={datetimeMin}
-                    max={datetimeMax}
-                    className='input is-small'
-                    value={datetime}
-                    onChange={this.onChange.bind(this, 'time')}
-                    onBlur={this.validateDate.bind(this)}
-                    step={1} />
-                  )
-                : <div style={{ fontSize: '1.1rem' }}>{datetime}</div>
-            }
-          </div>
-        </div>
+        {
+          time
+          ? (
+            <div className='control is-horizontal' style={controlStyle}>
+              <div className='control-label' style={labelStyle}>
+                <label className='label is-small'>Time</label>
+              </div>
+              <div className='control is-fullwidth'>
+                {
+                  editable
+                    ? (
+                      <input
+                        type='datetime-local'
+                        min={datetimeMin}
+                        max={datetimeMax}
+                        className='input is-small'
+                        value={datetime}
+                        onChange={this.onChange.bind(this, 'time')}
+                        onBlur={this.validateDate.bind(this)}
+                        step={1} />
+                      )
+                    : <div style={{ fontSize: '1.1rem' }}>{datetime}</div>
+                }
+              </div>
+            </div>
+          )
+          : null
+        }
         <div style={{ color: '#cb4b16', fontSize: '0.9em', textAlign: 'right' }}>{ this.state.validationError }</div>
 
         {
