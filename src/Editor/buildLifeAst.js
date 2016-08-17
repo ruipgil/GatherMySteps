@@ -34,7 +34,13 @@ const getPointForTime = (from, to, time) => {
 }
 
 const isGTE = (a, b) => {
-  return a.hours() <= b.hours() && a.minutes() <= b.minutes()
+  if (a.hours() < b.hours()) {
+    return true
+  } else if (a.hours() === b.hours() && a.minutes() <= b.minutes()) {
+    return true
+  } else {
+    return false
+  }
 }
 
 const isBetween = (a, b, c) => {

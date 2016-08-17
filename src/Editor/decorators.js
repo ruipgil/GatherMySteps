@@ -132,10 +132,29 @@ const TimeSpan = (props) => {
   const typeStyles = STYLES[type] ? STYLES[type] : {}
   const style = { ...STYLES._, ...typeStyles }
 
-  const { timezone } = Entity.get(props.entityKey).getData()
+  // const { timezone } = Entity.get(props.entityKey).getData()
+  const { dispatch, references } = Entity.get(props.entityKey).getData()
+  const { segments, points } = extractReferences(references)
+
+  const onMouseEnter = () => {
+    if (segments.length > 0) {
+      dispatch(highlightSegment(segments))
+    }
+    if (points.length > 0) {
+      dispatch(highlightPoint(points))
+    }
+  }
+  const onMouseLeave = () => {
+    if (segments.length > 0) {
+      dispatch(dehighlightSegment(segments))
+    }
+    if (points.length > 0) {
+      dispatch(dehighlightPoint(points))
+    }
+  }
 
   return (
-    <span onMouseEnter={() => console.log(timezone)} style={style} {...props}>{props.children}</span>
+    <a onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} style={style} {...props}>{props.children}</a>
   )
 }
 
@@ -157,7 +176,7 @@ const getEntityStrategy = (type) => {
 export default [
   {
     strategy: getEntityStrategy('Time'),
-    component: TimeSpan
+    component: Reference// TimeSpan
   },
   {
     strategy: getEntityStrategy('LocationFrom'),
