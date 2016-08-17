@@ -82,10 +82,10 @@ let SegmentToolbox = ({ dispatch, segmentId, start, end, editing, spliting, join
   return (
     <div>
       <div style={{ width: '98%' }} className='control has-addons'>
-        <ToolboxButton title='Delete track' icon='trash' onClick={remove} />
+        <ToolboxButton title='Delete track' icon='trash' onClick={remove} disabled={!start} />
         <ToolboxButton title='Center on map' icon='arrows-alt' onClick={fit} />
-        <ToolboxButton title='Edit points' icon='pencil' onClick={toggleEdit} highlighted={editing} />
-        <ToolboxButton title='Split' icon='expand' onClick={toggleSplit} highlighted={spliting} />
+        <ToolboxButton title='Edit points' icon='pencil' onClick={toggleEdit} highlighted={editing} disabled={!start} />
+        <ToolboxButton title='Split' icon='expand' onClick={toggleSplit} highlighted={spliting} disabled={!start} />
         <ToolboxButton title='Join' icon='compress' onClick={toggleJoin} highlighted={joining} disabled={!start} />
         <ToolboxButton title='Inspect points' icon='map-pin' onClick={toggleDetails} highlighted={pointDetails} />
         <ToolboxButton title='Filter points by time' icon='calendar' onClick={toggleTF} highlighted={showTimeFilter} disabled={!start} />

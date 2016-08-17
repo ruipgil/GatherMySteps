@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { addAlert, toggleRemainingTracks } from 'actions/ui'
-import { clearAll, downloadAll, showHideAll } from 'actions/tracks'
+import { hideCanonical, clearAll, downloadAll, showHideAll } from 'actions/tracks'
 import { nextStep, previousStep, bulkProcess, loadLIFE, reloadQueue } from 'actions/progress'
 import BulkButtons from 'components/BulkButtons'
 import NavigationButtons from 'components/NavigationButtons'
@@ -21,7 +21,7 @@ const errorHandler = (dispatch, err, modifier) => {
   setTimeout(() => modifier(''), 2000)
 }
 
-let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segmentsCount }) => {
+let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segmentsCount, canonical }) => {
   const style = {
     height: '100%',
     display: 'flex',
@@ -63,10 +63,16 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
   }
 
   let buttons
-  if (showList) {
-    buttons = <BulkButtons onBulkClick={onBulkClick} onLifeRead={onLifeRead} />
+  if (canonical) {
+    buttons = (
+      <a className='button is-primary' onClick={() => dispatch(hideCanonical())} style={{ margin: 'auto' }}>Done</a>
+    )
   } else {
-    buttons = <NavigationButtons onPrevious={onPrevious} onNext={onNext} canProceed={canProceed} stage={stage} />
+    if (showList) {
+      buttons = <BulkButtons onBulkClick={onBulkClick} onLifeRead={onLifeRead} />
+    } else {
+      buttons = <NavigationButtons onPrevious={onPrevious} onNext={onNext} canProceed={canProceed} stage={stage} />
+    }
   }
   return (
     <div id='details' className='container' style={style}>
@@ -89,6 +95,7 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
 const mapStateToProps = (state) => {
   return {
     stage: state.get('progress').get('step'),
+    canonical: state.get('tracks').get('canonical'),
     showList: state.get('ui').get('showRemainingTracks'),
     remainingCount: state.get('progress').get('remainingTracks').count(),
     canProceed: state.get('tracks').get('tracks').count() > 0,

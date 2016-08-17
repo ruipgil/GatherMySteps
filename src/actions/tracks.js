@@ -36,6 +36,15 @@ export const displayCanonicalTrips = (trips) => ({
   type: 'DISPLAY_CANONICAL_TRIPS'
 })
 
+export const displayCanonicalLocations = (trips) => ({
+  trips,
+  type: 'DISPLAY_CANONICAL_LOCATIONS'
+})
+
+export const hideCanonical = () => ({
+  type: 'HIDE_CANONICAL'
+})
+
 export const toggleTrackRenaming = (trackId) => {
   return {
     trackId,

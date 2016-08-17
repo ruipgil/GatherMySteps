@@ -19,7 +19,6 @@ export default (id, points, color, display, filter, segment, dispatch, previousP
   } else {
     pts = points.map((point) => ({lat: point.get('lat'), lon: point.get('lon')})).toJS()
   }
-  console.log(pts)
 
   const pline = new Polyline(pts, {
     color,

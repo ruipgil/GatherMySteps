@@ -2,7 +2,7 @@ import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
 import { fitSegments, fitTracks, toggleConfig } from 'actions/ui'
 import { addPossibilities } from 'actions/segments'
-import { clearAll, displayCanonicalTrips } from 'actions/tracks'
+import { clearAll, displayCanonicalTrips, displayCanonicalLocations } from 'actions/tracks'
 import { addAlert } from 'actions/ui'
 
 const segmentsToJson = (state) => {
@@ -296,3 +296,20 @@ export const loadCanonicalTrips = () => {
   }
 }
 
+export const loadCanonicalLocations = () => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'GET',
+      mode: 'cors'
+    }
+    const addr = getState().get('progress').get('server')
+    return fetch(addr + '/canonicalLocations', options)
+      .then((response) => response.json())
+      .catch((e) => console.error(e))
+      .then((trips) => {
+        dispatch(displayCanonicalLocations(trips))
+        dispatch(toggleConfig())
+        dispatch(fitTracks(0))
+      })
+  }
+}

@@ -31,7 +31,9 @@ const mapStateToProps = (state) => {
 
     segments: state.get('tracks').get('segments'),
     canUndo: history.get('past').count() !== 0,
-    canRedo: history.get('future').count() !== 0
+    canRedo: history.get('future').count() !== 0,
+
+    segmentsArePoints: !!state.get('tracks').get('canonical')
   }
 }
 
