@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
 import { fitSegments, fitTracks, toggleConfig } from 'actions/ui'
-import { addPossibilities } from 'actions/segments'
+import { toggleSegmentJoining, addPossibilities } from 'actions/segments'
 import { clearAll, displayCanonicalTrips, displayCanonicalLocations } from 'actions/tracks'
 import { addAlert } from 'actions/ui'
 
@@ -129,12 +129,28 @@ const updateState = (dispatch, json, getState, reverse = false) => {
     dispatch(clearAll())
     return
   }
-  // if (json.step === 2) {
-  //   dispatch(removeTracksFor(json.track.segments, json.track.name))
-  // }
-  // if (json.step !== 2) {
-    dispatch(removeTracksFor(json.track.segments, json.track.name))
-  // }
+  dispatch(removeTracksFor(json.track.segments, json.track.name))
+
+  const step = getState().get('progress').get('step')
+  if (step === 0 || step === 1) {
+    getState()
+      .get('tracks').get('segments').valueSeq()
+      .sort((a, b) => {
+        return a.getStartTime().diff(b.getStartTime())
+      })
+      .forEach((segment, i, arr) => {
+        const next = arr.get(i + 1)
+        if (next) {
+          const from = segment.get('points').get(-1)
+          const to = next.get('points').get(0)
+          const distance = from.distance(to)
+          if (distance > 20 * 0.001) {
+            // dispatch(completeTrip(segment.get('id'), from, to, index))
+            dispatch(toggleSegmentJoining(segment.get('id')))
+          }
+        }
+      })
+  }
 
   const segments = getState().get('tracks').get('segments').keySeq().toJS()
   dispatch(fitSegments(...segments))
