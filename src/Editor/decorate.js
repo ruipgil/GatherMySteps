@@ -86,7 +86,10 @@ const StyleMappings = {
 const decorateAstRoot = (content, root, lineKeys, more) => {
   content = StyleMappings['Day'](root.day, content, lineKeys)
   root.blocks.forEach((block) => {
-    content = StyleMappings[block.type](block, content, lineKeys, more)
+    const mapping = StyleMappings[block.type]
+    if (mapping) {
+      content = mapping(block, content, lineKeys, more)
+    }
   })
   return content
 }

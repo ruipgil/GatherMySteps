@@ -1,12 +1,14 @@
 import { fromJS } from 'immutable'
 
 const initialState = fromJS({
-  alerts: []
+  alerts: [],
+  transportationModes: []
 })
 const ui = (state = initialState, action) => {
   switch (action.type) {
     case 'TOGGLE_REMAINING_TRACKS':
       return state.set('showRemainingTracks', !state.get('showRemainingTracks'))
+
     case 'REMOVE_ALERT':
       return state.update('alerts', (alerts) => {
         let index
@@ -21,6 +23,7 @@ const ui = (state = initialState, action) => {
           return alerts
         }
       })
+
     case 'ADD_ALERT':
       if (action.ref) {
         const index = state.get('alerts').findIndex((a) => a.ref === action.ref)
@@ -28,11 +31,11 @@ const ui = (state = initialState, action) => {
           return state
         }
       }
-
       return state.update('alerts', (alerts) => alerts.push({ type: action.alertType, message: action.message, duration: action.duration, ref: action.ref }))
 
     case 'TOGGLE_CONFIG':
       return state.set('showConfig', !state.get('showConfig'))
+
     default:
       return state
   }

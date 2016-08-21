@@ -4,9 +4,12 @@ import { renderToString } from 'react-dom/server'
 import { createPointIcon, createMarker } from './utils'
 
 const LABEL_TO_ICON = {
-  'Stop': (color) => createPointIcon(color, '<i class="p-fa fa-hand-grab-o" />'),
-  'Foot': (color) => createPointIcon(color, '<i class="p-fa fa-blind" />'),
-  'Vehicle': (color) => createPointIcon(color, '<i class="p-fa fa-car" />'),
+  'stop': (color) => createPointIcon(color, '<i class="p-fa fa-hand-grab-o" />'),
+  'foot': (color) => createPointIcon(color, '<i class="p-fa fa-male" />'),
+  'vehicle': (color) => createPointIcon(color, '<i class="p-fa fa-car" />'),
+  'airplane': (color) => createPointIcon(color, '<i class="p-fa fa-plane" />'),
+  'train': (color) => createPointIcon(color, '<i class="p-fa fa-train" />'),
+  'boat': (color) => createPointIcon(color, '<i class="p-fa fa-boat" />'),
   '?': (color) => createPointIcon(color, '<i class="p-fa fa-question" />')
 }
 
@@ -42,7 +45,7 @@ export default (lseg, segment) => {
     tModes = transModes.map((mode) => {
       const from = mode.get('from')
       const to = mode.get('to')
-      const label = mode.get('label')
+      const label = mode.get('label').toLocaleLowerCase()
 
       lastTo = to
       // return buildVerticalMarker(pts[from], pts[from + 1], pts[from - 1], label)

@@ -6,7 +6,7 @@ import {
 import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
-import { List, Map, fromJS } from 'immutable'
+import { Set, List, Map, fromJS } from 'immutable'
 import { PointRecord } from 'records'
 import moment from 'moment'
 
@@ -580,6 +580,30 @@ const addNewSegment = (state, action) => {
     .updateIn(['tracks', trackId, 'segments'], (segs) => segs.add(seg.get('id')))
 }
 
+const setTransportationModes = (state, action) => {
+  const { modes } = action
+
+  let touched = Set([])
+  modes.map((mode) => {
+    const { label } = mode
+    const { segmentId } = mode.from
+
+    const to = segmentId === mode.to.segmentId ? mode.to.index : -1
+    const from = mode.from.index
+
+    state = state.updateIn(['segments', segmentId, 'transportationModes'], (transp) => {
+      if (!touched.has(segmentId)) {
+        transp = transp.clear()
+        touched = touched.add(segmentId)
+      }
+
+      return transp.push(Map({ from, to, label }))
+    })
+  })
+
+  return state
+}
+
 const ACTION_REACTION = {
   'TOGGLE_SEGMENT_DISPLAY': toggleSegmentDisplay,
   'TOGGLE_SEGMENT_EDITING': toggleSegmentEditing,
@@ -611,7 +635,8 @@ const ACTION_REACTION = {
 
   'STRAIGHT_SELECTED': straightSelected,
   'UPDATE_POINT': updatePoint,
-  'ADD_NEW_SEGMENT': addNewSegment
+  'ADD_NEW_SEGMENT': addNewSegment,
+  'SET_TRANSPORTATION_MODES': setTransportationModes
 }
 
 const segments = (state = [], action) => {

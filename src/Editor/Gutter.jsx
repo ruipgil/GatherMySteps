@@ -35,7 +35,7 @@ const Gutter = ({ editorState, defaultGutter, style, children }) => {
         blockKeys.map((blockKey, i) => {
           const gutter = gutters[i] || defaultGutter(i)
           return (
-            <li style={{ ...getBlockHeight(blockKey) }}>
+            <li style={{ ...getBlockHeight(blockKey) }} key={i}>
               { gutter }
             </li>
           )

@@ -70,9 +70,12 @@ export default {
       const { dispatch, references } = data
       if (references) {
         const { segmentId, index } = references.from
-        const list = dispatch(getTransportationModesFor(segmentId, index))
-        const filtered = filterSuggestions(text, list)
-        return callback(filtered)
+        dispatch(getTransportationModesFor(segmentId, index, references.to.index, (suggestions) => {
+          const filtered = filterSuggestions(text, suggestions)
+          setTimeout(() => {
+            callback(filtered)
+          }, 10)
+        }))
       }
     },
     setter: (text, data) => {

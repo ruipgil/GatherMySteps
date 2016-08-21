@@ -329,3 +329,20 @@ export const loadCanonicalLocations = () => {
       })
   }
 }
+
+export const requestTransportationSuggestions = (points) => {
+  return (dispatch, getState) => {
+    const options = {
+      method: 'POST',
+      mode: 'cors',
+      body: JSON.stringify({
+        points
+      })
+    }
+    const addr = getState().get('progress').get('server')
+    return fetch(addr + '/transportation', options)
+      .then((response) => response.json())
+      .catch((e) => console.error(e))
+  }
+}
+

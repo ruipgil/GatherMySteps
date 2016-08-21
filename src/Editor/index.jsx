@@ -83,6 +83,9 @@ class Editor extends Component {
       editorState = this.decorate(editorState)
       this.setState({editorState, suggestions: this.state.suggestions})
       this.timeout = null
+      if (this.props.onChange) {
+        this.props.onChange(editorState, this.previousAst)
+      }
     }, 100)
   }
 
