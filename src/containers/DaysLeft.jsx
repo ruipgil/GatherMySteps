@@ -59,7 +59,7 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
   )
 
   return (
-    <div style={{...style}} title='Click to change the day to process'>
+    <div style={{...style, paddingBottom: '1rem'}} title='Click to change the day to process'>
       <div style={{ fontSize: '1.5rem' }}>Days left to process { refresh }</div>
       {
         lifesExistent.map((file) => {

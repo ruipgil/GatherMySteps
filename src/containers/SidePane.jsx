@@ -2,7 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { addAlert, toggleRemainingTracks } from 'actions/ui'
 import { hideCanonical, clearAll, downloadAll, showHideAll } from 'actions/tracks'
-import { nextStep, previousStep, bulkProcess, loadLIFE, reloadQueue } from 'actions/progress'
+import {
+  skipDay,
+  nextStep,
+  previousStep,
+  bulkProcess,
+  loadLIFE,
+  reloadQueue
+} from 'actions/progress'
 import BulkButtons from 'components/BulkButtons'
 import NavigationButtons from 'components/NavigationButtons'
 import MultipleActionsButtons from 'components/MultipleActionsButtons'
@@ -34,6 +41,12 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
   const onPrevious = (e, modifier) => {
     modifier('is-loading')
     dispatch(previousStep())
+    .then(() => modifier())
+    .catch((e) => errorHandler(dispatch, e, modifier))
+  }
+  const onSkip = (e, modifier) => {
+    modifier('is-loading')
+    dispatch(skipDay())
     .then(() => modifier())
     .catch((e) => errorHandler(dispatch, e, modifier))
   }
@@ -71,7 +84,7 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
     if (showList) {
       buttons = <BulkButtons onBulkClick={onBulkClick} onLifeRead={onLifeRead} />
     } else {
-      buttons = <NavigationButtons onPrevious={onPrevious} onNext={onNext} canProceed={canProceed} stage={stage} />
+      buttons = <NavigationButtons onPrevious={onPrevious} canSkip={stage === 0 && remainingCount > 1} onSkip={onSkip} onNext={onNext} canProceed={canProceed} canPrevious={stage !== 0} />
     }
   }
   return (
@@ -83,7 +96,7 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
         segmentsCount={segmentsCount} stage={stage} />
 
       <div style={{ marginTop: '0.5rem' }}>
-        <div className='columns is-gapless' style={{ marginBottom: 0 }}>
+        <div className='is-gapless' style={{ marginBottom: 0 }}>
           { buttons }
         </div>
         <PaneDrawer onClick={toggleList} remainingCount={remainingCount} showList={showList} />

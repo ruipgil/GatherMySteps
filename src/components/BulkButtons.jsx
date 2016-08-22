@@ -10,7 +10,7 @@ const BulkButtons = ({ onBulkClick, onLifeRead }) => {
     lineHeight: 'inherit'
   }
   return (
-    <div style={{ margin: 'auto' }}>
+    <div style={{ margin: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <span className='is-gapless has-text-centered control has-addons'>
         <AsyncButton className={'is-warning'} onClick={onBulkClick} style={warningBorderStyle}>
           Bulk process all tracks
