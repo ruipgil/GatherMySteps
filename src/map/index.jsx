@@ -30,7 +30,7 @@ import { createMarker, createPointIcon } from './utils'
 import buildTransportationModeRepresentation from './buildTransportationModeRepresentation'
 
 const DEFAULT_PROPS = {
-  detailLevel: 18,
+  detailLevel: 8,
   decorationLevel: 8,
   mapCreation: {},
   segmentsAreMarkers: true
