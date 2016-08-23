@@ -1,56 +1,55 @@
-import React from 'react'
-import { connect } from 'react-redux'
-import {
-  downloadTrack,
-  toggleTrackRenaming,
-  updateTrackName
-} from 'actions/tracks'
+import React, { Component } from 'react'
 
-const TrackName = ({ dispatch, trackId, renaming, name }) => {
-  const updateName = (e) => {
-    if (e.type) {
-      const val = e.target.value
-      dispatch(updateTrackName(trackId, val))
+export default class TrackName extends Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      renaming: false,
+      name: props.track.get('name') || 'Untitled.gpx'
     }
   }
-  const toggleEditing = () => dispatch(toggleTrackRenaming(trackId))
-  const onDownload = () => dispatch(downloadTrack(trackId))
 
-  if (renaming) {
-    return (
-      <div className='control is-grouped has-addons'>
-        <input className='input' type='text' value={name} onChange={updateName} />
-        <a className='button is-info' onClick={toggleEditing}>
-          <i className='fa fa-check' />
-        </a>
-      </div>
-    )
-  } else {
-    let downloadButton = null
-    if (process.env.BUILD_GPX) {
-      downloadButton = (
-        <a className='float-right clickable icon' onClick={onDownload}>
-          <i className='fa fa-download' />
-        </a>
+  updateName (e) {
+    this.state.name = e.target.value
+    this.setState(this.state)
+  }
+
+  toggleEditing () {
+    if (this.state.renaming) {
+      this.props.onRename(this.state.name)
+    }
+    this.state.renaming = !this.state.renaming
+    this.setState(this.state)
+  }
+
+  render () {
+    const { renaming, name } = this.state
+    const { onDownload } = this.props
+    const toggleEditing = this.toggleEditing.bind(this)
+    if (renaming) {
+      return (
+        <div className='control is-grouped has-addons'>
+          <input className='input' type='text' value={name} onChange={this.updateName.bind(this)} />
+          <a className='button is-info' onClick={toggleEditing}>
+            <i className='fa fa-check' />
+          </a>
+        </div>
+      )
+    } else {
+      let downloadButton = null
+      if (process.env.BUILD_GPX) {
+        downloadButton = (
+          <a className='float-right clickable icon' onClick={onDownload}>
+            <i className='fa fa-download' />
+          </a>
+        )
+      }
+      return (
+        <div>
+          { downloadButton }
+          <a onClick={toggleEditing} style={{ color: '#666' }}>{name}</a>
+        </div>
       )
     }
-    return (
-      <div>
-        { downloadButton }
-        <a onClick={toggleEditing} style={{ color: '#666' }}>{name}</a>
-      </div>
-    )
   }
 }
-
-const mapStateToProps = (state, { trackId }) => {
-  const { name, renaming } = state.get('tracks').get('tracks').get(trackId)
-  return {
-    name: name || 'Untitled.gpx',
-    trackId,
-    renaming
-  }
-}
-
-export default connect(mapStateToProps)(TrackName)
-

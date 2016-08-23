@@ -4,6 +4,9 @@ import {
   toggleSegmentDisplay,
   centerPointOnMap
 } from '../actions/segments'
+import {
+  centerMap
+} from 'actions/map'
 
 import SegmentToolbox from 'components/SegmentToolbox'
 
@@ -32,18 +35,11 @@ const middleStatsChild = {
   verticalAlign: 'baseline'
 }
 
-const SegmentStartEnd = ({ dispatch, segmentId, index, time }) => {
+const SegmentStartEnd = ({ onClick, index, time }) => {
   const descr = index === 0 ? 'from' : 'to'
-  const centerOnPoint = (index) => {
-    return (e) => {
-      e.stopPropagation()
-      // dispatch(centerMap(points.get(index).get('lat'), points.get(index).get('lon')))
-      dispatch(centerPointOnMap(segmentId, index))
-    }
-  }
   if (time) {
     return (
-      <div className={'date-' + descr} onClick={centerOnPoint(index)}>
+      <div className={'date-' + descr} onClick={onClick}>
         <div style={{ fontSize: '0.7rem', color: '#aaa' }}>{ descr }</div>
         <div>{time.format('L')}</div>
         <div>{time.format('LT')}</div>
@@ -54,7 +50,7 @@ const SegmentStartEnd = ({ dispatch, segmentId, index, time }) => {
   }
 }
 
-const Segment = ({ dispatch, segmentId, points, start, end, display, color, metrics, distance, averageVelocity }) => {
+const Segment = ({ segment, dispatch, segmentId, points, start, end, display, color, metrics, distance, averageVelocity }) => {
   const toggleTrack = () => dispatch(toggleSegmentDisplay(segmentId))
 
   const style = {
@@ -66,6 +62,13 @@ const Segment = ({ dispatch, segmentId, points, start, end, display, color, metr
 
   const fadeStyle = {
     fontWeight: 200
+  }
+
+  const centerOnPoint = (point) => {
+    return (e) => {
+      e.stopPropagation()
+      dispatch(centerMap(point.get('lat'), point.get('lon')))
+    }
   }
 
   return (
@@ -84,9 +87,9 @@ const Segment = ({ dispatch, segmentId, points, start, end, display, color, metr
             }
           </div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <SegmentStartEnd segmentId={segmentId} index={0} time={start} dispatch={dispatch} />
+            <SegmentStartEnd onClick={centerOnPoint(points.get(0))} index={0} time={start} />
             <i className={ 'fa fa-' + (display ? 'eye' : 'low-vision') } title='Click to hide this segment' style={{ fontSize: '1.0rem', opacity: 0.5 }} />
-            <SegmentStartEnd segmentId={segmentId} index={-1} time={end} dispatch={dispatch} />
+            <SegmentStartEnd onClick={centerOnPoint(points.get(-1))} index={-1} time={end} />
           </div>
           <div style={middleStatsDown}>
             <div>
@@ -95,16 +98,16 @@ const Segment = ({ dispatch, segmentId, points, start, end, display, color, metr
           </div>
         </div>
 
-        <SegmentToolbox segmentId={segmentId} />
+        <SegmentToolbox segment={segment} />
       </div>
     </li>
   )
 }
 
-const mapStateToProps = (state, { segmentId }) => {
-  const segment = state.get('tracks').get('segments').get(segmentId)
+const mapStateToProps = (state, { segment }) => {
   return {
-    segmentId,
+    segment,
+    segmentId: segment.get('id'),
     points: segment.get('points'),
     color: segment.get('color'),
     display: segment.get('display'),

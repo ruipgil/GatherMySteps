@@ -100,10 +100,9 @@ let SegmentToolbox = ({ dispatch, segmentId, start, end, editing, spliting, join
   )
 }
 
-const mapStateToProps = (state, { segmentId }) => {
-  const segment = state.get('tracks').get('segments').get(segmentId)
+const mapStateToProps = (state, { segment }) => {
   return {
-    segmentId,
+    segmentId: segment.get('id'),
     start: segment.getStartTime(),
     end: segment.getStartTime(),
     editing: segment.get('editing'),

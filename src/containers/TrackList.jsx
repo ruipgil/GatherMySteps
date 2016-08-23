@@ -1,6 +1,10 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import Track from 'components/Track'
+import {
+  downloadTrack,
+  updateTrackName
+} from 'actions/tracks'
 
 const GMS = !process.env.BUILD_GPX
 
@@ -35,7 +39,10 @@ let TrackList = ({ dispatch, tracks, className, step }) => {
       <ul className={className}>
         {
           tracks.map((track, i) => {
-            return <Track trackId={track} key={i} />
+            const trackId = track.get('id')
+            const updateName = (newName) => dispatch(updateTrackName(trackId, newName))
+            const onDownload = () => dispatch(downloadTrack(trackId))
+            return <Track trackId={trackId} key={i} onRename={updateName} onDownload={onDownload} />
           })
         }
       </ul>
@@ -66,10 +73,9 @@ const mapStateToProps = (state) => {
     .get('tracks').get('tracks').valueSeq().sort((a, b) => {
       return findStart(a).diff(findStart(b))
     })
-    .map((segment) => segment.get('id'))
   return {
-    step: state.get('progress').get('step'),
-    tracks
+    tracks,
+    step: state.get('progress').get('step')
   }
 }
 

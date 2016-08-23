@@ -17,12 +17,12 @@ const newSegmentParentStyle = {
   paddingLeft: '6px'
 }
 
-const TrackSegments = ({ dispatch, segmentIds, trackId }) => {
-  const newSegment = () => dispatch(addNewSegment(trackId))
+const TrackSegments = ({ dispatch, segments, track }) => {
+  const newSegment = () => dispatch(addNewSegment(track.get('id')))
   return (
     <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
       {
-        segmentIds.map((id, i) => <Segment segmentId={id} key={i} />)
+        segments.map((segment, i) => <Segment segment={segment} key={i} />)
       }
 
       <div style={newSegmentParentStyle} className='slide-from-top-fade-in' >
@@ -38,8 +38,9 @@ const TrackSegments = ({ dispatch, segmentIds, trackId }) => {
 }
 
 const mapStateToProps = (state, { trackId }) => {
-  const segmentIds = state
-    .get('tracks').get('tracks').get(trackId).get('segments').toList()
+  const track = state.get('tracks').get('tracks').get(trackId)
+  const segments = track
+    .get('segments').toList()
     .map((segmentId) => state.get('tracks').get('segments').get(segmentId))
     .sort((a, b) => {
       if (a.getStartTime() && b.getStartTime()) {
@@ -52,11 +53,10 @@ const mapStateToProps = (state, { trackId }) => {
         return
       }
     })
-    .map((segment) => segment.id)
 
   return {
-    trackId,
-    segmentIds
+    track,
+    segments
   }
 }
 

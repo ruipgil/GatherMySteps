@@ -5,27 +5,28 @@ import TrackSegments from 'containers/TrackSegments'
 
 const pluralize = (singular, count) => (count === 1 ? singular : singular + 's')
 
-const Track = ({ trackId, pointCount, segmentCount }) => {
+const Track = ({ track, pointCount, segmentCount, onRename, onDownload }) => {
   return (
     <div className='fade-in'>
       <div style={{fontSize: '1.5rem'}}>
-        <TrackName trackId={trackId} />
+        <TrackName track={track} onRename={onRename} onDownload={onDownload} />
       </div>
       <span style={{fontSize: '0.8rem', color: 'gray'}}>
         {segmentCount} {pluralize('segment', segmentCount)}, {pointCount} {pluralize('point', pointCount)}
       </span>
-      <TrackSegments trackId={trackId} />
+      <TrackSegments trackId={track.get('id')} />
     </div>
   )
 }
 
-const mapStateToProps = (state, { trackId }) => {
+const mapStateToProps = (state, { trackId, ...props }) => {
   const track = state.get('tracks').get('tracks').get(trackId)
   const getSegment = (segmentId) => state.get('tracks').get('segments').get(segmentId)
   return {
-    trackId,
+    track,
     pointCount: track.get('segments').reduce((x, segmentId) => x + getSegment(segmentId).pointCount(), 0),
-    segmentCount: track.get('segments').count()
+    segmentCount: track.get('segments').count(),
+    ...props
   }
 }
 
