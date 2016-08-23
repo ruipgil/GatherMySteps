@@ -69,3 +69,9 @@ export const toggleConfig = () => {
   }
 }
 
+export const setLoading = (ref, is) => ({
+  is,
+  ref,
+  type: 'SET_LOADING'
+})
+

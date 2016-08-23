@@ -28,7 +28,7 @@ const errorHandler = (dispatch, err, modifier) => {
   setTimeout(() => modifier(''), 2000)
 }
 
-let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segmentsCount, canonical }) => {
+let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segmentsCount, canonical, isLoadingNext, isLoadingPrevious }) => {
   const style = {
     height: '100%',
     display: 'flex',
@@ -88,6 +88,8 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
         <NavigationButtons
           isFinal={stage === 2}
           canSkip={stage === 0 && remainingCount > 1}
+          isLoadingNext={isLoadingNext}
+          isLoadingPrevious={isLoadingPrevious}
           canProceed={canProceed} canPrevious={stage !== 0}
           onPrevious={onPrevious} onSkip={onSkip} onNext={onNext}
         />
@@ -119,7 +121,9 @@ const mapStateToProps = (state) => {
     showList: state.get('ui').get('showRemainingTracks'),
     remainingCount: state.get('progress').get('remainingTracks').count(),
     canProceed: state.get('tracks').get('tracks').count() > 0,
-    segmentsCount: state.get('tracks').get('segments').count()
+    segmentsCount: state.get('tracks').get('segments').count(),
+    isLoadingNext: state.get('ui').get('loading').has('continue-button'),
+    isLoadingPrevious: state.get('ui').get('loading').has('previous-button')
   }
 }
 

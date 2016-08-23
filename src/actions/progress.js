@@ -3,7 +3,7 @@ import { reset as resetId } from 'reducers/idState'
 import { fitSegments, fitTracks, toggleConfig } from 'actions/ui'
 import { toggleSegmentJoining, addPossibilities } from 'actions/segments'
 import { clearAll, displayCanonicalTrips, displayCanonicalLocations } from 'actions/tracks'
-import { addAlert } from 'actions/ui'
+import { addAlert, setLoading } from 'actions/ui'
 
 const segmentsToJson = (state) => {
   return state.get('tracks').get('segments').valueSeq().map((segment) => {
@@ -173,6 +173,7 @@ export const requestServerState = () => {
 
 export const previousStep = () => {
   return (dispatch, getState) => {
+    dispatch(setLoading('previous-button', true))
     const options = {
       method: 'GET',
       mode: 'cors'
@@ -181,11 +182,13 @@ export const previousStep = () => {
       .then((response) => response.json())
       .catch((err) => console.log(err))
       .then((json) => updateState(dispatch, json, getState, true))
+      .then(() => dispatch(setLoading('previous-button', false)))
   }
 }
 
 export const nextStep = () => {
   return (dispatch, getState) => {
+    dispatch(setLoading('continue-button', true))
     const hasLIFE = getState().get('tracks').get('LIFE')
     const options = {
       method: 'POST',
@@ -205,6 +208,7 @@ export const nextStep = () => {
       .then((response) => response.json())
       .catch((err) => console.log(err))
       .then((json) => updateState(dispatch, json, getState))
+      .then(() => dispatch(setLoading('continue-button', false)))
   }
 }
 
@@ -374,5 +378,4 @@ export const requestTransportationSuggestions = (points) => {
       .catch((e) => console.error(e))
   }
 }
-
 
