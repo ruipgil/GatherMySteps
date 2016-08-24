@@ -24,13 +24,6 @@ export default (id, points, color, display, filter, segment, dispatch, previousP
     color,
     weight: 8,
     opacity: display ? 1 : 0
-  }).on('click', (e) => {
-    const popup = renderToDiv(
-      <Provider store={store}>
-        <SegmentToolbox segment={segment} dispatch={dispatch} />
-      </Provider>
-    )
-    e.target.bindPopup(popup, { autoPan: false }).openPopup()
   })
 
   const pointsEventMap = {}
