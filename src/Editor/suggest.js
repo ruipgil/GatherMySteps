@@ -42,7 +42,8 @@ export default (editorState, getter, stateSetter, refs, tsuggestions) => {
           box: findSuggestionBoxPosition(refs.editor, tsuggestions.box),
           setter,
           data: entity.getData(),
-          details: { begin, end, key: startKey }
+          details: { begin, end, key: startKey },
+          entityType: type
         }
 
         stateSetter(_suggestions)

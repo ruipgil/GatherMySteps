@@ -23,7 +23,7 @@ const decriptiveStyle = (styleType, marks, value, content, lineKeys, more = {}) 
 }
 
 const generalMapping = (elm, content, lineKeys, more = {}) => {
-  return decriptiveStyle(elm.type, elm.marks, elm.value, content, lineKeys, more)
+  return decriptiveStyle(elm.type, elm.marks, elm.value, content, lineKeys, { astBranch: elm, ...more })
 }
 
 const StyleMappings = {
