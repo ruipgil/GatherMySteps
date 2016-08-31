@@ -2,7 +2,7 @@ import fetch from 'isomorphic-fetch'
 import { reset as resetId } from 'reducers/idState'
 import { fitSegments, fitTracks, toggleConfig } from 'actions/ui'
 import { toggleSegmentJoining, addPossibilities } from 'actions/segments'
-import { clearAll, displayCanonicalTrips, displayCanonicalLocations } from 'actions/tracks'
+import { resetHistory, clearAll, displayCanonicalTrips, displayCanonicalLocations } from 'actions/tracks'
 import { addAlert, setLoading } from 'actions/ui'
 
 const segmentsToJson = (state) => {
@@ -129,10 +129,11 @@ const updateState = (dispatch, json, getState, reverse = false) => {
     dispatch(clearAll())
     return
   }
-  dispatch(removeTracksFor(json.track.segments, json.track.name))
+  dispatch(removeTracksFor(json.track.segments, json.track.name, true))
+  dispatch(resetHistory())
 
   const step = getState().get('progress').get('step')
-  if (step === 0 || step === 1) {
+  if (step === 0) {
     getState()
       .get('tracks').get('segments').valueSeq()
       .sort((a, b) => {
@@ -189,7 +190,7 @@ export const previousStep = () => {
 export const nextStep = () => {
   return (dispatch, getState) => {
     dispatch(setLoading('continue-button', true))
-    const hasLIFE = getState().get('tracks').get('LIFE')
+    const hasLIFE = getState().get('progress').get('life')
     const options = {
       method: 'POST',
       mode: 'cors',
@@ -198,7 +199,7 @@ export const nextStep = () => {
           name: getState().get('tracks').get('tracks').first().get('name') || '',
           segments: segmentsToJson(getState())
         },
-        LIFE: hasLIFE ? hasLIFE.get('text') : null,
+        LIFE: hasLIFE || '',
         changes: getState().get('tracks').get('history').get('past').map((undo) => {
           return { ...undo, undo: null }
         })
@@ -379,3 +380,7 @@ export const requestTransportationSuggestions = (points) => {
   }
 }
 
+export const setLIFE = (text) => ({
+  text,
+  type: 'SET_LIFE'
+})

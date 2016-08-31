@@ -23,6 +23,9 @@ const createPlaceSuggestions = (index) => (
     type: 'TEXT',
     getter: (text, data, callback) => {
       const { dispatch, references } = data
+      if (!references) {
+        return
+      }
       const refs = references.point ? references : (references.from || references.to)
       if (refs && refs.point) {
         dispatch(getLocationSuggestion(refs.point))

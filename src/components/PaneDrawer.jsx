@@ -5,7 +5,7 @@ const remainingMessage = (n) => {
     case 0:
       return (
         <span>
-          <i className='fa fa-check fa-fw fa-ih' /> There are no days left to process
+          <i className='fa fa-check fa-fw fa-ih' /> Rescan input folder
         </span>
       )
     case 1:

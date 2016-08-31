@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { ContentState } from 'draft-js'
 import Editor from 'Editor'
 import { setTransportationModes } from 'actions/segments'
+import { setLIFE } from 'actions/progress'
 
 import decorators from 'Editor/decorators'
 import suggestionsGetters from 'Editor/suggestionsGetters'
@@ -18,7 +19,7 @@ let SE = ({ dispatch, segments, life }) => {
       dispatch={ dispatch }
       strategies={ decorators }
       suggestionGetters={ suggestionsGetters }
-      onChange={(stateEditor, ast) => {
+      onChange={(stateEditor, ast, text) => {
         const modes = []
         const isValidTMode = (mode) => {
           return ['foot', 'vehicle', 'train', 'boat', 'airplane']
@@ -56,6 +57,7 @@ let SE = ({ dispatch, segments, life }) => {
           from: mode.references.from
         }))
         dispatch(setTransportationModes(mappedModes))
+        dispatch(setLIFE(text))
       }}
       >
     </Editor>

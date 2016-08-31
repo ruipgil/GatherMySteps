@@ -10,15 +10,6 @@ const GMS = !process.env.BUILD_GPX
 
 const LOADING = <span className='button is-large is-loading' style={{ border: 0 }}>Loading</span>
 
-const EMPTY_FOLDER = (
-  <div style={{ width: '70%' }}>
-    <div>
-      <i className='fa fa-check-circle-o' style={{ color: 'rgb(191, 191, 191)' }} />
-    </div>
-    There are no more files at the input folder
-  </div>
-)
-
 const DROP_FILES = (
   <div className='dropInfo'>
     Drop .gpx files here
@@ -50,7 +41,7 @@ let TrackList = ({ dispatch, tracks, className, step }) => {
   } else if (GMS) {
     return (
       <div style={style}>
-        { step === -2 ? LOADING : EMPTY_FOLDER }
+        { step === -2 ? LOADING : null }
       </div>
     )
   } else {

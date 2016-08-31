@@ -18,6 +18,12 @@ const GPXOfDay = ({ date, size }) => {
   )
 }
 
+const EMPTY_FOLDER = (
+  <div style={{ margin: 'auto', marginTop: '1rem', color: 'rgb(191, 191, 191)' }}>
+    <i className='fa fa-check' style={{ color: 'rgb(191, 191, 191)' }} /> Every day is processed
+  </div>
+)
+
 const crossStyle = {
   float: 'right',
   textDecoration: 'none',
@@ -58,6 +64,30 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
       title='Scan input folder for more tracks'/>
   )
 
+  const remainingDays = remaining.map(([day, gpxs], i) => {
+    const dismiss = (e) => {
+      e.preventDefault()
+      dispatch(dismissDay(day))
+    }
+    return (
+      <AsyncButton key={i} isDiv={true} withoutBtnClass={true} onClick={(e, modifier) => {
+        if (selected !== day) {
+          /*global confirm*/
+          const go = !hasChanges || confirm('Do you wish to change days?\n\nAll changes made to the current day will be lost')
+          if (go) {
+            modifier('loaderr')
+            dispatch(changeDayToProcess(day))
+              .then(() => modifier())
+          }
+        }
+      }}>
+        <Day
+          gpxs={gpxs} date={day}
+          isSelected={selected === day} onDismiss={dismiss}/>
+      </AsyncButton>
+    )
+  })
+
   return (
     <div style={{...style, paddingBottom: '1rem'}} title='Click to change the day to process'>
       <div style={{ fontSize: '1.5rem' }}>Days left to process { refresh }</div>
@@ -71,29 +101,7 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
         })
       }
       {
-        remaining.map(([day, gpxs], i) => {
-          const dismiss = (e) => {
-            e.preventDefault()
-            dispatch(dismissDay(day))
-          }
-          return (
-            <AsyncButton key={i} isDiv={true} withoutBtnClass={true} onClick={(e, modifier) => {
-              if (selected !== day) {
-                /*global confirm*/
-                const go = !hasChanges || confirm('Do you wish to change days?\n\nAll changes made to the current day will be lost')
-                if (go) {
-                  modifier('loaderr')
-                  dispatch(changeDayToProcess(day))
-                    .then(() => modifier())
-                }
-              }
-            }}>
-              <Day
-                gpxs={gpxs} date={day}
-                isSelected={selected === day} onDismiss={dismiss}/>
-            </AsyncButton>
-          )
-        })
+        remaining.count() > 0 ? remainingDays : EMPTY_FOLDER
       }
     </div>
   )

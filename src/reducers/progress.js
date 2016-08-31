@@ -15,17 +15,23 @@ const setServerState = (state, action) => {
     .set('daySelected', action.daySelected)
     .set('initLIFE', action.life)
     .set('lifeQueue', action.lifeQueue)
+    .set('life', '')
 }
 
 const updateConfig = (state, action) => {
   return state.set('config', new Map(action.config))
 }
 
+const setLife = (state, action) => {
+  return state.set('life', action.text)
+}
+
 const ACTION_REACTION = {
   'ADVANCE_TO_ADJUST': advanceToAdjust,
   'ADVANCE_TO_ANNOTATE': advanceToAnnotate,
   'SET_SERVER_STATE': setServerState,
-  'UPDATE_CONFIG': updateConfig
+  'UPDATE_CONFIG': updateConfig,
+  'SET_LIFE': setLife
 }
 
 const initialState = fromJS({

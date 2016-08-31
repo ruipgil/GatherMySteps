@@ -74,4 +74,3 @@ export const setLoading = (ref, is) => ({
   ref,
   type: 'SET_LOADING'
 })
-

@@ -147,6 +147,12 @@ const updateLIFE = (state, action) => {
   return state.set('LIFE', new Map({ text, warning }))
 }
 
+const resetHistory = (state, action) => {
+  return state
+    .updateIn(['history', 'future'], (history) => history.clear())
+    .updateIn(['history', 'past'], (history) => history.clear())
+}
+
 const removeTrack = (state, action) => {
   const { trackId } = action
 
@@ -170,6 +176,7 @@ const ACTION_REACTION = {
   'REMOVE_TRACK': removeTrack,
   'UNDO': undo,
   'REDO': redo,
+  'RESET_HISTORY': resetHistory,
 
   'UPDATE_LIFE': updateLIFE,
   'HIDE_CANONICAL': hideCanonical,

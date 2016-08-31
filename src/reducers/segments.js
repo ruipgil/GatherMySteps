@@ -586,6 +586,10 @@ const setTransportationModes = (state, action) => {
   let touched = Set([])
   modes.map((mode) => {
     const { label } = mode
+    if (mode.from === null && mode.to === null) {
+      return
+    }
+
     const { segmentId } = mode.from
 
     const to = segmentId === mode.to.segmentId ? mode.to.index : -1

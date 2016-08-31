@@ -22,7 +22,7 @@ const changeSegmentHighlight = (state, action) => {
   return state.update('highlighted', (highlighted) => {
     return action.segmentsIds.reduce((highlighted, segId) => {
       return fn(highlighted, segId)
-    }, highlighted)
+    }, highlighted.clear())
   })
 }
 
@@ -36,7 +36,7 @@ const changePointHighlight = (state, action) => {
   return state.update('highlightedPoints', (highlighted) => {
     return action.points.reduce((highlighted, points) => {
       return fn(highlighted, points)
-    }, highlighted)
+    }, highlighted.clear())
   })
 }
 

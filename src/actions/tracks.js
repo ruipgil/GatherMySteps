@@ -60,6 +60,10 @@ export const updateTrackName = (trackId, newName) => {
   }
 }
 
+export const resetHistory = () => ({
+  type: 'RESET_HISTORY'
+})
+
 const MS_REG = /.[0-9]{3}Z$/
 const exportGPX = (trackId, state) => {
   const segments = state.get('tracks').get('tracks').get(trackId).get('segments').toJS().map((segmentId, i) => {

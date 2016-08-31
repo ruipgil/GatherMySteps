@@ -7,8 +7,7 @@ import {
   nextStep,
   previousStep,
   bulkProcess,
-  loadLIFE,
-  reloadQueue
+  loadLIFE
 } from 'actions/progress'
 import BulkButtons from 'components/BulkButtons'
 import NavigationButtons from 'components/NavigationButtons'
@@ -80,7 +79,7 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
     buttons = (
       <a className='button is-primary' onClick={() => dispatch(hideCanonical())} style={{ margin: 'auto' }}>Done</a>
     )
-  } else {
+  } else if (remainingCount > 0) {
     if (showList) {
       buttons = <BulkButtons onBulkClick={onBulkClick} onLifeRead={onLifeRead} />
     } else {
@@ -98,7 +97,7 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
   }
   return (
     <div id='details' className='container' style={style}>
-      <PaneContent showList={showList} stage={stage} />
+      <PaneContent showList={showList} stage={stage} remainingCount={remainingCount} />
 
       <MultipleActionsButtons
         onShowHide={onShowHide} onDownload={onDownload} onClear={onClear}
@@ -108,7 +107,11 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
         <div className='is-gapless' style={{ marginBottom: 0 }}>
           { buttons }
         </div>
-        <PaneDrawer onClick={toggleList} remainingCount={remainingCount} showList={showList} />
+        {
+          remainingCount > 0
+          ? <PaneDrawer onClick={toggleList} remainingCount={remainingCount} showList={showList} />
+          : null
+        }
       </div>
     </div>
   )
