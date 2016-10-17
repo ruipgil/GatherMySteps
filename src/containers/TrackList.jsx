@@ -5,6 +5,7 @@ import {
   downloadTrack,
   updateTrackName
 } from 'actions/tracks'
+import { toggleRemainingTracks } from 'actions/ui'
 
 const GMS = !process.env.BUILD_GPX
 
@@ -24,16 +25,18 @@ const style = {
   width: '100%'
 }
 
-let TrackList = ({ dispatch, tracks, className, step }) => {
+let TrackList = ({ dispatch, tracks, className, step, remainingCount }) => {
   if (tracks.count() !== 0) {
     return (
       <ul className={className}>
         {
           tracks.map((track, i) => {
+            const remaining = '+' + remainingCount + ' days'
             const trackId = track.get('id')
             const updateName = (newName) => dispatch(updateTrackName(trackId, newName))
             const onDownload = () => dispatch(downloadTrack(trackId))
-            return <Track trackId={trackId} key={i} onRename={updateName} onDownload={onDownload} />
+            const onToggleList = () => dispatch(toggleRemainingTracks())
+            return <Track trackId={trackId} key={i} onRename={updateName} onDownload={onDownload} onToggleRemainingTracks={onToggleList} remaining={remaining} />
           })
         }
       </ul>
@@ -66,7 +69,8 @@ const mapStateToProps = (state) => {
     })
   return {
     tracks,
-    step: state.get('progress').get('step')
+    step: state.get('progress').get('step'),
+    remainingCount: state.get('progress').get('remainingTracks').count()
   }
 }
 

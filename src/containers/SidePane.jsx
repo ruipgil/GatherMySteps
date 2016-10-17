@@ -36,7 +36,6 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
   const onShowHide = () => dispatch(showHideAll())
   const onDownload = () => dispatch(downloadAll())
   const onClear = () => dispatch(clearAll())
-  const toggleList = () => dispatch(toggleRemainingTracks())
   const onPrevious = (e, modifier) => {
     modifier('is-loading')
     dispatch(previousStep())
@@ -107,11 +106,6 @@ let SidePane = ({ dispatch, stage, canProceed, remainingCount, showList, segment
         <div className='is-gapless' style={{ marginBottom: 0 }}>
           { buttons }
         </div>
-        {
-          remainingCount > 0
-          ? <PaneDrawer onClick={toggleList} remainingCount={remainingCount} showList={showList} />
-          : null
-        }
       </div>
     </div>
   )

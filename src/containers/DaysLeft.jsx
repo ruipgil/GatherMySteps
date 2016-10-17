@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 import { changeDayToProcess, reloadQueue, dismissDay } from 'actions/progress'
 import AsyncButton from 'components/AsyncButton'
+import { toggleRemainingTracks } from 'actions/ui'
 
 const POINTS_PER_KB = 7.2
 
@@ -54,8 +55,8 @@ const Day = ({ date, gpxs, isSelected, onSelectDay, onDismiss }) => {
 let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExistent }) => {
   const refresh = (
     <AsyncButton
-      className='fa fa-refresh'
-      style={{ float: 'right', border: '0px' }}
+      className='fa fa-refresh is-white'
+      style={{ float: 'right' }}
       onClick={(e, modifier) => {
         modifier('is-loading')
         dispatch(reloadQueue())
@@ -88,9 +89,18 @@ let DaysLeft = ({ dispatch, style, remaining, selected, hasChanges, lifesExisten
     )
   })
 
+  const back = (
+    <a
+      className='button is-white fa fa-chevron-left'
+      style={{ float: 'left' }}
+      onClick={() => dispatch(toggleRemainingTracks())}
+      title='Go back to edit day'>
+    </a>
+  )
+
   return (
     <div style={{...style, paddingBottom: '1rem'}} title='Click to change the day to process'>
-      <div style={{ fontSize: '1.5rem' }}>Days left to process { refresh }</div>
+      <div style={{ fontSize: '1.5rem', textAlign: 'center' }}>{ back } Days Left { refresh }</div>
       {
         lifesExistent.map((file) => {
           return (
