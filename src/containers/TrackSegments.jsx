@@ -2,6 +2,8 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { addNewSegment } from 'actions/segments'
 import Segment from 'containers/Segment'
+import { updateBounds } from 'actions/map'
+import { computeBounds } from 'records'
 
 const newSegmentBoxStyle = {
   borderStyle: 'dashed',
@@ -22,7 +24,31 @@ const TrackSegments = ({ dispatch, segments, track }) => {
   return (
     <ul style={{listStyleType: 'none', margin: 0, padding: 0}}>
       {
-        segments.map((segment, i) => <Segment segment={segment} key={i} />)
+        segments.map((segment, i) => {
+          let dt = null
+          const nowTime = segment.getStartTime()
+          const prevSegment = segments.get(i - 1)
+          const prevTime = prevSegment.getStartTime()
+          if (i > 0 && nowTime && prevTime) {
+            const dtVal = nowTime.from(prevTime, true)
+            const action = () => dispatch(updateBounds(computeBounds([segment.get('points').get(0), prevSegment.get('points').get(-1)]).scale(1.4)))
+            const dx = segment.get('points').get(0).distance(prevSegment.get('points').get(-1)) * 1000
+
+            dt = (
+              <div style={{ ...newSegmentParentStyle, paddingTop: '2px', paddingBottom: '2px' }} className='slide-from-top-fade-in' >
+                <a style={{ fontSize: '0.8rem', fontStyle: 'italic', opacity: 0.7, color: '#999' }} onClick={action}>
+                  { dtVal } and { dx.toFixed(0) } meters apart
+                </a>
+              </div>
+            )
+          }
+          return (
+            <div>
+              { dt }
+              <Segment segment={segment} key={i} />
+            </div>
+          )
+        })
       }
 
       <div style={newSegmentParentStyle} className='slide-from-top-fade-in' >

@@ -57,7 +57,8 @@ const Segment = ({ segment, dispatch, segmentId, points, start, end, display, co
     borderLeft: '10px solid ' + color,
     paddingLeft: '2%',
     opacity: display ? 1 : 0.5,
-    cursor: 'pointer'
+    cursor: 'pointer',
+    paddingBottom: '2px'
   }
 
   const fadeStyle = {
