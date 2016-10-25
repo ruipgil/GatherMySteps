@@ -47,18 +47,53 @@ const isBetween = (a, b, c) => {
   return isGTE(a, b) && isGTE(b, c)
 }
 
-const findPointInSegments = (date, segments, reverse = false) => {
+const findPointInSegments = (date, segments, reverse = false, untilLast = false) => {
   let iter = segments.keySeq()
   for (let segmentId of iter.toJS()) {
-    const segment = segments.get(segmentId)
-    const points = segment.get('points')
+    if (reverse) {
+      const segment = segments.get(segmentId)
+      const points = segment.get('points').reverse()
 
-    if (isBetween(points.get(0).get('time'), date, points.get(-1).get('time'))) {
-      for (let i = 1; i < points.count(); i++) {
-        if (isBetween(points.get(i - 1).get('time'), date, points.get(i).get('time'))) {
-          const point = getPointForTime(points.get(i - 1), points.get(i), date)
-          return { segmentId, index: i - 1, point }
+      if (isBetween(points.get(-1).get('time'), date, points.get(0).get('time'))) {
+        const pCount = points.count()
+        let previous = null
+        for (let i = 0; i < pCount - 1; i++) {
+          if (isBetween(points.get(i + 1).get('time'), date, points.get(i).get('time'))) {
+            const point = getPointForTime(points.get(i), points.get(i + 1), date)
+            if (untilLast) {
+              previous = { segmentId, index: pCount - i, point }
+            } else {
+              return { segmentId, index: pCount - i, point }
+            }
+          } else if (previous) {
+            return previous
+          }
         }
+        return previous
+      }
+    } else {
+      const segment = segments.get(segmentId)
+      const points = segment.get('points')
+
+      if (isBetween(points.get(0).get('time'), date, points.get(-1).get('time'))) {
+        console.log('untilLast?', untilLast)
+        let previous = null
+        for (let i = 1; i < points.count(); i++) {
+          console.log(i - 1, i)
+          if (isBetween(points.get(i - 1).get('time'), date, points.get(i).get('time'))) {
+            const point = getPointForTime(points.get(i - 1), points.get(i), date)
+            if (untilLast) {
+              previous = { segmentId, index: i - 1, point }
+            } else {
+              console.log('original')
+              return { segmentId, index: i - 1, point }
+            }
+          } else if (previous) {
+            console.log('last')
+            return previous
+          }
+        }
+        return previous
       }
     }
   }
@@ -74,20 +109,21 @@ export default (text, segments) => {
     const fragments = LIFEParser.parse(text)
     const { year, month, day } = fragments.day.value
     const currentDay = year + '-' + month + '-' + day
-    let timezone = 0
+    let timezoneChange = 0
+    let defaultTimezone = 1
 
     for (let block of fragments.blocks) {
       if (block.type === 'Timezone') {
-        timezone = block.value
+        timezoneChange = block.value - defaultTimezone
       }
       if (block.type === 'Trip' || block.type === 'Stay') {
         const { timespan } = block
-        timespan.timezone = timezone
+        timespan.timezone = timezoneChange
         const fromTime = timeToMoment(currentDay, timespan.start.value)
         const toTime = timeToMoment(currentDay, timespan.finish.value)
 
-        const fromPoint = findPointInSegments(fromTime, segments)
-        const toPoint = findPointInSegments(toTime, segments, true)
+        const fromPoint = findPointInSegments(fromTime, segments, false, false)
+        const toPoint = findPointInSegments(toTime, segments, !!fromPoint, false)
         block.references = { to: toPoint, from: fromPoint }
 
         if (block.type === 'Trip' && block.tmodes) {
@@ -95,7 +131,7 @@ export default (text, segments) => {
             const tmFromPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.start.value), segments)
             const tmToPoint = findPointInSegments(timeToMoment(currentDay, tmode.timespan.finish.value), segments, true)
             tmode.references = { to: tmToPoint, from: tmFromPoint }
-            tmode.timespan.timezone = timezone
+            tmode.timespan.timezone = timezoneChange
           })
         }
       }

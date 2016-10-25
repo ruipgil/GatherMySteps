@@ -62,7 +62,7 @@ class Editor extends Component {
       if (this.state.editorState === editorState) {
         this.setState({ editorState: this.state.editorState, suggestions })
       }
-    }, this.refs, this.state.suggestions)
+    }, this.refs, this.state.suggestions, this.previousAst)
   }
 
   onChange (editorState, shouldSuggest = true) {
