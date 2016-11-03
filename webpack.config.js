@@ -63,6 +63,9 @@ var config = {
       }
     ]
   },
+  node: {
+    fs: 'empty'
+  },
   plugins: [
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.DefinePlugin({
