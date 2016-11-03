@@ -1,7 +1,7 @@
 language: node_js
 sudo: required
 node_js:
-  - "6"
+  - "5.3.0"
 install: npm install --save-dev
 script: npm run build
 before_deploy:

@@ -106,9 +106,9 @@ export const completeTrip = (segmentId, from, to, index) => {
     console.log('going to the server')
     fetch(getState().get('progress').get('server') + '/completeTrip', options)
       .then((response) => response.json())
-      .catch((err) => {
-        console.log(err)
-      })
+      // .catch((err) => {
+      //   console.log(err)
+      // })
       .then((json) => {
         json.possibilities.forEach((p, i) => {
           dispatch(addPossibilities(segmentId, p, index, json.weights[i]))

@@ -1,8 +1,4 @@
-import {
-  calculateBounds,
-  createSegmentObj,
-  calculateMetrics
-} from 'records'
+import { createSegmentObj } from 'records'
 import {
   removeSegment as removeSegmentAction
 } from '../actions/segments'
@@ -18,13 +14,11 @@ const segmentEndTime = (segment) => {
   return segment.get('points').get(-1).get('time')
 }
 
-// TODO compute metrics
 const updateSegment = (state, id) => {
-  // return state.updateIn(['segments', id], (segment) => {
-  //   // TODO create metrics with immutable
-  //   return calculateBounds(calculateMetrics(segment))
-  // })
-  return state
+  return state.updateIn(['segments', id], (segment) =>
+    segment
+      .computeBounds()
+      .computeMetrics())
 }
 
 const changeSegmentPoint = (state, action) => {
@@ -194,7 +188,7 @@ const splitSegment = (state, action) => {
     action.hasDoneUndo = false
     return state
   } else {
-    return toggleSegProp(state, id, 'spliting')
+    return toggleSegProp(state, id, 'spliting', false)
   }
 }
 
@@ -258,7 +252,7 @@ const joinSegment = (state, action) => {
         state = state.setIn(['segments', details.segment], lastSeg)
         state = updateSegment(state, details.segment)
         state = updateSegment(state, action.segmentId)
-        state = state.updateIn(['tracks', trackId, 'segments'], (sgs) => sgs.push(details.segment))
+        state = state.updateIn(['tracks', trackId, 'segments'], (sgs) => sgs.add(details.segment))
         return state
       }
 
@@ -279,7 +273,7 @@ const joinSegment = (state, action) => {
     }
   })
 
-  state = toggleSegProp(state, action.segmentId, 'joining')
+  state = toggleSegProp(state, action.segmentId, 'joining', false)
   state = segments(state, removeSegmentAction(details.segment))
 
   return updateSegment(state, action.segmentId)
@@ -298,12 +292,9 @@ const toggleTimeFilter = (state, action) => {
 }
 
 const defaultPropSet = ['editing', 'spliting', 'joining', 'pointDetails', 'showTimeFilter']
-const toggleSegProp = (state, id, prop, propSet = defaultPropSet) => {
-  const data = state.get('segments').get(id)
-  propSet.forEach((p) => {
-    state = state.setIn(['segments', id, p], (p === prop ? !data.get(p) : false))
-  })
+const toggleSegProp = (state, id, prop, force, propSet = defaultPropSet) => {
   return state
+    .updateIn(['segments', id], (seg) => seg.toggleMode(prop, force))
 }
 
 const toggleSegmentDisplay = (state, action) => {

@@ -164,6 +164,25 @@ export class SegmentRecord extends Record(SEGMENT_DEFAULT_PROPS) {
   pointCount () {
     return this.points.count()
   }
+  toggleMode (mode, forceVal) {
+    const val = this.get(mode)
+    return this
+      .set('pointDetails', false)
+      .set('spliting', false)
+      .set('joining', false)
+      .set('editing', false)
+      .set('showTimeFilter', false)
+      .set(mode, forceVal === undefined ? !val : !!forceVal)
+  }
+  disableModes () {
+    return this.toggleMode('pointDetails', false)
+  }
+  computeBounds () {
+    return this.set('bounds', computeBounds(this.points))
+  }
+  computeMetrics () {
+    return this.set('metrics', computeMetrics(this.points))
+  }
 }
 
 export const createSegmentObj = (trackId, points, location, transModes, nSegs, customId) => {
