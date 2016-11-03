@@ -8,6 +8,7 @@
     "test": "mocha --compilers js:babel-register --recursive",
     "test:watch": "npm test -- --watch",
     "clean": "rm -r build || true",
+    "build": "npm run build:gathermysteps",
     "build:gpxplorer": "npm run clean && env NODE_ENV=production BUILD_GPX=true webpack webpack.config.js build/ && cp src/html/*.html build",
     "build:gathermysteps": "webpack webpack.config.js build/ --progress && cp src/html/*.html build",
     "deploy:gpxplorer": "npm run clean && npm i --save-dev && npm run build:gpxplorer && cp .gitignore build && git checkout gh-pages && cp build/* . && cp build/.gitignore . && rm -r build && git add . && git commit -m 'Build '$(git log -n 1 master --pretty=format:%H) && git checkout master",

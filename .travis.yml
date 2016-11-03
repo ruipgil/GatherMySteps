@@ -1,0 +1,18 @@
+language: node_js
+sudo: required
+node_js:
+  - "6"
+install: npm install --save-dev
+script: npm run build
+before_deploy:
+  - mkdir release
+  - sudo zip -r 'release/$TRAVIS_BRANCH-v$RELEASE_VERSION+$TRAVIS_BUILD_NUMBER.zip' build/*
+deploy:
+  provider: releases
+  api_key:
+    secure: m33h9StSDSxpii4TEp1ljGF16MGHQrfQRQIRsjoylxXWV++BWaXZTjh5eQfLPuVUrdNpp9udf+X/2rirKoRZXw34hZYoDZlFGGyD2+DSEMWgUXEbga6gpBEXzCfSq4SyVOD5QFIXiCWWkDf8LCu2ccwF80lSx6d4vEfA6rbgQDRe35FzMdHXPD1ImiXUG2C4UYYX5JTJ+PDSa4zvqaOJ0lNLd4hf8UguDq9Am3QIzFayFhJ5vKGLM7owUpNngzoDv0hxTZJ0lDGYOCftZjoPEXL6MpzclkdqiZsHi83HNmuQ9JF73pz3wEtE9xlEvDQ96xK0T1109KkUaOLaT2pM590OTzefCxLv/ZfzXe8iYzum5LOdJAjaQ3wrF8Z+kTOuUD7lBBwBKO/zKMSiVhJy4jDvNJRXUaCcYN9Q+9hQhw8uyPRyueNv7wrHKf21eUoJQ/jHH1XVvht0wNDKzLNnu/Q8vXnHLkkx8PxaT3/CRYagU7LlPqUvYSN4Uonv6X5BvgAa7hNj3OTc9zXJXv5SIJP0b77mufT7rRgkUd65MSd1ex1P8SS8LMJSDnTx+0gzswcZOz2/qyOwC6WAoBz2l1kPJR718kJTTdFUN1u1KTioJDKtB8Rbx2kUB3yDJ5PhIL4r9QAAbS76r06NVE4sWgBSAEX5sBVvD8z1OT3y6Tk=
+  public-dir: release
+  skip_cleanup: true
+  on:
+    repo: ruipgil/GatherMySteps
+    tags: true
