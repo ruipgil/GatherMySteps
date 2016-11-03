@@ -6,7 +6,7 @@ install: npm install --save-dev
 script: npm run build
 before_deploy:
   - mkdir release
-  - sudo zip -r "release/$TRAVIS_BRANCH-v$RELEASE_VERSION+$TRAVIS_BUILD_NUMBER.zip" build/*
+  - zip -r "release/$TRAVIS_BRANCH-v$RELEASE_VERSION+$TRAVIS_BUILD_NUMBER.zip" build/*
 deploy:
   provider: releases
   api_key:
