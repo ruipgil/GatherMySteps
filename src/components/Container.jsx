@@ -8,9 +8,11 @@ import ProgressBar from 'components/ProgressBar'
 const GMS = !process.env.BUILD_GPX
 
 const GMS_ATTRIBUTION = (
-  <a id='title' href='https://github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>
-    by GatherMySteps
-  </a>
+  <div style={{ textAlign: 'center' }}>
+    <a id='title' href='https://github.com/ruipgil/GatherMySteps' style={{ fontSize: '1rem', marginTop: '-0.7rem' }}>
+      by GatherMySteps
+    </a>
+  </div>
 )
 const TITLE = GMS ? 'GatherMySteps' : <a href='./'>GPXplorer</a>
 

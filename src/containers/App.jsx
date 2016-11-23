@@ -9,6 +9,10 @@ import { undo, redo, nextStep, previousStep, skipDay } from 'actions/progress'
 
 const GMS = !process.env.BUILD_GPX
 
+if (!GMS) {
+  document.title = 'GPXplorer by GatherMySteps'
+}
+
 const App = ({ showConfig, step, dispatch }) => {
   const onDrop = (e) => {
     let dt = e.dataTransfer

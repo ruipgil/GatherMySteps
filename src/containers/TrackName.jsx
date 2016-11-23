@@ -1,6 +1,7 @@
 import moment from 'moment'
 import React, { Component } from 'react'
 
+const GMS = !process.env.BUILD_GPX
 const dateFormatter = (name) => {
   return moment(name.slice(0, -4)).format('ddd, MMM Do YYYY')
 }
@@ -64,7 +65,7 @@ export default class TrackName extends Component {
       if (process.env.BUILD_GPX) {
         downloadButton = (
           <a className='float-right clickable icon' onClick={onDownload}>
-            <i className='fa fa-download' />
+            <i className='fa fa-download' style={{ color: 'black' }} />
           </a>
         )
       }
@@ -73,7 +74,11 @@ export default class TrackName extends Component {
           { downloadButton }
           <a onClick={toggleEditing} style={{ color: '#666', display: 'flex', alignItems: 'flex-start' }}>
             <span style={{}}>{name}</span>
-            <span style={{ fontSize: '0.9rem', textDecoration: 'underline', fontWeight: 'bold', color: '#777' }}>{ daysLeft }</span>
+            {
+              GMS
+              ? <span style={{ fontSize: '0.9rem', textDecoration: 'underline', fontWeight: 'bold', color: '#777' }}>{ daysLeft }</span>
+              : null
+            }
           </a>
         </div>
       )

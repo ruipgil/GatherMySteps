@@ -4,10 +4,12 @@ import TrackList from 'containers/TrackList.jsx'
 import SemanticEditor from 'components/SemanticEditor.jsx'
 import DaysLeft from 'containers/DaysLeft'
 
+const GMS = !process.env.BUILD_GPX
+
 const PaneContent = ({ remainingCount, showList, stage }) => {
   let content
   let style = { overflowY: 'auto' }
-  if (showList || remainingCount === 0) {
+  if ((showList || remainingCount === 0) && GMS) {
     content = <DaysLeft style={{ flexGrow: 1, overflowY: 'auto' }}/>
   } else if (stage === ANNOTATE_STAGE) {
     content = <SemanticEditor className='is-flexgrow' width='100%' />
