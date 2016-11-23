@@ -115,7 +115,7 @@ const addSegmentPoint = (state, action) => {
   }
 
   return state.updateIn(['segments', id, 'points'], (points) => {
-    return points.insert(action.index, fromJS(pointA))
+    return points.insert(action.index, new PointRecord(pointA))
   })
 }
 
@@ -300,7 +300,7 @@ const toggleSegProp = (state, id, prop, force, propSet = defaultPropSet) => {
 const toggleSegmentDisplay = (state, action) => {
   const id = action.segmentId
   state = toggleSegProp(state, id, 'display')
-  return state.setIn(['segments', id, 'display'], !state.get('segments').get(id).get('display'))
+  return state.setIn(['segments', id, 'display'], state.get('segments').get(id).get('display'))
 }
 
 const toggleSegmentEditing = (state, action) => {
