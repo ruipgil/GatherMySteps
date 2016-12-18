@@ -65,7 +65,7 @@ const mapStateToProps = (state) => {
   }
   const tracks = state
     .get('tracks').get('tracks').valueSeq().sort((a, b) => {
-      return findStart(a).diff(findStart(b))
+      return findStart(a).getStartTime().diff(findStart(b))
     })
   return {
     tracks,
