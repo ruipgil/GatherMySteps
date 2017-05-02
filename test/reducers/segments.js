@@ -1,3 +1,4 @@
+/*
 import moment from 'moment'
 
 import expect from 'expect'
@@ -83,3 +84,4 @@ describe('segments reducer', () => {
 
   })
 })
+*/

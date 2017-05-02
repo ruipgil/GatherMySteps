@@ -1,6 +1,6 @@
 import moment from 'moment'
-import { genTrackId, genSegId } from 'reducers/idState'
-import colors from 'reducers/colors'
+import { genTrackId, genSegId } from '../reducers/idState'
+import colors from '../reducers/colors'
 import haversine from '../haversine'
 import { Map, Record, List, Set, fromJS } from 'immutable'
 

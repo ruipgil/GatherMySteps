@@ -1,3 +1,4 @@
+/*
 import expect from 'expect'
 import reducer from '../../src/reducers/tracks'
 import * as types from '../../src/actions'
@@ -65,34 +66,5 @@ describe('tracks reducer', () => {
     )
   })
 
-    /*expect(
-      reducer(
-        [
-          {
-            text: 'Use Redux',
-            completed: false,
-            id: 0
-          }
-        ],
-        {
-          type: types.ADD_TODO,
-          text: 'Run the tests'
-        }
-      )
-    ).toEqual(
-      [
-        {
-          text: 'Run the tests',
-          completed: false,
-          id: 1
-        },
-        {
-          text: 'Use Redux',
-          completed: false,
-          id: 0
-        }
-      ]
-    )
-  })
-  */
 })
+*/

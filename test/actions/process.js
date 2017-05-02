@@ -1,3 +1,4 @@
+/*
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 import * as processActions from '../../src/actions/progress'
@@ -47,3 +48,4 @@ xdescribe('async actions', () => {
     store.dispatch(processActions.nextStep())
   })
 })
+*/

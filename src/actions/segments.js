@@ -15,34 +15,30 @@ import {
   TOGGLE_SEGMENT_JOINING,
   TOGGLE_SEGMENT_EDITING } from './'
 import moment from 'moment'
-import { addAlert, removeAlert } from 'actions/ui'
+import { addAlert, removeAlert } from './ui'
 import {
   updateBounds,
   centerMap,
   addPointPrompt,
   removePointPrompt
-} from 'actions/map'
-import { requestTransportationSuggestions } from 'actions/progress'
+} from './map'
+import { completeTrip, requestTransportationSuggestions } from './progress'
 
-export const addSegmentPoint = (segmentId, index, lat, lon) => {
-  return {
-    segmentId,
-    index,
-    lat,
-    lon,
-    type: ADD_SEGMENT_POINT
-  }
-}
+export const addSegmentPoint = (segmentId, index, lat, lon) => ({
+  segmentId,
+  index,
+  lat,
+  lon,
+  type: ADD_SEGMENT_POINT
+})
 
-export const changeSegmentPoint = (segmentId, index, lat, lon) => {
-  return {
-    segmentId,
-    index,
-    lat,
-    lon,
-    type: CHANGE_SEGMENT_POINT
-  }
-}
+export const changeSegmentPoint = (segmentId, index, lat, lon) => ({
+  segmentId,
+  index,
+  lat,
+  lon,
+  type: CHANGE_SEGMENT_POINT
+})
 
 export const centerPointOnMap = (segmentId, index) => {
   return (dispatch, getState) => {
@@ -130,7 +126,6 @@ export const toggleSegmentEditing = (segmentId, value) => {
   }
 }
 
-import { completeTrip } from 'actions/progress'
 export const toggleSegmentJoining = (segmentId) => {
   return (dispatch, getState) => {
     dispatch({

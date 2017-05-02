@@ -5,7 +5,9 @@ import {
   UPDATE_TRACK_NAME
 } from './'
 import { Set } from 'immutable'
-import { fitSegments } from 'actions/ui'
+import { fitSegments } from './ui'
+import { toggleSegmentDisplay } from './segments'
+import saveData from './saveData'
 
 export const addTrack = (segments, name, locations = [], transModes = []) => {
   return {
@@ -88,7 +90,6 @@ const exportGPX = (trackId, state) => {
   ].join('\n')
 }
 
-import saveData from './saveData'
 
 export const downloadTrack = (trackId) => {
   return (_, getState) => {
@@ -105,7 +106,6 @@ export const downloadAll = () => {
   }
 }
 
-import { toggleSegmentDisplay } from 'actions/segments'
 
 export const showHideAll = () => {
   return (dispatch, getState) => {

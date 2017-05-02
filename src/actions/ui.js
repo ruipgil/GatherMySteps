@@ -1,6 +1,6 @@
-import { getConfig } from 'actions/progress'
-import { BoundsRecord } from 'records'
-import { updateBounds } from 'actions/map'
+import { getConfig } from './progress'
+import { BoundsRecord } from '../records'
+import { updateBounds } from './map'
 
 export const fitSegments = (...segmentIds) => {
   return (dispatch, getState) => {
